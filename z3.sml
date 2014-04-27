@@ -32,31 +32,51 @@ in
   type Z3_solver       = unit ptr
   type Z3_stats        = unit ptr
 
-  type Z3_context = unit ptr
-  type Z3_param_kind = unit ptr
-  type Z3_error_code = word
-  type Z3_error_handler = Z3_context
-  type Z3_bool = int
-  type Z3_string = string
-  type Z3_string_ptr = Z3_string ref
-  type Z3_param_descrs = unit ptr
+  type Z3_context       = unit ptr
+  type Z3_param_kind    = unit ptr
+  type Z3_error_code    = word
+  type Z3_bool          = int
+  type Z3_string        = string
+  type Z3_string_ptr    = Z3_string ref
+  type Z3_param_descrs     = unit ptr
   type Z3_constructor      = unit ptr
   type Z3_constructor_list = unit ptr
   type Z3_sort_opt         = unit ptr
   type Z3_stringag         = unit ptr
   type Z3_ast_print_mode   = unit ptr
   type Z3_contextarget     = unit ptr
-  type Z3_ast_kind = int
-  type Z3_lbool = int
-  type Z3_symbol_kind = int
-  type Z3_parameter_kind = int
-  type Z3_sort_kind = int
-  type Z3_ast_kind = int
-  type Z3_decl_kind = int
+  type Z3_ast_kind         = int
+  type Z3_symbol_kind      = int
+  type Z3_parameter_kind   = int
+  type Z3_sort_kind        = int
+  type Z3_ast_kind         = int
+  type Z3_decl_kind        = int
+  type Z3_theory           = unit ptr
+  type Z3_theory_data      = unit ptr
+  type Z3_ast_vector       = unit ptr
 
-  (* 
-    type Z3_error_handler = (Z3_context, Ze_error_code) -> ()
-  *)
+  type Z3_lbool = int
+  val Z3_L_FALSE = ~1
+  val Z3_L_UNDEF =  0
+  val Z3_L_TRUE  =  1 
+
+  type Z3_error_code = int
+  val Z3_OK                = 0
+  val Z3_SORT_ERROR        = 1
+  val Z3_IOB               = 2
+  val Z3_INVALID_ARG       = 3
+  val Z3_PARSER_ERROR      = 4
+  val Z3_NO_PARSER         = 5
+  val Z3_INVALID_PATTERN   = 6
+  val Z3_MEMOUT_FAIL       = 7
+  val Z3_FILE_ACCESS_ERROR = 8
+  val Z3_INTERNAL_FATAL    = 9
+  val Z3_INVALID_USAGE     = 10
+  val Z3_DEC_REF_ERROR     = 11
+  val Z3_EXCEPTION         = 12
+
+  type Z3_error_handler = Z3_context * Z3_error_code -> unit
+
   val Z3_TRUE : Z3_bool = 1
   val Z3_FALSe : Z3_bool = 0
 
@@ -604,9 +624,9 @@ in
     Dyn.dlsym(libz3, "Z3_mk_bvmul_no_underflow")
     : _import (Z3_context, Z3_ast, Z3_ast) -> Z3_ast
 
-    (**
-    *  *rrays
-    *   *)
+  (**
+   * Arrays
+   *)
   val Z3_mk_select =
     Dyn.dlsym(libz3, "Z3_mk_select")
     : _import (Z3_context, Z3_ast, Z3_ast) -> Z3_ast
@@ -627,9 +647,9 @@ in
     Dyn.dlsym(libz3, "Z3_mk_array_default")
     : _import (Z3_context, Z3_ast array) -> Z3_ast
 
-    (**
-    *  *s
-    *   *)
+  (**
+   * Sets
+   *)
   val Z3_mk_set_sort =
     Dyn.dlsym(libz3, "Z3_mk_set_sort")
     : _import (Z3_context, Z3_sort) -> Z3_sort
@@ -674,9 +694,9 @@ in
     Dyn.dlsym(libz3, "Z3_mk_set_subset")
     : _import (Z3_context, Z3_ast, Z3_ast) -> Z3_ast
 
-    (**
-    *  * Numerals
-    *   *)
+  (**
+   * Numerals
+   *)
   val Z3_mk_numeral =
     Dyn.dlsym(libz3, "Z3_mk_numeral")
     : _import (Z3_context, Z3_string, Z3_sort) -> Z3_ast
@@ -696,11 +716,11 @@ in
 (*
   val Z3_mk_int64 =
     Dyn.dlsym(libz3, "Z3_mk_int64")
-    : _import (Z3_context, word, Z3_sort) -> Z3_ast
+    : _import (Z3_context, Int64.int, Z3_sort) -> Z3_ast
          
   val Z3_mk_unsigned_int64 =
     Dyn.dlsym(libz3, "Z3_mk_unsigned_int64")
-    : _import (Z3_context, word, Z3_sort) -> Z3_ast
+    : _import (Z3_context, Word64.word, Z3_sort) -> Z3_ast
  *)
 
   (**
@@ -1359,9 +1379,10 @@ in
   (**
    * BEGIN_MLAPI_EXCLUDE Z3_string
    *)
-  (*
-  Z3_get_smtlib_error (Z3_context c)
-   *)
+   val Z3_get_smtlib_error =
+     Ptr.importString o
+     (Dyn.dlsym(libz3, "Z3_get_smtlib_error")
+      : _import Z3_context -> char ptr)
 
   (**
    * Error Handling
@@ -1372,7 +1393,7 @@ in
 
   val Z3_set_error_handler =
     Dyn.dlsym(libz3, "Z3_set_error_handler")
-    : _import (Z3_context, Z3_error_handler) -> ()
+    : _import (Z3_context, (Z3_context, Z3_error_code)->()) -> ()
 
   val Z3_set_error =
     Dyn.dlsym(libz3, "Z3_set_error")
@@ -1386,9 +1407,10 @@ in
   (**
    * BEGIN_MLAPI_EXCLUDE Z3_string
    *)
-  (*
-  Z3_get_error_msg_ex (Z3_context, Z3_error_code)
-   *)
+  val Z3_get_error_msg_ex =
+    Ptr.importString o
+    ( Dyn.dlsym(libz3, "Z3_get_error_msg_ex")
+      : _import (Z3_context, Z3_error_code) -> char ptr)
 
   (**
    * Miscellaneous
@@ -1409,9 +1431,307 @@ in
     Dyn.dlsym(libz3, "Z3_reset_memory")
     : _import () -> ()
 
-  val Z3_set_error_handler =
-    Dyn.dlsym (libz3, "Z3_set_error_handler")
-    : _import (Z3_context, (Z3_context, Z3_error_code)->()) -> ()
+  (**
+   * External Theory Plugins
+   *)
+  val Z3_mk_theory =
+    Dyn.dlsym(libz3, "Z3_mk_theory")
+    : _import (Z3_context, Z3_string, Z3_theory_data) -> Z3_theory
+
+  val Z3_theory_get_ext_data =
+    Dyn.dlsym(libz3, "Z3_theory_get_ext_data")
+    : _import Z3_theory -> Z3_theory_data
+
+  val Z3_theory_mk_sort =
+    Dyn.dlsym(libz3, "Z3_theory_mk_sort")
+    : _import (Z3_context, Z3_theory, Z3_symbol) -> Z3_sort
+
+  val Z3_theory_mk_value =
+    Dyn.dlsym(libz3, "Z3_theory_mk_value")
+    : _import (Z3_context, Z3_theory, Z3_symbol, Z3_sort) -> Z3_ast
+
+  val Z3_theory_mk_constant =
+    Dyn.dlsym(libz3, "Z3_theory_mk_constant")
+    : _import (Z3_context, Z3_theory, Z3_symbol, Z3_sort) -> Z3_ast
+
+  val Z3_theory_mk_func_decl =
+    Dyn.dlsym(libz3, "Z3_theory_mk_func_decl")
+    : _import (Z3_context, Z3_theory, Z3_symbol, word, Z3_sort vector, Z3_sort) -> Z3_func_decl
+
+  val Z3_theory_get_context =
+    Dyn.dlsym(libz3, "Z3_theory_get_context")
+    : _import Z3_theory -> Z3_context
+
+  val Z3_set_delete_callback =
+    Dyn.dlsym(libz3, "Z3_set_delete_callback")
+    : _import (Z3_theory, Z3_theory->()) -> ()
+
+(*
+  val Z3_set_reduce_app_callback =
+    Dyn.dlsym(libz3, "Z3_set_reduce_app_callback")
+    : _import (Z3_theory, (Z3_theory, Z3_func_decl, word, Z3_ast vector, Z3_ast ref) -> Z3_bool) -> ()
+    *)
+
+(*
+  val Z3_set_reduce_eq_callback =
+    Dyn.dlsym(libz3, "Z3_set_reduce_eq_callback")
+    : _import (Z3_theory, (Z3_theory, Z3_ast, Z3_ast, Z3_ast ref) -> Z3_bool) -> ()
+    *)
+
+(*
+  val Z3_set_reduce_distinct_callback =
+    Dyn.dlsym(libz3, "Z3_set_reduce_distinct_callback")
+    : _import (Z3_theory, (Z3_theory, word, Z3_ast vector, Z3_ast ref)->Z3_bool) -> ()
+    *)
+
+  val Z3_set_new_app_callback =
+    Dyn.dlsym(libz3, "Z3_set_new_app_callback")
+    : _import (Z3_theory, (Z3_theory, Z3_ast)->()) -> ()
+
+  val Z3_set_new_elem_callback =
+    Dyn.dlsym(libz3, "Z3_set_new_elem_callback")
+    : _import (Z3_theory, (Z3_theory, Z3_ast)->()) -> ()
+
+  val Z3_set_init_search_callback =
+    Dyn.dlsym(libz3, "Z3_set_init_search_callback")
+    : _import (Z3_theory, Z3_theory -> ()) -> ()
+
+  val Z3_set_push_callback =
+    Dyn.dlsym(libz3, "Z3_set_push_callback")
+    : _import (Z3_theory, Z3_theory -> ()) -> ()
+
+  val Z3_set_pop_callback =
+    Dyn.dlsym(libz3, "Z3_set_pop_callback")
+    : _import (Z3_theory, Z3_theory -> ()) -> ()
+
+  val Z3_set_restart_callback =
+    Dyn.dlsym(libz3, "Z3_set_restart_callback")
+    : _import (Z3_theory, Z3_theory -> ()) -> ()
+
+  val Z3_set_reset_callback =
+    Dyn.dlsym(libz3, "Z3_set_reset_callback")
+    : _import (Z3_theory, Z3_theory -> ()) -> ()
+
+  val Z3_set_final_check_callback =
+    Dyn.dlsym(libz3, "Z3_set_final_check_callback")
+    : _import (Z3_theory, Z3_theory -> Z3_bool) -> ()
+
+  val Z3_set_new_eq_callback =
+    Dyn.dlsym(libz3, "Z3_set_new_eq_callback")
+    : _import (Z3_theory, (Z3_theory, Z3_ast, Z3_ast)->()) -> ()
+
+  val Z3_set_new_diseq_callback =
+    Dyn.dlsym(libz3, "Z3_set_new_diseq_callback")
+    : _import (Z3_theory, (Z3_theory, Z3_ast, Z3_ast)->()) -> ()
+
+  val Z3_set_new_assignment_callback =
+    Dyn.dlsym(libz3, "Z3_set_new_assignment_callback")
+    : _import (Z3_theory, (Z3_theory, Z3_ast, Z3_bool)->()) -> ()
+
+  val Z3_set_new_relevant_callback =
+    Dyn.dlsym(libz3, "Z3_set_new_relevant_callback")
+    : _import (Z3_theory, (Z3_theory, Z3_ast) -> ()) -> ()
+
+  val Z3_theory_assert_axiom =
+    Dyn.dlsym(libz3, "Z3_theory_assert_axiom")
+    : _import (Z3_theory, Z3_ast) -> ()
+
+  val Z3_theory_assume_eq =
+    Dyn.dlsym(libz3, "Z3_theory_assume_eq")
+    : _import (Z3_theory, Z3_ast, Z3_ast) -> ()
+
+  val Z3_theory_enable_axiom_simplification =
+    Dyn.dlsym(libz3, "Z3_theory_enable_axiom_simplification")
+    : _import (Z3_theory, Z3_bool) -> ()
+
+  val Z3_theory_get_eqc_root =
+    Dyn.dlsym(libz3, "Z3_theory_get_eqc_root")
+    : _import (Z3_theory, Z3_ast) -> Z3_ast
+
+  val Z3_theory_get_eqc_next =
+    Dyn.dlsym(libz3, "Z3_theory_get_eqc_next")
+    : _import (Z3_theory, Z3_ast) -> Z3_ast
+
+  val Z3_theory_get_num_parents =
+    Dyn.dlsym(libz3, "Z3_theory_get_num_parents")
+    : _import (Z3_theory, Z3_ast) -> word
+
+  val Z3_theory_get_parent =
+    Dyn.dlsym(libz3, "Z3_theory_get_parent")
+    : _import (Z3_theory, Z3_ast, word) -> Z3_ast
+
+  val Z3_theory_is_value =
+    Dyn.dlsym(libz3, "Z3_theory_is_value")
+    : _import (Z3_theory, Z3_ast) -> Z3_bool
+
+  val Z3_theory_is_decl =
+    Dyn.dlsym(libz3, "Z3_theory_is_decl")
+    : _import (Z3_theory, Z3_func_decl) -> Z3_bool
+
+  val Z3_theory_get_num_elems =
+    Dyn.dlsym(libz3, "Z3_theory_get_num_elems")
+    : _import Z3_theory -> word
+
+  val Z3_theory_get_elem =
+    Dyn.dlsym(libz3, "Z3_theory_get_elem")
+    : _import (Z3_theory, word) -> Z3_ast
+
+  val Z3_theory_get_num_apps =
+    Dyn.dlsym(libz3, "Z3_theory_get_num_apps")
+    : _import Z3_theory -> word
+
+  val Z3_theory_get_app =
+    Dyn.dlsym(libz3, "Z3_theory_get_app")
+    : _import (Z3_theory, word) -> Z3_ast
+
+  (**
+   * Fixpoint facilities
+   *)
+  (*
+  val Z3_mk_fixedpoint =
+    Dyn.dlsym(libz3, "Z3_mk_fixedpoint")
+    : _import (Z3_context) -> Z3_fixedpoint
+
+  val Z3_fixedpoint_inc_ref =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_inc_ref")
+    : _import (Z3_context, Z3_fixedpoint) -> ()
+
+  val Z3_fixedpoint_dec_ref =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_dec_ref")
+    : _import (Z3_context, Z3_fixedpoint) -> ()
+
+  val Z3_fixedpoint_add_rule =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_add_rule")
+    : _import (Z3_context, Z3_fixedpoint, Z3_ast, Z3_symbol) -> ()
+
+  val Z3_fixedpoint_add_fact =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_add_fact")
+    : _import (Z3_context, Z3_fixedpoint, Z3_func_decl, word, word array) -> ()
+
+  val Z3_fixedpoint_assert =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_assert")
+    : _import (Z3_context, Z3_fixedpoint, Z3_ast) -> ()
+
+  val Z3_fixedpoint_query =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_query")
+    : _import (Z3_context, Z3_fixedpoint, Z3_ast) -> Z3_lbool
+
+  val Z3_fixedpoint_query_relations =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_query_relations")
+    : _import (Z3_context, Z3_fixedpoint, word, Z3_func_decl vector) -> Z3_lbool
+
+  val Z3_fixedpoint_get_answer =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_get_answer")
+    : _import (Z3_context, Z3_fixedpoint) -> Z3_ast
+
+  val Z3_fixedpoint_get_reason_unknown =
+    Ptr.importString o
+    (Dyn.dlsym(libz3, "Z3_fixedpoint_get_reason_unknown")
+     : _import (Z3_context, Z3_fixedpoint) -> char ptr)
+
+  val Z3_fixedpoint_update_rule =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_update_rule")
+    : _import (Z3_context, Z3_fixedpoint, Z3_ast, Z3_symbol) -> ()
+
+  val Z3_fixedpoint_get_num_levels =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_get_num_levels")
+    : _import (Z3_context, Z3_fixedpoint, Z3_func_decl) -> word
+
+  val Z3_fixedpoint_get_cover_delta =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_get_cover_delta")
+    : _import (Z3_context, Z3_fixedpoint, int, Z3_func_decl) -> Z3_ast
+
+  val Z3_fixedpoint_add_cover =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_add_cover")
+    : _import (Z3_context, Z3_fixedpoint, int, Z3_func_decl, Z3_ast) -> ()
+
+  val Z3_fixedpoint_get_statistics =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_get_statistics")
+    : _import (Z3_context, Z3_fixedpoint) -> Z3_stats
+
+  val Z3_fixedpoint_register_relation =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_register_relation")
+    : _import (Z3_context, Z3_fixedpoint, Z3_func_decl) -> ()
+
+  val Z3_fixedpoint_set_predicate_representation =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_set_predicate_representation")
+    : _import (Z3_context, Z3_fixedpoint, Z3_func_decl, word, Z3_symbol vector) -> ()
+
+  val Z3_fixedpoint_get_rules =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_get_rules")
+    : _import (Z3_context, Z3_fixedpoint) -> Z3_ast_vector
+
+  val Z3_fixedpoint_get_assertions =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_get_assertions")
+    : _import (Z3_context, Z3_fixedpoint) -> Z3_ast_vector
+
+  val Z3_fixedpoint_set_params =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_set_params")
+    : _import (Z3_context, Z3_fixedpoint, Z3_params) -> ()
+
+  val Z3_fixedpoint_get_help =
+    Ptr.importString o
+    ( Dyn.dlsym(libz3, "Z3_fixedpoint_get_help")
+     : _import (Z3_context, Z3_fixedpoint) -> char ptr)
+
+  val Z3_fixedpoint_get_param_descrs =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_get_param_descrs")
+    : _import (Z3_context, Z3_fixedpoint) -> Z3_param_descrs
+
+  val Z3_fixedpoint_to_string =
+    Ptr.importString o
+    ( Dyn.dlsym(libz3, "Z3_fixedpoint_to_string")
+    : _import (Z3_context, Z3_fixedpoint, word, Z3_ast array) -> char ptr)
+
+  val Z3_fixedpoint_from_string =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_from_string")
+    : _import (Z3_context, Z3_fixedpoint, Z3_string) -> Z3_ast_vector
+
+  val Z3_fixedpoint_from_file =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_from_file")
+    : _import (Z3_context, Z3_fixedpoint, Z3_string) -> Z3_ast_vector
+
+  val Z3_fixedpoint_push =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_push")
+    : _import (Z3_context, Z3_fixedpoint) -> ()
+
+  val Z3_fixedpoint_pop =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_pop")
+    : _import (Z3_context, Z3_fixedpoint) -> ()
+
+  val Z3_fixedpoint_init =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_init")
+    : _import (Z3_context, Z3_fixedpoint, unit ptr) -> ()
+    *)
+
+(*
+  val Z3_fixedpoint_set_reduce_assign_callback =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_set_reduce_assign_callback")
+    : _import (Z3_context, Z3_fixedpoint, (unit ptr, Z3_func_decl, word, Z3_ast vector, word, Z3_ast vector) -> ()) -> ()
+    *)
+
+(*
+  val Z3_fixedpoint_set_reduce_app_callback =
+    Dyn.dlsym(libz3, "Z3_fixedpoint_set_reduce_app_callback")
+    : _import (Z3_context, Z3_fixedpoint, (unit ptr, Z3_func_decl, word, Z3_ast vector, Z3_ast ref)->()) -> ()
+    *)
+
+  (**
+   * Solvers
+   *)
+  val Z3_mk_solver =
+    Dyn.dlsym (libz3, "Z3_mk_solver")
+    : _import Z3_context -> Z3_solver
+
+  val Z3_mk_simple_solver =
+    Dyn.dlsym (libz3, "Z3_mk_simple_solver")
+    : _import Z3_context -> Z3_solver
+
+
+  val Z3_solver_to_string =
+    Ptr.importString o
+    ( Dyn.dlsym (libz3, "Z3_solver_to_string")
+     : _import (Z3_context, Z3_solver) -> char ptr)
 
   val Z3_context_to_string =
     Ptr.importString o
@@ -1419,19 +1739,27 @@ in
         : _import Z3_context -> char ptr
         )
 
-  fun mk_context () =
-    let
-      val cfg = Z3_mk_config ()
-      val () = Z3_set_param_value (cfg, "MODEL", "true");
-    in
-      let
-        val ctx = Z3_mk_context cfg
-      in
-        Z3_set_error_handler (ctx, fn _=> print "error\n");
-        Z3_del_config cfg;
-        ctx
-      end
-    end
+  (**
+   * Deprecxated Constraints API
+   *)
+  structure Deprecated =
+  struct
+    val Z3_check_and_get_model =
+      Dyn.dlsym (libz3, "Z3_check_and_get_model")
+      : _import (Z3_context, Z3_model ref) -> Z3_lbool
+
+    val Z3_check =
+      Dyn.dlsym (libz3, "Z3_check")
+      : _import Z3_context -> Z3_lbool
+
+    val Z3_del_model =
+      Dyn.dlsym (libz3, "Z3_del_model")
+      : _import (Z3_context, Z3_model) -> ()
+
+    val Z3_assert_cnstr =
+      Dyn.dlsym (libz3, "Z3_assert_cnstr")
+      : _import (Z3_context, Z3_ast) -> ()
+  end (* Deprecated *)
 
 end (* local *)
 end
