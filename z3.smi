@@ -1,0 +1,87 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3 =
+struct
+  type Z3_config       (= ptr)
+
+  type Z3_symbol       (= ptr)
+  type Z3_ast          (= ptr)
+  type Z3_sort         (= ptr)
+  type Z3_func_decl    (= ptr)
+  type Z3_app          (= ptr)
+  type Z3_pattern      (= ptr)
+  type Z3_params       (= ptr)
+  type Z3_model         = unit ptr
+  type Z3_func_interp  (= ptr)
+  type Z3_func_entry   (= ptr)
+  type Z3_fixedpoint   (= ptr)
+  type Z3_ast_vector   (= ptr)
+  type Z3_ast_map      (= ptr)
+  type Z3_tactic       (= ptr)
+  type Z3_probe        (= ptr)
+  type Z3_apply_result (= ptr)
+  type Z3_solver       (= ptr)
+  type Z3_stats        (= ptr)
+  type Z3_context      (= ptr)
+  type Z3_string = String.string
+
+  eqtype Z3_lbool (= int)
+  val Z3_L_FALSE : Z3_lbool
+  val Z3_L_TRUE  : Z3_lbool
+  val Z3_L_UNDEF : Z3_lbool
+
+  type Z3_error_code (= int)
+  val Z3_OK                : Z3_error_code
+  val Z3_SORT_ERROR        : Z3_error_code
+  val Z3_IOB               : Z3_error_code
+  val Z3_INVALID_ARG       : Z3_error_code
+  val Z3_PARSER_ERROR      : Z3_error_code
+  val Z3_NO_PARSER         : Z3_error_code
+  val Z3_INVALID_PATTERN   : Z3_error_code
+  val Z3_MEMOUT_FAIL       : Z3_error_code
+  val Z3_FILE_ACCESS_ERROR : Z3_error_code
+  val Z3_INTERNAL_FATAL    : Z3_error_code
+  val Z3_INVALID_USAGE     : Z3_error_code
+  val Z3_DEC_REF_ERROR     : Z3_error_code
+  val Z3_EXCEPTION         : Z3_error_code
+
+
+  val Z3_mk_config  : unit -> Z3_config
+  val Z3_del_config : Z3_config -> unit
+  val Z3_mk_context : Z3_config -> Z3_context
+  val Z3_mk_const : Z3_context * Z3_symbol * Z3_sort -> Z3_ast
+  val Z3_del_context : Z3_context -> unit
+
+  val Z3_set_param_value : Z3_config * Z3_string * Z3_string -> unit
+
+  val Z3_mk_string_symbol : Z3_context * Z3_string -> Z3_symbol
+  type Z3_error_handler = Z3_context * Z3_error_code -> unit
+  val Z3_set_error_handler : Z3_context * Z3_error_handler -> unit
+
+  val Z3_mk_int_sort : Z3_context -> Z3_sort
+  val Z3_mk_bool_sort : Z3_context -> Z3_sort
+  val Z3_mk_int : Z3_context * int * Z3_sort -> Z3_ast
+
+  val Z3_mk_add : Z3_context * word * Z3_ast vector -> Z3_ast
+  val Z3_model_to_string : Z3_context * Z3_model -> string
+  val Z3_mk_lt : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  val Z3_mk_le : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  val Z3_mk_gt : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  val Z3_mk_ge : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  val Z3_mk_eq : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  val Z3_mk_not : Z3_context * Z3_ast -> Z3_ast
+  val Z3_mk_xor : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+  val Z3_context_to_string : Z3_context -> string
+
+  structure Deprecated =
+  struct
+    val Z3_check_and_get_model : Z3_context * Z3_model ref -> Z3_lbool
+    val Z3_check : Z3_context -> Z3_lbool
+    val Z3_del_model : Z3_context * Z3_model -> unit
+    val Z3_assert_cnstr : Z3_context * Z3_ast -> unit
+  end
+
+end
+
