@@ -138,16 +138,21 @@ struct
       end
     end
 
-  fun simple_example_test () =
+  fun display_version () =
     let
-      val ctx = mk_context ()
-      val () = print (lbool_to_string (D.Z3_check ctx)^"\n")
+      val (major, minor, build, revision) = (ref 0w0, ref 0w0, ref 0w0, ref 0w0)
+      val word = Word.toString
     in
-      Z3.Z3_del_context ctx
+      Z3.Z3_get_version (major, minor, build, revision);
+      print (concat["Z3 "
+            , String.concatWith
+                 "." [word (!major), word (!minor), word (!build), word (!revision)]
+            , "\n"])
     end
 
   fun main (name, args) =
-    (simple_example();
+    (display_version();
+     simple_example();
      find_model_example1();
      find_model_example2()
      )
