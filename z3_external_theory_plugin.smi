@@ -3,16 +3,16 @@ _require "ffi.smi"
 
 structure Z3_ExternalTheoryPlugin =
 struct
-  type Z3_context = unit ptr
-  type Z3_theory  = unit ptr
-  type Z3_theory_data  = unit ptr
-  type Z3_symbol = unit ptr
-  type Z3_sort = unit ptr
-  type Z3_ast = unit ptr
-  type Z3_func_decl = unit ptr
+  type Z3_context     = unit ptr
+  type Z3_theory      = unit ptr
+  type Z3_theory_data = unit ptr
+  type Z3_symbol      = unit ptr
+  type Z3_sort        = unit ptr
+  type Z3_ast         = unit ptr
+  type Z3_func_decl   = unit ptr
 
   type Z3_string = String.string
-  type Z3_bool = int
+  type Z3_bool   = int
 
   val Z3_mk_theory
     : Z3_context * Z3_string * Z3_theory_data -> Z3_theory
