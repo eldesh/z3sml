@@ -1,0 +1,59 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3_Goal =
+struct
+  type Z3_context   = unit ptr
+  type Z3_goal      = unit ptr
+  type Z3_ast       = unit ptr
+  type Z3_bool      = int
+  type Z3_goal_prec = int
+  type Z3_string    = String.string
+
+  val Z3_mk_goal
+    : Z3_context * Z3_bool * Z3_bool * Z3_bool -> Z3_goal
+     
+  val Z3_goal_inc_ref
+    : Z3_context * Z3_goal -> unit
+     
+  val Z3_goal_dec_ref
+    : Z3_context * Z3_goal -> unit
+     
+  val Z3_goal_precision
+    : Z3_context * Z3_goal -> Z3_goal_prec
+     
+  val Z3_goal_assert
+    : Z3_context * Z3_goal * Z3_ast -> unit
+     
+  val Z3_goal_inconsistent
+    : Z3_context * Z3_goal -> Z3_bool
+     
+  val Z3_goal_depth
+    : Z3_context * Z3_goal -> word
+     
+  val Z3_goal_reset
+    : Z3_context * Z3_goal -> unit
+     
+  val Z3_goal_size
+    : Z3_context * Z3_goal -> word
+     
+  val Z3_goal_formula
+    : Z3_context * Z3_goal * word -> Z3_ast
+     
+  val Z3_goal_num_exprs
+    : Z3_context * Z3_goal -> word
+     
+  val Z3_goal_is_decided_sat
+    : Z3_context * Z3_goal -> Z3_bool
+     
+  val Z3_goal_is_decided_unsat
+    : Z3_context * Z3_goal -> Z3_bool
+     
+  val Z3_goal_translate
+    : Z3_context * Z3_goal * Z3_context -> Z3_goal
+     
+  val Z3_goal_to_string
+    : Z3_context * Z3_goal -> Z3_string
+
+end
+

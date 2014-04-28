@@ -1,18 +1,41 @@
 
-all: sample
+SML = smlsharp
+SMLFLAGS =
 
-z3.o: z3.sml z3.smi
-	smlsharp -c $<
+TARGET = sample
 
-sample.o: sample.sml sample.smi
-	smlsharp -c $<
+SRCS = \
+	  sample.sml \
+	  z3.sml \
+	  z3_fixedpoint.sml \
+	  z3_ast_vector.sml \
+	  z3_ast_map.sml    \
+	  z3_goal.sml       \
+	  z3_tactic_and_probe.sml \
+	  z3_solver.sml
 
-sample: sample.o z3.o
-	smlsharp -o sample sample.smi
+OBJS = $(SRCS:.sml=.o)
+
+all: $(TARGET)
+
+$(TARGET): sample.smi $(OBJS)
+	$(SML) $(SMLFLAGS) -o $@ $<
+
+%.o: %.sml
+	$(SML) $(SMLFLAGS) -c $<
+
+%.d: %.sml
+	@echo "generate [$@] from [$*]"
+	@$(SHELL) -ec '$(SML) -MM $(SMLFLAGS) $< \
+		| sed "s/\($*\)\.o[ :]*/\1.o $@ : /g" > $@; \
+		[ -s $@ ] || rm -rf $@'
+
+-include $(SRCS:.sml=.d)
 
 .PHONY: clean
 clean:
-	rm z3.o
-	rm sample.o
-	rm sample
+	rm -rf $(SRCS:.sml=.d)
+	rm -rf $(OBJS)
+	rm $(TARGET)
+
 

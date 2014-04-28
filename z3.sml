@@ -1587,157 +1587,32 @@ in
   (**
    * Fixpoint facilities
    *)
-  (*
-  val Z3_mk_fixedpoint =
-    Dyn.dlsym(libz3, "Z3_mk_fixedpoint")
-    : _import (Z3_context) -> Z3_fixedpoint
+  structure Fixedpoint = Z3_Fixedpoint
 
-  val Z3_fixedpoint_inc_ref =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_inc_ref")
-    : _import (Z3_context, Z3_fixedpoint) -> ()
+  (**
+   * AST vectors
+   *)
+  structure AstVector = Z3_Ast_Vector
 
-  val Z3_fixedpoint_dec_ref =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_dec_ref")
-    : _import (Z3_context, Z3_fixedpoint) -> ()
+  (**
+   * AST maps
+   *)
+  structure AstMap = Z3_Ast_Map
 
-  val Z3_fixedpoint_add_rule =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_add_rule")
-    : _import (Z3_context, Z3_fixedpoint, Z3_ast, Z3_symbol) -> ()
+  (**
+   * Goals
+   *)
+  structure Goal = Z3_Goal
 
-  val Z3_fixedpoint_add_fact =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_add_fact")
-    : _import (Z3_context, Z3_fixedpoint, Z3_func_decl, word, word array) -> ()
-
-  val Z3_fixedpoint_assert =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_assert")
-    : _import (Z3_context, Z3_fixedpoint, Z3_ast) -> ()
-
-  val Z3_fixedpoint_query =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_query")
-    : _import (Z3_context, Z3_fixedpoint, Z3_ast) -> Z3_lbool
-
-  val Z3_fixedpoint_query_relations =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_query_relations")
-    : _import (Z3_context, Z3_fixedpoint, word, Z3_func_decl vector) -> Z3_lbool
-
-  val Z3_fixedpoint_get_answer =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_get_answer")
-    : _import (Z3_context, Z3_fixedpoint) -> Z3_ast
-
-  val Z3_fixedpoint_get_reason_unknown =
-    Ptr.importString o
-    (Dyn.dlsym(libz3, "Z3_fixedpoint_get_reason_unknown")
-     : _import (Z3_context, Z3_fixedpoint) -> char ptr)
-
-  val Z3_fixedpoint_update_rule =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_update_rule")
-    : _import (Z3_context, Z3_fixedpoint, Z3_ast, Z3_symbol) -> ()
-
-  val Z3_fixedpoint_get_num_levels =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_get_num_levels")
-    : _import (Z3_context, Z3_fixedpoint, Z3_func_decl) -> word
-
-  val Z3_fixedpoint_get_cover_delta =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_get_cover_delta")
-    : _import (Z3_context, Z3_fixedpoint, int, Z3_func_decl) -> Z3_ast
-
-  val Z3_fixedpoint_add_cover =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_add_cover")
-    : _import (Z3_context, Z3_fixedpoint, int, Z3_func_decl, Z3_ast) -> ()
-
-  val Z3_fixedpoint_get_statistics =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_get_statistics")
-    : _import (Z3_context, Z3_fixedpoint) -> Z3_stats
-
-  val Z3_fixedpoint_register_relation =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_register_relation")
-    : _import (Z3_context, Z3_fixedpoint, Z3_func_decl) -> ()
-
-  val Z3_fixedpoint_set_predicate_representation =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_set_predicate_representation")
-    : _import (Z3_context, Z3_fixedpoint, Z3_func_decl, word, Z3_symbol vector) -> ()
-
-  val Z3_fixedpoint_get_rules =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_get_rules")
-    : _import (Z3_context, Z3_fixedpoint) -> Z3_ast_vector
-
-  val Z3_fixedpoint_get_assertions =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_get_assertions")
-    : _import (Z3_context, Z3_fixedpoint) -> Z3_ast_vector
-
-  val Z3_fixedpoint_set_params =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_set_params")
-    : _import (Z3_context, Z3_fixedpoint, Z3_params) -> ()
-
-  val Z3_fixedpoint_get_help =
-    Ptr.importString o
-    ( Dyn.dlsym(libz3, "Z3_fixedpoint_get_help")
-     : _import (Z3_context, Z3_fixedpoint) -> char ptr)
-
-  val Z3_fixedpoint_get_param_descrs =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_get_param_descrs")
-    : _import (Z3_context, Z3_fixedpoint) -> Z3_param_descrs
-
-  val Z3_fixedpoint_to_string =
-    Ptr.importString o
-    ( Dyn.dlsym(libz3, "Z3_fixedpoint_to_string")
-    : _import (Z3_context, Z3_fixedpoint, word, Z3_ast array) -> char ptr)
-
-  val Z3_fixedpoint_from_string =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_from_string")
-    : _import (Z3_context, Z3_fixedpoint, Z3_string) -> Z3_ast_vector
-
-  val Z3_fixedpoint_from_file =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_from_file")
-    : _import (Z3_context, Z3_fixedpoint, Z3_string) -> Z3_ast_vector
-
-  val Z3_fixedpoint_push =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_push")
-    : _import (Z3_context, Z3_fixedpoint) -> ()
-
-  val Z3_fixedpoint_pop =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_pop")
-    : _import (Z3_context, Z3_fixedpoint) -> ()
-
-  val Z3_fixedpoint_init =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_init")
-    : _import (Z3_context, Z3_fixedpoint, unit ptr) -> ()
-    *)
-
-(*
-  val Z3_fixedpoint_set_reduce_assign_callback =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_set_reduce_assign_callback")
-    : _import (Z3_context, Z3_fixedpoint, (unit ptr, Z3_func_decl, word, Z3_ast vector, word, Z3_ast vector) -> ()) -> ()
-    *)
-
-(*
-  val Z3_fixedpoint_set_reduce_app_callback =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_set_reduce_app_callback")
-    : _import (Z3_context, Z3_fixedpoint, (unit ptr, Z3_func_decl, word, Z3_ast vector, Z3_ast ref)->()) -> ()
-    *)
+  (**
+   * Tactics and Probes
+   *)
+  structure TacticAndProbe = Z3_Tactic_And_Probe
 
   (**
    * Solvers
    *)
-  val Z3_mk_solver =
-    Dyn.dlsym (libz3, "Z3_mk_solver")
-    : _import Z3_context -> Z3_solver
-
-  val Z3_mk_simple_solver =
-    Dyn.dlsym (libz3, "Z3_mk_simple_solver")
-    : _import Z3_context -> Z3_solver
-
-
-  val Z3_solver_to_string =
-    Ptr.importString o
-    ( Dyn.dlsym (libz3, "Z3_solver_to_string")
-     : _import (Z3_context, Z3_solver) -> char ptr)
-
-  val Z3_context_to_string =
-    Ptr.importString o
-       (Dyn.dlsym (libz3, "Z3_context_to_string")
-        : _import Z3_context -> char ptr
-        )
+  structure Solver = Z3_Solver
 
   (**
    * Deprecxated Constraints API

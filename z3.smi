@@ -1,5 +1,11 @@
 _require "basis.smi"
 _require "ffi.smi"
+_require "./z3_fixedpoint.smi"
+_require "./z3_ast_vector.smi"
+_require "./z3_ast_map.smi"
+_require "./z3_goal.smi"
+_require "./z3_tactic_and_probe.smi"
+_require "./z3_solver.smi"
 
 structure Z3 =
 struct

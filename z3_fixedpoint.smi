@@ -1,0 +1,116 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3_Fixedpoint =
+struct
+  type Z3_fixedpoint   = unit ptr
+  type Z3_context      = unit ptr
+  type Z3_symbol       = unit ptr
+  type Z3_ast          = unit ptr
+  type Z3_func_decl    = unit ptr
+  type Z3_params       = unit ptr
+  type Z3_param_descrs = unit ptr
+  type Z3_ast_vector   = unit ptr
+  type Z3_string       = string
+  type Z3_stats        = unit ptr
+  type Z3_lbool = int
+
+  val Z3_mk_fixedpoint 
+    : Z3_context -> Z3_fixedpoint
+
+  val Z3_fixedpoint_inc_ref 
+    : Z3_context * Z3_fixedpoint -> unit
+
+  val Z3_fixedpoint_dec_ref 
+    : Z3_context * Z3_fixedpoint -> unit
+
+  val Z3_fixedpoint_add_rule 
+    : Z3_context * Z3_fixedpoint * Z3_ast * Z3_symbol -> unit
+
+  val Z3_fixedpoint_add_fact 
+    : Z3_context * Z3_fixedpoint * Z3_func_decl * word * word array -> unit
+
+  val Z3_fixedpoint_assert 
+    : Z3_context * Z3_fixedpoint * Z3_ast -> unit
+
+  val Z3_fixedpoint_query 
+    : Z3_context * Z3_fixedpoint * Z3_ast -> Z3_lbool
+
+  val Z3_fixedpoint_query_relations 
+    : Z3_context * Z3_fixedpoint * word * Z3_func_decl vector -> Z3_lbool
+
+  val Z3_fixedpoint_get_answer 
+    : Z3_context * Z3_fixedpoint -> Z3_ast
+
+  val Z3_fixedpoint_get_reason_unknown 
+     : Z3_context * Z3_fixedpoint -> Z3_string
+
+  val Z3_fixedpoint_update_rule 
+    : Z3_context * Z3_fixedpoint * Z3_ast * Z3_symbol -> unit
+
+  val Z3_fixedpoint_get_num_levels 
+    : Z3_context * Z3_fixedpoint * Z3_func_decl -> word
+
+  val Z3_fixedpoint_get_cover_delta 
+    : Z3_context * Z3_fixedpoint * int * Z3_func_decl -> Z3_ast
+
+  val Z3_fixedpoint_add_cover 
+    : Z3_context * Z3_fixedpoint * int * Z3_func_decl * Z3_ast -> unit
+
+  val Z3_fixedpoint_get_statistics 
+    : Z3_context * Z3_fixedpoint -> Z3_stats
+
+  val Z3_fixedpoint_register_relation 
+    : Z3_context * Z3_fixedpoint * Z3_func_decl -> unit
+
+  val Z3_fixedpoint_set_predicate_representation 
+    : Z3_context * Z3_fixedpoint * Z3_func_decl * word * Z3_symbol vector -> unit
+
+(*
+  val Z3_fixedpoint_get_rules 
+    : Z3_context * Z3_fixedpoint -> Z3_ast_vector
+
+  val Z3_fixedpoint_get_assertions 
+    : Z3_context * Z3_fixedpoint -> Z3_ast_vector
+*)
+
+  val Z3_fixedpoint_set_params 
+    : Z3_context * Z3_fixedpoint * Z3_params -> unit
+
+  val Z3_fixedpoint_get_help 
+     : Z3_context * Z3_fixedpoint -> Z3_string
+
+  val Z3_fixedpoint_get_param_descrs 
+    : Z3_context * Z3_fixedpoint -> Z3_param_descrs
+
+  val Z3_fixedpoint_to_string 
+    : Z3_context * Z3_fixedpoint * word * Z3_ast array -> Z3_string
+
+(*
+  val Z3_fixedpoint_from_string 
+    : Z3_context * Z3_fixedpoint * Z3_string -> Z3_ast_vector
+
+  val Z3_fixedpoint_from_file 
+    : Z3_context * Z3_fixedpoint * Z3_string -> Z3_ast_vector
+*)
+
+  val Z3_fixedpoint_push 
+    : Z3_context * Z3_fixedpoint -> unit
+
+  val Z3_fixedpoint_pop 
+    : Z3_context * Z3_fixedpoint -> unit
+
+  val Z3_fixedpoint_init 
+    : Z3_context * Z3_fixedpoint * unit ptr -> unit
+
+(*
+  val Z3_fixedpoint_set_reduce_assign_callback 
+    : Z3_context * Z3_fixedpoint * (unit ptr * Z3_func_decl * word * Z3_ast vector * word * Z3_ast vector -> unit) -> unit
+
+  val Z3_fixedpoint_set_reduce_app_callback 
+    : Z3_context * Z3_fixedpoint * (unit ptr * Z3_func_decl * word * Z3_ast vector * Z3_ast ref->unit) -> unit
+    *)
+
+end
+
+

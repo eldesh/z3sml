@@ -1,0 +1,47 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3_Ast_Map =
+struct
+  type Z3_context    = unit ptr
+  type Z3_ast        = unit ptr
+  type Z3_ast_vector = unit ptr
+  type Z3_ast_map    = unit ptr
+  type Z3_string     = String.string
+  type Z3_bool          = int
+
+  val Z3_mk_ast_map
+    : Z3_context -> Z3_ast_map
+
+  val Z3_ast_map_inc_ref
+    : Z3_context * Z3_ast_map -> unit
+
+  val Z3_ast_map_dec_ref
+    : Z3_context * Z3_ast_map -> unit
+
+  val Z3_ast_map_contains
+    : Z3_context * Z3_ast_map * Z3_ast -> Z3_bool
+
+  val Z3_ast_map_find
+    : Z3_context * Z3_ast_map * Z3_ast -> Z3_ast
+
+  val Z3_ast_map_insert
+    : Z3_context * Z3_ast_map * Z3_ast * Z3_ast -> unit
+
+  val Z3_ast_map_erase
+    : Z3_context * Z3_ast_map * Z3_ast -> unit
+
+  val Z3_ast_map_reset
+    : Z3_context * Z3_ast_map -> unit
+
+  val Z3_ast_map_size
+    : Z3_context * Z3_ast_map -> word
+
+  val Z3_ast_map_keys
+    : Z3_context * Z3_ast_map -> Z3_ast_vector
+
+  val Z3_ast_map_to_string
+     : Z3_context * Z3_ast_map -> Z3_string
+
+end
+

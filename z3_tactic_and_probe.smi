@@ -1,0 +1,152 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3_Tactic_And_Probe =
+struct
+  type Z3_context = unit ptr
+  type Z3_tactic  = unit ptr
+  type Z3_probe   = unit ptr
+  type Z3_goal    = unit ptr
+  type Z3_apply_result = unit ptr
+  type Z3_params  = unit ptr
+  type Z3_model   = unit ptr
+  type Z3_string  = String.string
+  type Z3_param_descrs = unit ptr
+
+  val Z3_mk_tactic
+    : Z3_context * Z3_string -> Z3_tactic
+     
+  val Z3_tactic_inc_ref
+    : Z3_context * Z3_tactic -> unit
+     
+  val Z3_tactic_dec_ref
+    : Z3_context * Z3_tactic -> unit
+     
+  val Z3_mk_probe
+    : Z3_context * Z3_string -> Z3_probe
+     
+  val Z3_probe_inc_ref
+    : Z3_context * Z3_probe -> unit
+     
+  val Z3_probe_dec_ref
+    : Z3_context * Z3_probe -> unit
+     
+  val Z3_tactic_and_then
+    : Z3_context * Z3_tactic * Z3_tactic -> Z3_tactic
+     
+  val Z3_tactic_or_else
+    : Z3_context * Z3_tactic * Z3_tactic -> Z3_tactic
+     
+  val Z3_tactic_par_or
+    : Z3_context * word * Z3_tactic vector -> Z3_tactic
+     
+  val Z3_tactic_par_and_then
+    : Z3_context * Z3_tactic * Z3_tactic -> Z3_tactic
+     
+  val Z3_tactic_try_for
+    : Z3_context * Z3_tactic * word -> Z3_tactic
+     
+  val Z3_tactic_when
+    : Z3_context * Z3_probe * Z3_tactic -> Z3_tactic
+     
+  val Z3_tactic_cond
+    : Z3_context * Z3_probe * Z3_tactic * Z3_tactic -> Z3_tactic
+     
+  val Z3_tactic_repeat
+    : Z3_context * Z3_tactic * word -> Z3_tactic
+     
+  val Z3_tactic_skip
+    : Z3_context -> Z3_tactic
+     
+  val Z3_tactic_fail
+    : Z3_context -> Z3_tactic
+     
+  val Z3_tactic_fail_if
+    : Z3_context * Z3_probe -> Z3_tactic
+     
+  val Z3_tactic_fail_if_not_decided
+    : Z3_context -> Z3_tactic
+     
+  val Z3_tactic_using_params
+    : Z3_context * Z3_tactic * Z3_params -> Z3_tactic
+     
+  val Z3_probe_const
+    : Z3_context * real -> Z3_probe
+     
+  val Z3_probe_lt
+    : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+     
+  val Z3_probe_gt
+    : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+     
+  val Z3_probe_le
+    : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+     
+  val Z3_probe_ge
+    : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+     
+  val Z3_probe_eq
+    : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+     
+  val Z3_probe_and
+    : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+     
+  val Z3_probe_or
+    : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+     
+  val Z3_probe_not
+    : Z3_context * Z3_probe -> Z3_probe
+     
+  val Z3_get_num_tactics
+    : Z3_context -> word
+     
+  val Z3_get_tactic_name
+    : Z3_context * word -> Z3_string
+     
+  val Z3_get_num_probes
+    : Z3_context -> word
+     
+  val Z3_get_probe_name
+    : Z3_context * word -> Z3_string
+     
+  val Z3_tactic_get_help
+    : Z3_context * Z3_tactic -> Z3_string
+     
+  val Z3_tactic_get_param_descrs
+    : Z3_context * Z3_tactic -> Z3_param_descrs
+     
+  val Z3_tactic_get_descr
+    : Z3_context * Z3_string -> Z3_string
+     
+  val Z3_probe_get_descr
+    : Z3_context * Z3_string -> Z3_string
+     
+  val Z3_probe_apply
+    : Z3_context * Z3_probe * Z3_goal -> real
+     
+  val Z3_tactic_apply
+    : Z3_context * Z3_tactic * Z3_goal -> Z3_apply_result
+     
+  val Z3_tactic_apply_ex
+    : Z3_context * Z3_tactic * Z3_goal * Z3_params -> Z3_apply_result
+     
+  val Z3_apply_result_inc_ref
+    : Z3_context * Z3_apply_result -> unit
+     
+  val Z3_apply_result_dec_ref
+    : Z3_context * Z3_apply_result -> unit
+     
+  val Z3_apply_result_to_string
+    : Z3_context * Z3_apply_result -> Z3_string
+     
+  val Z3_apply_result_get_num_subgoals
+    : Z3_context * Z3_apply_result -> word
+     
+  val Z3_apply_result_get_subgoal
+    : Z3_context * Z3_apply_result * word -> Z3_goal
+     
+  val Z3_apply_result_convert_model
+    : Z3_context * Z3_apply_result * word * Z3_model -> Z3_model
+
+end
+
