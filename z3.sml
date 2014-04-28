@@ -54,10 +54,7 @@ in
   type Z3_theory_data      = unit ptr
   type Z3_ast_vector       = unit ptr
 
-  type Z3_lbool = int
-  val Z3_L_FALSE = ~1
-  val Z3_L_UNDEF =  0
-  val Z3_L_TRUE  =  1 
+  open Z3_enum
 
   type Z3_error_code = int
   val Z3_OK                = 0

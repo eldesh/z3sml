@@ -1,5 +1,6 @@
 _require "basis.smi"
 _require "ffi.smi"
+_require "./z3_enum.smi"
 _require "./z3_fixedpoint.smi"
 _require "./z3_ast_vector.smi"
 _require "./z3_ast_map.smi"

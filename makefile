@@ -14,7 +14,8 @@ SRCS = \
 	  z3_tactic_and_probe.sml \
 	  z3_solver.sml \
 	  z3_statistics.sml \
-	  z3_external_theory_plugin.sml
+	  z3_external_theory_plugin.sml \
+	  z3_enum.sml
 
 OBJS = $(SRCS:.sml=.o)
 
