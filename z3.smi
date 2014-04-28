@@ -81,6 +81,18 @@ struct
   val Z3_mk_not : Z3_context * Z3_ast -> Z3_ast
   val Z3_mk_xor : Z3_context * Z3_ast * Z3_ast -> Z3_ast
 
+  val Z3_get_version
+    : word ref * word ref * word ref * word ref -> unit
+
+  val Z3_enable_trace
+    : Z3_string -> unit
+
+  val Z3_disable_trace
+    : Z3_string -> unit
+
+  val Z3_reset_memory
+    : unit -> unit
+
   structure Deprecated =
   struct
     val Z3_check_and_get_model : Z3_context * Z3_model ref -> Z3_lbool

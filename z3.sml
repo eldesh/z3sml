@@ -42,7 +42,6 @@ in
   type Z3_constructor      = unit ptr
   type Z3_constructor_list = unit ptr
   type Z3_sort_opt         = unit ptr
-  type Z3_stringag         = unit ptr
   type Z3_ast_print_mode   = unit ptr
   type Z3_contextarget     = unit ptr
   type Z3_ast_kind         = int
@@ -1417,15 +1416,15 @@ in
    *)
   val Z3_get_version =
     Dyn.dlsym(libz3, "Z3_get_version")
-    : _import (word, word, word, word ref) -> ()
+    : _import (word ref, word ref, word ref, word ref) -> ()
 
   val Z3_enable_trace =
     Dyn.dlsym(libz3, "Z3_enable_trace")
-    : _import Z3_stringag -> ()
+    : _import Z3_string -> ()
 
   val Z3_disable_trace =
     Dyn.dlsym(libz3, "Z3_disable_trace")
-    : _import Z3_stringag -> ()
+    : _import Z3_string -> ()
 
   val Z3_reset_memory =
     Dyn.dlsym(libz3, "Z3_reset_memory")
