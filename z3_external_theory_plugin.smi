@@ -1,0 +1,132 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3_ExternalTheoryPlugin =
+struct
+  type Z3_context = unit ptr
+  type Z3_theory  = unit ptr
+  type Z3_theory_data  = unit ptr
+  type Z3_symbol = unit ptr
+  type Z3_sort = unit ptr
+  type Z3_ast = unit ptr
+  type Z3_func_decl = unit ptr
+
+  type Z3_string = String.string
+  type Z3_bool = int
+
+  val Z3_mk_theory
+    : Z3_context * Z3_string * Z3_theory_data -> Z3_theory
+
+  val Z3_theory_get_ext_data
+    : Z3_theory -> Z3_theory_data
+
+  val Z3_theory_mk_sort
+    : Z3_context * Z3_theory * Z3_symbol -> Z3_sort
+
+  val Z3_theory_mk_value
+    : Z3_context * Z3_theory * Z3_symbol * Z3_sort -> Z3_ast
+
+  val Z3_theory_mk_constant
+    : Z3_context * Z3_theory * Z3_symbol * Z3_sort -> Z3_ast
+
+  val Z3_theory_mk_func_decl
+    : Z3_context * Z3_theory * Z3_symbol * word * Z3_sort vector * Z3_sort -> Z3_func_decl
+
+  val Z3_theory_get_context
+    : Z3_theory -> Z3_context
+
+  val Z3_set_delete_callback
+    : Z3_theory * (Z3_theory -> unit) -> unit
+
+(*
+  val Z3_set_reduce_app_callback
+    : Z3_theory * (Z3_theory * Z3_func_decl * word * Z3_ast vector * Z3_ast ref -> Z3_bool) -> unit
+    *)
+
+(*
+  val Z3_set_reduce_eq_callback
+    : Z3_theory * (Z3_theory * Z3_ast * Z3_ast * Z3_ast ref -> Z3_bool) -> unit
+    *)
+
+(*
+  val Z3_set_reduce_distinct_callback
+    : Z3_theory * (Z3_theory * word * Z3_ast vector * Z3_ast ref->Z3_bool) -> unit
+    *)
+
+  val Z3_set_new_app_callback
+    : Z3_theory * (Z3_theory * Z3_ast -> unit) -> unit
+
+  val Z3_set_new_elem_callback
+    : Z3_theory * (Z3_theory * Z3_ast -> unit) -> unit
+
+  val Z3_set_init_search_callback
+    : Z3_theory * (Z3_theory -> unit) -> unit
+
+  val Z3_set_push_callback
+    : Z3_theory * (Z3_theory -> unit) -> unit
+
+  val Z3_set_pop_callback
+    : Z3_theory * (Z3_theory -> unit) -> unit
+
+  val Z3_set_restart_callback
+    : Z3_theory * (Z3_theory -> unit) -> unit
+
+  val Z3_set_reset_callback
+    : Z3_theory * (Z3_theory -> unit) -> unit
+
+  val Z3_set_final_check_callback
+    : Z3_theory * (Z3_theory -> Z3_bool) -> unit
+
+  val Z3_set_new_eq_callback
+    : Z3_theory * (Z3_theory * Z3_ast * Z3_ast -> unit) -> unit
+
+  val Z3_set_new_diseq_callback
+    : Z3_theory * (Z3_theory * Z3_ast * Z3_ast -> unit) -> unit
+
+  val Z3_set_new_assignment_callback
+    : Z3_theory * (Z3_theory * Z3_ast * Z3_bool -> unit) -> unit
+
+  val Z3_set_new_relevant_callback
+    : Z3_theory * (Z3_theory * Z3_ast -> unit) -> unit
+
+  val Z3_theory_assert_axiom
+    : Z3_theory * Z3_ast -> unit
+
+  val Z3_theory_assume_eq
+    : Z3_theory * Z3_ast * Z3_ast -> unit
+
+  val Z3_theory_enable_axiom_simplification
+    : Z3_theory * Z3_bool -> unit
+
+  val Z3_theory_get_eqc_root
+    : Z3_theory * Z3_ast -> Z3_ast
+
+  val Z3_theory_get_eqc_next
+    : Z3_theory * Z3_ast -> Z3_ast
+
+  val Z3_theory_get_num_parents
+    : Z3_theory * Z3_ast -> word
+
+  val Z3_theory_get_parent
+    : Z3_theory * Z3_ast * word -> Z3_ast
+
+  val Z3_theory_is_value
+    : Z3_theory * Z3_ast -> Z3_bool
+
+  val Z3_theory_is_decl
+    : Z3_theory * Z3_func_decl -> Z3_bool
+
+  val Z3_theory_get_num_elems
+    : Z3_theory -> word
+
+  val Z3_theory_get_elem
+    : Z3_theory * word -> Z3_ast
+
+  val Z3_theory_get_num_apps
+    : Z3_theory -> word
+
+  val Z3_theory_get_app
+    : Z3_theory * word -> Z3_ast
+
+end
+

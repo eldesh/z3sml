@@ -78,7 +78,7 @@ struct
     let val x = D.Z3_check ctx in
       print (concat["check:", lbool_to_string x, "\n"]);
       print (concat["CONTEXT:\n"
-                   , Z3.Z3_context_to_string ctx
+                   , D.Z3_context_to_string ctx
                    , "END OF CONTEXT\n"])
     end)
 

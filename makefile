@@ -12,7 +12,9 @@ SRCS = \
 	  z3_ast_map.sml    \
 	  z3_goal.sml       \
 	  z3_tactic_and_probe.sml \
-	  z3_solver.sml
+	  z3_solver.sml \
+	  z3_statistics.sml \
+	  z3_external_theory_plugin.sml
 
 OBJS = $(SRCS:.sml=.o)
 

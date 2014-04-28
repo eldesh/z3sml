@@ -6,6 +6,8 @@ _require "./z3_ast_map.smi"
 _require "./z3_goal.smi"
 _require "./z3_tactic_and_probe.smi"
 _require "./z3_solver.smi"
+_require "./z3_statistics.smi"
+_require "./z3_external_theory_plugin.smi"
 
 structure Z3 =
 struct
@@ -79,14 +81,13 @@ struct
   val Z3_mk_not : Z3_context * Z3_ast -> Z3_ast
   val Z3_mk_xor : Z3_context * Z3_ast * Z3_ast -> Z3_ast
 
-  val Z3_context_to_string : Z3_context -> string
-
   structure Deprecated =
   struct
     val Z3_check_and_get_model : Z3_context * Z3_model ref -> Z3_lbool
     val Z3_check : Z3_context -> Z3_lbool
     val Z3_del_model : Z3_context * Z3_model -> unit
     val Z3_assert_cnstr : Z3_context * Z3_ast -> unit
+	val Z3_context_to_string : Z3_context -> string
   end
 
 end
