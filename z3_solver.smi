@@ -38,35 +38,27 @@ struct
     : Z3_context * Z3_solver * Z3_params -> unit
      
   val Z3_solver_inc_ref
-
     : Z3_context * Z3_solver -> unit
      
   val Z3_solver_dec_ref
-
     : Z3_context * Z3_solver -> unit
      
   val Z3_solver_push
-
     : Z3_context * Z3_solver -> unit
      
   val Z3_solver_pop
-
     : Z3_context * Z3_solver * word -> unit
      
   val Z3_solver_reset
-
     : Z3_context * Z3_solver -> unit
      
   val Z3_solver_get_num_scopes
-
     : Z3_context * Z3_solver -> word
      
   val Z3_solver_assert
-
     : Z3_context * Z3_solver * Z3_ast -> unit
      
   val Z3_solver_assert_and_track
-
     : Z3_context * Z3_solver * Z3_ast * Z3_ast -> unit
      
   val Z3_solver_get_assertions
