@@ -21,6 +21,7 @@ struct
   type Z3_app          (= ptr)
   type Z3_pattern      (= ptr)
   type Z3_params       (= ptr)
+  type Z3_param_descrs (= ptr)
   type Z3_model         = unit ptr
   type Z3_func_interp  (= ptr)
   type Z3_func_entry   (= ptr)
@@ -62,6 +63,16 @@ struct
   val Z3_mk_const : Z3_context * Z3_symbol * Z3_sort -> Z3_ast
   val Z3_del_context : Z3_context -> unit
 
+  (* Models *)
+  val Z3_model_get_num_consts : Z3_context * Z3_model -> word
+  val Z3_model_get_num_funcs  : Z3_context * Z3_model -> word
+  val Z3_model_get_const_decl : Z3_context * Z3_model * word -> Z3_func_decl
+  val Z3_model_get_func_decl  : Z3_context * Z3_model * word -> Z3_func_decl
+  val Z3_model_get_const_interp : Z3_context * Z3_model * Z3_func_decl -> Z3_ast
+
+  val Z3_func_decl_to_string : Z3_context * Z3_func_decl -> Z3_string
+  val Z3_ast_to_string : Z3_context * Z3_ast -> Z3_string
+
   val Z3_set_param_value : Z3_config * Z3_string * Z3_string -> unit
 
   val Z3_mk_string_symbol : Z3_context * Z3_string -> Z3_symbol
@@ -73,6 +84,8 @@ struct
   val Z3_mk_int : Z3_context * int * Z3_sort -> Z3_ast
 
   val Z3_mk_add : Z3_context * word * Z3_ast vector -> Z3_ast
+  val Z3_mk_mul : Z3_context * word * Z3_ast vector -> Z3_ast
+
   val Z3_model_to_string : Z3_context * Z3_model -> string
   val Z3_mk_lt : Z3_context * Z3_ast * Z3_ast -> Z3_ast
   val Z3_mk_le : Z3_context * Z3_ast * Z3_ast -> Z3_ast
@@ -93,6 +106,94 @@ struct
 
   val Z3_reset_memory
     : unit -> unit
+
+  structure Solver = (* Z3_Solver *)
+  struct
+    type Z3_context      = Z3_context
+    type Z3_solver       = Z3_solver
+    type Z3_symbol       = Z3_symbol
+    type Z3_tactic       = Z3_tactic
+    type Z3_params       = Z3_params
+    type Z3_param_descrs = Z3_param_descrs
+    type Z3_model        = Z3_model
+    type Z3_stats        = Z3_stats
+    type Z3_ast          = Z3_ast
+    type Z3_ast_vector   = Z3_ast_vector
+    type Z3_string       = Z3_string
+    type Z3_lbool        = Z3_lbool
+
+    val Z3_mk_solver
+      : Z3_context -> Z3_solver
+       
+    val Z3_mk_simple_solver
+      : Z3_context -> Z3_solver
+       
+    val Z3_mk_solver_for_logic
+      : Z3_context * Z3_symbol -> Z3_solver
+       
+    val Z3_mk_solver_from_tactic
+      : Z3_context * Z3_tactic -> Z3_solver
+       
+    val Z3_solver_get_help
+      : Z3_context * Z3_solver -> Z3_string
+       
+    val Z3_solver_get_param_descrs
+      : Z3_context * Z3_solver -> Z3_param_descrs
+       
+    val Z3_solver_set_params
+      : Z3_context * Z3_solver * Z3_params -> unit
+       
+    val Z3_solver_inc_ref
+      : Z3_context * Z3_solver -> unit
+       
+    val Z3_solver_dec_ref
+      : Z3_context * Z3_solver -> unit
+       
+    val Z3_solver_push
+      : Z3_context * Z3_solver -> unit
+       
+    val Z3_solver_pop
+      : Z3_context * Z3_solver * word -> unit
+       
+    val Z3_solver_reset
+      : Z3_context * Z3_solver -> unit
+       
+    val Z3_solver_get_num_scopes
+      : Z3_context * Z3_solver -> word
+       
+    val Z3_solver_assert
+      : Z3_context * Z3_solver * Z3_ast -> unit
+       
+    val Z3_solver_assert_and_track
+      : Z3_context * Z3_solver * Z3_ast * Z3_ast -> unit
+       
+    val Z3_solver_get_assertions
+      : Z3_context * Z3_solver -> Z3_ast_vector
+       
+    val Z3_solver_check
+      : Z3_context * Z3_solver -> Z3_lbool
+       
+    val Z3_solver_check_assumptions
+      : Z3_context * Z3_solver * word * Z3_ast vector -> Z3_lbool
+       
+    val Z3_solver_get_model
+      : Z3_context * Z3_solver -> Z3_model
+       
+    val Z3_solver_get_proof
+      : Z3_context * Z3_solver -> Z3_ast
+       
+    val Z3_solver_get_unsat_core
+      : Z3_context * Z3_solver -> Z3_ast_vector
+       
+    val Z3_solver_get_reason_unknown
+      : Z3_context * Z3_solver -> Z3_string
+       
+    val Z3_solver_get_statistics
+      : Z3_context * Z3_solver -> Z3_stats
+       
+    val Z3_solver_to_string
+      : Z3_context * Z3_solver -> Z3_string
+  end (* Solver *)
 
   structure Deprecated =
   struct

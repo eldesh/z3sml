@@ -150,9 +150,56 @@ struct
             , "\n"])
     end
 
+  fun tutorial_sample () =
+    with_context (fn ctx =>
+    let
+      val solver = Z3.Solver.Z3_mk_solver ctx
+      val x = int_var ctx "x"
+      val y = int_var ctx "y"
+      val two = int ctx 2
+      val seven = int ctx 7
+      val ten = int ctx 10
+      fun add ctx (l,r) = Z3.Z3_mk_add (ctx, 0w2, Vector.fromList [l, r])
+      fun mul ctx (l,r) = Z3.Z3_mk_mul (ctx, 0w2, Vector.fromList [l, r])
+      val () = app (fn assert => Z3.Solver.Z3_solver_assert (ctx, solver, assert))
+                    [ Z3.Z3_mk_gt (ctx, x, two) (* x < 2 *)
+                    , Z3.Z3_mk_lt (ctx, y, ten) (* y < 10 *)
+                    , Z3.Z3_mk_eq (ctx, add ctx (x, mul ctx (two, y))
+                                   , seven) (* x + 2*y = 7 *)
+                    ]
+      val () = print (Z3.Solver.Z3_solver_to_string (ctx, solver) ^ "\n")
+      val model =
+        let
+          val v = Z3.Solver.Z3_solver_check (ctx, solver)
+        in
+          if v=Z3.Z3_L_TRUE
+          then Z3.Solver.Z3_solver_get_model (ctx, solver)
+          else raise Fail "solver_check"
+        end
+      val decls = Vector.tabulate(
+                      Word.toInt (Z3.Z3_model_get_num_consts(ctx, model))
+                    , fn i=> Z3.Z3_model_get_const_decl(ctx, model, Word.fromInt i))
+    in
+      (*
+      print (Z3.Z3_model_to_string (ctx, model)^"\n");
+      *)
+      Vector.app
+         (fn decl =>
+          let
+            val ast = Z3.Z3_model_get_const_interp (ctx, model, decl)
+          in
+            print (concat[Z3.Z3_func_decl_to_string (ctx, decl)
+                         , " -> "
+                         ,Z3.Z3_ast_to_string (ctx, ast)
+                         , "\n"])
+          end)
+         decls
+    end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
+     tutorial_sample();
      find_model_example1();
      find_model_example2()
      )

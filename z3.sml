@@ -56,21 +56,6 @@ in
 
   open Z3_enum
 
-  type Z3_error_code = int
-  val Z3_OK                = 0
-  val Z3_SORT_ERROR        = 1
-  val Z3_IOB               = 2
-  val Z3_INVALID_ARG       = 3
-  val Z3_PARSER_ERROR      = 4
-  val Z3_NO_PARSER         = 5
-  val Z3_INVALID_PATTERN   = 6
-  val Z3_MEMOUT_FAIL       = 7
-  val Z3_FILE_ACCESS_ERROR = 8
-  val Z3_INTERNAL_FATAL    = 9
-  val Z3_INVALID_USAGE     = 10
-  val Z3_DEC_REF_ERROR     = 11
-  val Z3_EXCEPTION         = 12
-
   type Z3_error_handler = Z3_context * Z3_error_code -> unit
 
   val Z3_TRUE : Z3_bool = 1
