@@ -6,17 +6,18 @@ TARGET = sample
 
 SRCS = \
 	  sample.sml \
-	  z3.sml \
+	  z3.sml            \
 	  z3_fixedpoint.sml \
 	  z3_ast_vector.sml \
 	  z3_ast_map.sml    \
 	  z3_goal.sml       \
-	  z3_tactic_and_probe.sml \
-	  z3_solver.sml \
+	  z3_solver.sml     \
 	  z3_statistics.sml \
+	  z3_enum.sml       \
+	  z3_parser.sml     \
+	  z3_accessor.sml   \
+	  z3_tactic_and_probe.sml       \
 	  z3_external_theory_plugin.sml \
-	  z3_enum.sml \
-	  z3_parser.sml \
 	  z3_model.sml
 
 OBJS = $(SRCS:.sml=.o)

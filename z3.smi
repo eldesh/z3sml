@@ -11,6 +11,7 @@ _require "./z3_statistics.smi"
 _require "./z3_external_theory_plugin.smi"
 _require "./z3_parser.smi"
 _require "./z3_model.smi"
+_require "./z3_accessor.smi"
 
 structure Z3 =
 struct
@@ -39,12 +40,12 @@ struct
   type Z3_string = String.string
   type Z3_bool         (= int)
 
-  eqtype Z3_lbool (= int)
+  type Z3_lbool = Z3_enum.Z3_lbool
   val Z3_L_FALSE : Z3_lbool
   val Z3_L_TRUE  : Z3_lbool
   val Z3_L_UNDEF : Z3_lbool
 
-  type Z3_error_code (= int)
+  type Z3_error_code = Z3_enum.Z3_error_code
   val Z3_OK                : Z3_error_code
   val Z3_SORT_ERROR        : Z3_error_code
   val Z3_IOB               : Z3_error_code
@@ -59,12 +60,282 @@ struct
   val Z3_DEC_REF_ERROR     : Z3_error_code
   val Z3_EXCEPTION         : Z3_error_code
 
-
+  type Z3_decl_kind      = Z3_enum.Z3_decl_kind
+  type Z3_symbol_kind    = Z3_enum.Z3_symbol_kind
+  type Z3_parameter_kind = Z3_enum.Z3_parameter_kind
+  type Z3_ast_kind       = Z3_enum.Z3_ast_kind
+  type Z3_sort_kind      = Z3_enum.Z3_sort_kind
+ 
   val Z3_mk_config  : unit -> Z3_config
   val Z3_del_config : Z3_config -> unit
   val Z3_mk_context : Z3_config -> Z3_context
   val Z3_mk_const : Z3_context * Z3_symbol * Z3_sort -> Z3_ast
   val Z3_del_context : Z3_context -> unit
+
+  structure Accessor = (* Z3_Accessor *)
+  struct
+    type Z3_context      = Z3_context
+    type Z3_symbol       = Z3_symbol
+    type Z3_sort         = Z3_sort
+    type Z3_ast          = Z3_ast
+    type Z3_func_decl    = Z3_func_decl
+    type Z3_app          = Z3_app
+    type Z3_pattern      = Z3_pattern
+    type Z3_param_descrs = Z3_param_descrs
+    type Z3_params       = Z3_params
+
+    type Z3_string       = Z3_string
+  
+    type Z3_decl_kind      = Z3_decl_kind
+    type Z3_symbol_kind    = Z3_symbol_kind
+    type Z3_parameter_kind = Z3_parameter_kind
+    type Z3_lbool          = Z3_lbool
+    type Z3_ast_kind       = Z3_ast_kind
+    type Z3_sort_kind      = Z3_sort_kind
+    type Z3_bool           = Z3_bool
+  
+    val Z3_get_symbol_kind
+      : Z3_context * Z3_symbol -> Z3_symbol_kind
+  
+    val Z3_get_symbol_int
+      : Z3_context * Z3_symbol -> int
+  
+    val Z3_get_symbol_string
+       : Z3_context * Z3_symbol -> Z3_string
+  
+    val Z3_get_sort_name
+      : Z3_context * Z3_sort -> Z3_symbol
+  
+    val Z3_get_sort_id
+      : Z3_context * Z3_sort -> word
+  
+    val Z3_sort_to_ast
+      : Z3_context * Z3_sort -> Z3_ast
+  
+    val Z3_is_eq_sort
+      : Z3_context * Z3_sort * Z3_sort -> Z3_bool
+  
+    val Z3_get_sort_kind
+      : Z3_context * Z3_sort -> Z3_sort_kind
+  
+    val Z3_get_bv_sort_size
+      : Z3_context * Z3_sort -> word
+  
+    val Z3_get_array_sort_domain
+      : Z3_context * Z3_sort -> Z3_sort
+  
+    val Z3_get_array_sort_range
+      : Z3_context * Z3_sort -> Z3_sort
+  
+    val Z3_get_tuple_sort_mk_decl
+      : Z3_context * Z3_sort -> Z3_func_decl
+  
+    val Z3_get_tuple_sort_num_fields
+      : Z3_context * Z3_sort -> word
+  
+    val Z3_get_tuple_sort_field_decl
+      : Z3_context * Z3_sort * word -> Z3_func_decl
+  
+    val Z3_get_datatype_sort_num_constructors
+      : Z3_context * Z3_sort -> word
+  
+    val Z3_get_datatype_sort_constructor
+      : Z3_context * Z3_sort * word -> Z3_func_decl
+  
+    val Z3_get_datatype_sort_recognizer
+      : Z3_context * Z3_sort * word -> Z3_func_decl
+  
+    val Z3_get_datatype_sort_constructor_accessor
+      : Z3_context * Z3_sort * word * word -> Z3_func_decl
+  
+    val Z3_get_relation_arity
+      : Z3_context * Z3_sort -> word
+  
+    val Z3_get_relation_column
+      : Z3_context * Z3_sort * word -> Z3_sort
+  
+    val Z3_func_decl_to_ast
+      : Z3_context * Z3_func_decl -> Z3_ast
+  
+    val Z3_is_eq_func_decl
+      : Z3_context * Z3_func_decl * Z3_func_decl -> Z3_bool
+  
+    val Z3_get_func_decl_id
+      : Z3_context * Z3_func_decl -> word
+  
+    val Z3_get_decl_name
+      : Z3_context * Z3_func_decl -> Z3_symbol
+  
+    val Z3_get_decl_kind
+      : Z3_context * Z3_func_decl -> Z3_decl_kind
+  
+    val Z3_get_domain_size
+      : Z3_context * Z3_func_decl -> word
+  
+    val Z3_get_arity
+      : Z3_context * Z3_func_decl -> word
+  
+    val Z3_get_domain
+      : Z3_context * Z3_func_decl * word -> Z3_sort
+  
+    val Z3_get_range
+      : Z3_context * Z3_func_decl -> Z3_sort
+  
+    val Z3_get_decl_num_parameters
+      : Z3_context * Z3_func_decl -> word
+  
+    val Z3_get_decl_parameter_kind
+      : Z3_context * Z3_func_decl * word -> Z3_parameter_kind
+  
+    val Z3_get_decl_int_parameter
+      : Z3_context * Z3_func_decl * word -> int
+  
+    val Z3_get_decl_double_parameter
+      : Z3_context * Z3_func_decl * word -> real
+  
+    val Z3_get_decl_symbol_parameter
+      : Z3_context * Z3_func_decl * word -> Z3_symbol
+  
+    val Z3_get_decl_sort_parameter
+      : Z3_context * Z3_func_decl * word -> Z3_sort
+  
+    val Z3_get_decl_ast_parameter
+      : Z3_context * Z3_func_decl * word -> Z3_ast
+  
+    val Z3_get_decl_func_decl_parameter
+      : Z3_context * Z3_func_decl * word -> Z3_func_decl
+  
+    val Z3_get_decl_rational_parameter
+       : Z3_context * Z3_func_decl * word -> Z3_string
+  
+    val Z3_app_to_ast
+      : Z3_context * Z3_app -> Z3_ast
+  
+    val Z3_get_app_decl
+      : Z3_context * Z3_app -> Z3_func_decl
+  
+    val Z3_get_app_num_args
+      : Z3_context * Z3_app -> word
+  
+    val Z3_get_app_arg
+      : Z3_context * Z3_app * word -> Z3_ast
+  
+    val Z3_is_eq_ast
+      : Z3_context * Z3_ast * Z3_ast -> Z3_bool
+  
+    val Z3_get_ast_id
+      : Z3_context * Z3_ast -> word
+  
+    val Z3_get_ast_hash
+      : Z3_context * Z3_ast -> word
+  
+    val Z3_get_sort
+      : Z3_context * Z3_ast -> Z3_sort
+  
+    val Z3_is_well_sorted
+      : Z3_context * Z3_ast -> Z3_bool
+  
+    val Z3_get_bool_value
+      : Z3_context * Z3_ast -> Z3_lbool
+  
+    val Z3_get_ast_kind
+      : Z3_context * Z3_ast -> Z3_ast_kind
+  
+    val Z3_is_app
+      : Z3_context * Z3_ast -> Z3_bool
+  
+    val Z3_is_numeral_ast
+      : Z3_context * Z3_ast -> Z3_bool
+  
+    val Z3_is_algebraic_number
+      : Z3_context * Z3_ast -> Z3_bool
+  
+    val Z3_to_app
+      : Z3_context * Z3_ast -> Z3_app
+  
+    val Z3_to_func_decl
+      : Z3_context * Z3_ast -> Z3_func_decl
+  
+    val Z3_get_numeral_string
+       : Z3_context * Z3_ast -> Z3_string
+  
+    val Z3_get_numeral_decimal_string
+       : Z3_context * Z3_ast * word -> Z3_string
+  
+    val Z3_get_numerator
+      : Z3_context * Z3_ast -> Z3_ast
+  
+    val Z3_get_denominator
+      : Z3_context * Z3_ast -> Z3_ast
+  
+    val Z3_get_numeral_int
+      : Z3_context * Z3_ast * int ref -> Z3_bool
+  
+    val Z3_get_numeral_uint
+      : Z3_context * Z3_ast * word ref -> Z3_bool
+  
+    val Z3_get_algebraic_number_lower
+      : Z3_context * Z3_ast * word -> Z3_ast
+  
+    val Z3_get_algebraic_number_upper
+      : Z3_context * Z3_ast * word -> Z3_ast
+  
+    val Z3_pattern_to_ast
+      : Z3_context * Z3_pattern -> Z3_ast
+  
+    val Z3_get_pattern_num_terms
+      : Z3_context * Z3_pattern -> word
+  
+    val Z3_get_pattern
+      : Z3_context * Z3_pattern * word -> Z3_ast
+  
+    val Z3_get_index_value
+      : Z3_context * Z3_ast -> word
+  
+    val Z3_is_quantifier_forall
+      : Z3_context * Z3_ast -> Z3_bool
+  
+    val Z3_get_quantifier_weight
+      : Z3_context * Z3_ast -> word
+  
+    val Z3_get_quantifier_num_patterns
+      : Z3_context * Z3_ast -> word
+  
+    val Z3_get_quantifier_pattern_ast
+      : Z3_context * Z3_ast * word -> Z3_pattern
+  
+    val Z3_get_quantifier_num_no_patterns
+      : Z3_context * Z3_ast -> word
+  
+    val Z3_get_quantifier_no_pattern_ast
+      : Z3_context * Z3_ast * word -> Z3_ast
+  
+    val Z3_get_quantifier_num_bound
+      : Z3_context * Z3_ast -> word
+  
+    val Z3_get_quantifier_bound_name
+      : Z3_context * Z3_ast * word -> Z3_symbol
+  
+    val Z3_get_quantifier_bound_sort
+      : Z3_context * Z3_ast * word -> Z3_sort
+  
+    val Z3_get_quantifier_body
+      : Z3_context * Z3_ast -> Z3_ast
+  
+    val Z3_simplify
+      : Z3_context * Z3_ast -> Z3_ast
+  
+    val Z3_simplify_ex
+      : Z3_context * Z3_ast * Z3_params -> Z3_ast
+  
+    val Z3_simplify_get_help
+       : Z3_context -> Z3_string
+  
+    val Z3_simplify_get_param_descrs
+      : Z3_context -> Z3_param_descrs
+  
+  end
+
 
   structure Model = (* Z3_Models *)
   struct
