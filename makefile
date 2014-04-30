@@ -16,7 +16,8 @@ SRCS = \
 	  z3_statistics.sml \
 	  z3_external_theory_plugin.sml \
 	  z3_enum.sml \
-	  z3_parser.sml
+	  z3_parser.sml \
+	  z3_model.sml
 
 OBJS = $(SRCS:.sml=.o)
 

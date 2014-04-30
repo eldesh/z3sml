@@ -1,0 +1,92 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3_Model =
+struct
+  type Z3_context     = unit ptr
+  type Z3_model       = unit ptr
+  type Z3_ast         = unit ptr
+  type Z3_func_decl   = unit ptr
+  type Z3_func_interp = unit ptr
+  type Z3_sort        = unit ptr
+  type Z3_func_entry  = unit ptr
+  type Z3_ast_vector  = unit ptr
+  type Z3_bool        = int
+
+  val Z3_model_inc_ref
+    : Z3_context * Z3_model -> unit
+
+  val Z3_model_dec_ref
+    : Z3_context * Z3_model -> unit
+
+  val Z3_model_eval
+    : Z3_context * Z3_model * Z3_ast * Z3_bool * Z3_ast ref -> Z3_bool
+
+  val Z3_model_get_const_interp
+    : Z3_context * Z3_model * Z3_func_decl -> Z3_ast
+
+  val Z3_model_get_func_interp
+    : Z3_context * Z3_model * Z3_func_decl -> Z3_func_interp
+
+  val Z3_model_get_num_consts
+    : Z3_context * Z3_model -> word
+
+  val Z3_model_get_const_decl
+    : Z3_context * Z3_model * word -> Z3_func_decl
+
+  val Z3_model_get_num_funcs
+    : Z3_context * Z3_model -> word
+
+  val Z3_model_get_func_decl
+    : Z3_context * Z3_model * word -> Z3_func_decl
+
+  val Z3_model_get_num_sorts
+    : Z3_context * Z3_model -> word
+
+  val Z3_model_get_sort
+    : Z3_context * Z3_model * word -> Z3_sort
+
+  val Z3_model_get_sort_universe
+    : Z3_context * Z3_model * Z3_sort -> Z3_ast_vector
+
+  val Z3_is_as_array
+    : Z3_context * Z3_ast -> Z3_bool
+
+  val Z3_get_as_array_func_decl
+    : Z3_context * Z3_ast -> Z3_func_decl
+
+  val Z3_func_interp_inc_ref
+    : Z3_context * Z3_func_interp -> unit
+
+  val Z3_func_interp_dec_ref
+    : Z3_context * Z3_func_interp -> unit
+
+  val Z3_func_interp_get_num_entries
+    : Z3_context * Z3_func_interp -> word
+
+  val Z3_func_interp_get_entry
+    : Z3_context * Z3_func_interp * word -> Z3_func_entry
+
+  val Z3_func_interp_get_else
+    : Z3_context * Z3_func_interp -> Z3_ast
+
+  val Z3_func_interp_get_arity
+    : Z3_context * Z3_func_interp -> word
+
+  val Z3_func_entry_inc_ref
+    : Z3_context * Z3_func_entry -> unit
+
+  val Z3_func_entry_dec_ref
+    : Z3_context * Z3_func_entry -> unit
+
+  val Z3_func_entry_get_value
+    : Z3_context * Z3_func_entry -> Z3_ast
+
+  val Z3_func_entry_get_num_args
+    : Z3_context * Z3_func_entry -> word
+
+  val Z3_func_entry_get_arg
+    : Z3_context * Z3_func_entry * word -> Z3_ast
+
+end
+

@@ -177,8 +177,8 @@ struct
           else raise Fail "solver_check"
         end
       val decls = Vector.tabulate(
-                      Word.toInt (Z3.Z3_model_get_num_consts(ctx, model))
-                    , fn i=> Z3.Z3_model_get_const_decl(ctx, model, Word.fromInt i))
+                      Word.toInt (Z3.Model.Z3_model_get_num_consts(ctx, model))
+                    , fn i=> Z3.Model.Z3_model_get_const_decl(ctx, model, Word.fromInt i))
     in
       (*
       print (Z3.Z3_model_to_string (ctx, model)^"\n");
@@ -186,7 +186,7 @@ struct
       Vector.app
          (fn decl =>
           let
-            val ast = Z3.Z3_model_get_const_interp (ctx, model, decl)
+            val ast = Z3.Model.Z3_model_get_const_interp (ctx, model, decl)
           in
             print (concat[Z3.Z3_func_decl_to_string (ctx, decl)
                          , " -> "
