@@ -1,0 +1,66 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3_Parser =
+struct
+  type Z3_symbol    = unit ptr
+  type Z3_ast       = unit ptr
+  type Z3_context   = unit ptr
+  type Z3_sort      = unit ptr
+  type Z3_func_decl = unit ptr
+  type Z3_string    = String.string
+
+  val Z3_parse_smtlib2_string
+    : Z3_context * Z3_string * word
+                 * Z3_symbol vector * Z3_sort * word
+                 * Z3_symbol vector
+                 * Z3_func_decl vector
+                -> Z3_ast
+
+  val Z3_parse_smtlib2_file
+    : Z3_context * Z3_string * word
+                 * Z3_symbol vector * Z3_sort * word
+                 * Z3_symbol vector * Z3_func_decl vector
+                -> Z3_ast
+
+  val Z3_parse_smtlib_string
+    : Z3_context * Z3_string * word
+                 * Z3_symbol vector * Z3_sort * word
+                 * Z3_symbol vector * Z3_func_decl vector
+                -> unit
+
+  val Z3_parse_smtlib_file
+    : Z3_context * Z3_string * word
+                 * Z3_symbol vector * Z3_sort * word
+                 * Z3_symbol vector * Z3_func_decl vector
+                -> unit
+
+  val Z3_get_smtlib_num_formulas
+    : Z3_context -> word
+
+  val Z3_get_smtlib_formula
+    : Z3_context * word -> Z3_ast
+
+  val Z3_get_smtlib_num_assumptions
+    : Z3_context -> word
+
+  val Z3_get_smtlib_assumption
+    : Z3_context * word -> Z3_ast
+
+  val Z3_get_smtlib_num_decls
+    : Z3_context -> word
+
+  val Z3_get_smtlib_decl
+    : Z3_context * word -> Z3_func_decl
+
+  val Z3_get_smtlib_num_sorts
+    : Z3_context -> word
+
+  val Z3_get_smtlib_sort
+    : Z3_context * word -> Z3_sort
+
+   val Z3_get_smtlib_error
+      : Z3_context -> Z3_string
+
+end
+
