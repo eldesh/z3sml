@@ -1,0 +1,44 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3_Set =
+struct
+  type Z3_context = unit ptr
+  type Z3_sort    = unit ptr
+  type Z3_ast     = unit ptr
+
+  val Z3_mk_set_sort
+    : Z3_context * Z3_sort -> Z3_sort
+
+  val Z3_mk_empty_set
+    : Z3_context * Z3_sort -> Z3_ast
+
+  val Z3_mk_full_set
+    : Z3_context * Z3_sort -> Z3_ast
+
+  val Z3_mk_set_add
+    : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+  val Z3_mk_set_del
+    : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+  val Z3_mk_set_union
+    : Z3_context * word * Z3_ast array -> Z3_ast
+
+  val Z3_mk_set_intersect
+    : Z3_context * word * Z3_ast array -> Z3_ast
+
+  val Z3_mk_set_difference
+    : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+  val Z3_mk_set_complement
+    : Z3_context * Z3_ast -> Z3_ast
+
+  val Z3_mk_set_member
+    : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+  val Z3_mk_set_subset
+    : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+end
+
