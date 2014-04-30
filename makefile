@@ -20,6 +20,8 @@ SRCS = \
 	  z3_external_theory_plugin.sml \
 	  z3_quantifier.sml \
 	  z3_set.sml \
+	  z3_array.sml \
+	  z3_bitvector.sml \
 	  z3_model.sml
 
 OBJS = $(SRCS:.sml=.o)

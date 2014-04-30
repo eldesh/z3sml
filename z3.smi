@@ -14,6 +14,8 @@ _require "./z3_model.smi"
 _require "./z3_accessor.smi"
 _require "./z3_quantifier.smi"
 _require "./z3_set.smi"
+_require "./z3_array.smi"
+_require "./z3_bitvector.smi"
 
 structure Z3 =
 struct
@@ -74,6 +76,181 @@ struct
   val Z3_mk_const : Z3_context * Z3_symbol * Z3_sort -> Z3_ast
   val Z3_del_context : Z3_context -> unit
 
+  structure BitVector = (* Z3_BitVector *)
+  struct
+    type Z3_context = Z3_context
+    type Z3_ast     = Z3_ast
+    type Z3_bool    = Z3_bool
+  
+    val Z3_mk_bvnot
+      : Z3_context * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvredand
+      : Z3_context * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvredor
+      : Z3_context * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvand
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvor
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvxor
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvnand
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvnor
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvxnor
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvneg
+      : Z3_context * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvadd
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvsub
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvmul
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvudiv
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvsdiv
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvurem
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvsrem
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvsmod
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvult
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvslt
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvule
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvsle
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvuge
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvsge
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvugt
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvsgt
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_concat
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_extract
+      : Z3_context * word * word * Z3_ast -> Z3_ast
+  
+    val Z3_mk_sign_ext
+      : Z3_context * word * Z3_ast -> Z3_ast
+  
+    val Z3_mk_zero_ext
+      : Z3_context * word * Z3_ast -> Z3_ast
+  
+    val Z3_mk_repeat
+      : Z3_context * word * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvshl
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvlshr
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvashr
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_rotate_left
+      : Z3_context * word * Z3_ast -> Z3_ast
+  
+    val Z3_mk_rotate_right
+      : Z3_context * word * Z3_ast -> Z3_ast
+  
+    val Z3_mk_ext_rotate_left
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_ext_rotate_right
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_int2bv
+      : Z3_context * word * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bv2int
+      : Z3_context * Z3_ast * Z3_bool -> Z3_ast
+  
+    val Z3_mk_bvadd_no_overflow
+      : Z3_context * Z3_ast * Z3_ast * Z3_bool -> Z3_ast
+  
+    val Z3_mk_bvadd_no_underflow
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvsub_no_overflow
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvsub_no_underflow
+      : Z3_context * Z3_ast * Z3_ast * Z3_bool -> Z3_ast
+  
+    val Z3_mk_bvsdiv_no_overflow
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvneg_no_overflow
+      : Z3_context * Z3_ast -> Z3_ast
+  
+    val Z3_mk_bvmul_no_overflow
+      : Z3_context * Z3_ast * Z3_ast * Z3_bool -> Z3_ast
+  
+    val Z3_mk_bvmul_no_underflow
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+  end (* BitVector *)
+
+  structure Array = (* Z3_Array *)
+  struct
+    type Z3_context   = Z3_context
+    type Z3_ast       = Z3_ast
+    type Z3_sort      = Z3_sort
+    type Z3_func_decl = Z3_func_decl
+
+    val Z3_mk_select
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_store
+      : Z3_context * Z3_ast * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_const_array
+      : Z3_context * Z3_sort * Z3_ast -> Z3_ast
+  
+    val Z3_mk_map
+      : Z3_context * Z3_func_decl * word * Z3_ast vector -> Z3_ast
+  
+    val Z3_mk_array_default
+      : Z3_context * Z3_ast array -> Z3_ast
+  end
+
   structure Set = (* Z3_Set *)
   struct
     type Z3_context = Z3_context
@@ -112,9 +289,7 @@ struct
   
     val Z3_mk_set_subset
       : Z3_context * Z3_ast * Z3_ast -> Z3_ast
-  
-  end
-  
+  end (* Array *)
 
   structure Quantifier = (* Z3_Quantifier *)
   struct
