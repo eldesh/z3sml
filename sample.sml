@@ -95,6 +95,7 @@ struct
 
   fun find_model_example2 () =
     let
+      open Z3.Arithmetic
       val () = print "find_model_example2\n"
       val cfg = Z3.Z3_mk_config ()
       val ctx = Z3.Z3_mk_context cfg
@@ -104,10 +105,10 @@ struct
       val one = int ctx 1
       val two = int ctx 2
 
-      val y_plus_one = Z3.Z3_mk_add (ctx, 0w2, Vector.fromList [y, one])
+      val y_plus_one = Z3.Arithmetic.Z3_mk_add (ctx, 0w2, Vector.fromList [y, one])
 
-      val c1 = Z3.Z3_mk_lt (ctx, x, y_plus_one)
-      val c2 = Z3.Z3_mk_gt (ctx, x, two)
+      val c1 = Z3_mk_lt (ctx, x, y_plus_one)
+      val c2 = Z3_mk_gt (ctx, x, two)
 
       val () = D.Z3_assert_cnstr (ctx, c1)
       val () = D.Z3_assert_cnstr (ctx, c2)
@@ -153,17 +154,18 @@ struct
   fun tutorial_sample () =
     with_context (fn ctx =>
     let
+      open Z3.Arithmetic
       val solver = Z3.Solver.Z3_mk_solver ctx
       val x = int_var ctx "x"
       val y = int_var ctx "y"
-      val two = int ctx 2
+      val two   = int ctx 2
       val seven = int ctx 7
-      val ten = int ctx 10
-      fun add ctx (l,r) = Z3.Z3_mk_add (ctx, 0w2, Vector.fromList [l, r])
-      fun mul ctx (l,r) = Z3.Z3_mk_mul (ctx, 0w2, Vector.fromList [l, r])
+      val ten   = int ctx 10
+      fun add ctx (l,r) = Z3_mk_add (ctx, 0w2, Vector.fromList [l, r])
+      fun mul ctx (l,r) = Z3_mk_mul (ctx, 0w2, Vector.fromList [l, r])
       val () = app (fn assert => Z3.Solver.Z3_solver_assert (ctx, solver, assert))
-                    [ Z3.Z3_mk_gt (ctx, x, two) (* x < 2 *)
-                    , Z3.Z3_mk_lt (ctx, y, ten) (* y < 10 *)
+                    [ Z3_mk_gt (ctx, x, two) (* x < 2 *)
+                    , Z3_mk_lt (ctx, y, ten) (* y < 10 *)
                     , Z3.Z3_mk_eq (ctx, add ctx (x, mul ctx (two, y))
                                    , seven) (* x + 2*y = 7 *)
                     ]
