@@ -3,6 +3,7 @@ structure Main =
 struct
   structure Ptr = Pointer
   structure D = Z3.Deprecated
+  structure Prop = Z3.Propositional
 
   fun var ctx name ty =
     let val sym = Z3.Z3_mk_string_symbol (ctx, name)
@@ -87,7 +88,7 @@ struct
     let
       val x = bool_var ctx "x"
       val y = bool_var ctx "y"
-      val x_xor_y = Z3.Z3_mk_xor (ctx, x, y)
+      val x_xor_y = Prop.Z3_mk_xor (ctx, x, y)
       val () = D.Z3_assert_cnstr (ctx, x_xor_y)
     in
       check ctx Z3.Z3_L_TRUE
@@ -116,8 +117,8 @@ struct
       val () = print "model for: x < y + 1, x > 2\n"
       val () = check ctx Z3.Z3_L_TRUE
 
-      val x_eq_y = Z3.Z3_mk_eq (ctx, x, y)
-      val c3     = Z3.Z3_mk_not(ctx, x_eq_y)
+      val x_eq_y = Prop.Z3_mk_eq (ctx, x, y)
+      val c3     = Prop.Z3_mk_not(ctx, x_eq_y)
     in
       D.Z3_assert_cnstr (ctx, c3);
       print "model for: x < y + 1, x > 2, not(x = y)\n";
@@ -166,7 +167,7 @@ struct
       val () = app (fn assert => Z3.Solver.Z3_solver_assert (ctx, solver, assert))
                     [ Z3_mk_gt (ctx, x, two) (* x < 2 *)
                     , Z3_mk_lt (ctx, y, ten) (* y < 10 *)
-                    , Z3.Z3_mk_eq (ctx, add ctx (x, mul ctx (two, y))
+                    , Prop.Z3_mk_eq (ctx, add ctx (x, mul ctx (two, y))
                                    , seven) (* x + 2*y = 7 *)
                     ]
       val () = print (Z3.Solver.Z3_solver_to_string (ctx, solver) ^ "\n")

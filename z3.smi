@@ -17,6 +17,7 @@ _require "./z3_set.smi"
 _require "./z3_array.smi"
 _require "./z3_bitvector.smi"
 _require "./z3_arithmetic.smi"
+_require "./z3_propositional.smi"
 
 structure Z3 =
 struct
@@ -78,6 +79,46 @@ struct
   val Z3_mk_context : Z3_config -> Z3_context
   val Z3_mk_const : Z3_context * Z3_symbol * Z3_sort -> Z3_ast
   val Z3_del_context : Z3_context -> unit
+
+  structure Propositional = (* Z3_Propositional *)
+  struct
+    type Z3_context = Z3_context
+    type Z3_ast     = Z3_ast
+  
+    val Z3_mk_true
+      : Z3_context -> Z3_ast
+  
+    val Z3_mk_false
+      : Z3_context -> Z3_ast
+  
+    val Z3_mk_eq
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_distinct
+      : Z3_context * word * Z3_ast vector -> Z3_ast
+  
+    val Z3_mk_not
+      : Z3_context * Z3_ast -> Z3_ast
+  
+    val Z3_mk_ite
+      : Z3_context * Z3_ast * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_iff
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_implies
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_xor
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+  
+    val Z3_mk_and
+      : Z3_context * word * Z3_ast vector -> Z3_ast
+  
+    val Z3_mk_or
+      : Z3_context * word * Z3_ast vector -> Z3_ast
+  
+  end (* Propositional *)
 
   structure Arithmetic = (* Z3_Arithmetic *)
   struct
@@ -833,10 +874,6 @@ struct
   val Z3_mk_int : Z3_context * int * Z3_sort -> Z3_ast
 
   val Z3_model_to_string : Z3_context * Z3_model -> string
-
-  val Z3_mk_eq : Z3_context * Z3_ast * Z3_ast -> Z3_ast
-  val Z3_mk_not : Z3_context * Z3_ast -> Z3_ast
-  val Z3_mk_xor : Z3_context * Z3_ast * Z3_ast -> Z3_ast
 
   val Z3_get_version
     : word ref * word ref * word ref * word ref -> unit

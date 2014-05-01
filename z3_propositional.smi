@@ -1,0 +1,43 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3_Propositional =
+struct
+  type Z3_context = unit ptr
+  type Z3_ast     = unit ptr
+
+  val Z3_mk_true
+    : Z3_context -> Z3_ast
+
+  val Z3_mk_false
+    : Z3_context -> Z3_ast
+
+  val Z3_mk_eq
+    : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+  val Z3_mk_distinct
+    : Z3_context * word * Z3_ast vector -> Z3_ast
+
+  val Z3_mk_not
+    : Z3_context * Z3_ast -> Z3_ast
+
+  val Z3_mk_ite
+    : Z3_context * Z3_ast * Z3_ast * Z3_ast -> Z3_ast
+
+  val Z3_mk_iff
+    : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+  val Z3_mk_implies
+    : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+  val Z3_mk_xor
+    : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+  val Z3_mk_and
+    : Z3_context * word * Z3_ast vector -> Z3_ast
+
+  val Z3_mk_or
+    : Z3_context * word * Z3_ast vector -> Z3_ast
+
+end
+
