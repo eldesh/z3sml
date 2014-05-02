@@ -24,7 +24,8 @@ SRCS = \
 	  z3_bitvector.sml  \
 	  z3_arithmetic.sml \
 	  z3_model.sml      \
-	  z3_propositional.sml
+	  z3_propositional.sml \
+	  z3_config.sml
 
 OBJS = $(SRCS:.sml=.o)
 

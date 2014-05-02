@@ -61,17 +61,10 @@ in
   val Z3_TRUE : Z3_bool = 1
   val Z3_FALSe : Z3_bool = 0
 
-  val Z3_mk_config =
-    Dyn.dlsym (libz3, "Z3_mk_config")
-    : _import () -> Z3_config
-
-  val Z3_del_config =
-    Dyn.dlsym (libz3, "Z3_del_config")
-    : _import Z3_config -> ()
-
-  val Z3_set_param_value =
-    Dyn.dlsym (libz3, "Z3_set_param_value")
-    : _import (Z3_config, Z3_string, Z3_string) -> ()
+  (**
+   * Config
+   *)
+  structure Config = Z3_Config
 
   val Z3_mk_context =
     Dyn.dlsym (libz3, "Z3_mk_context")

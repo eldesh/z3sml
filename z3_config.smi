@@ -1,0 +1,19 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3_Config =
+struct
+  type Z3_config = unit ptr
+  type Z3_string = String.string
+
+  val Z3_mk_config
+    : unit -> Z3_config
+
+  val Z3_del_config
+    : Z3_config -> unit
+
+  val Z3_set_param_value
+    : Z3_config * Z3_string * Z3_string -> unit
+
+end
+

@@ -18,6 +18,7 @@ _require "./z3_array.smi"
 _require "./z3_bitvector.smi"
 _require "./z3_arithmetic.smi"
 _require "./z3_propositional.smi"
+_require "./z3_config.smi"
 
 structure Z3 =
 struct
@@ -74,8 +75,21 @@ struct
  
   type Z3_error_handler = Z3_context * Z3_error_code -> unit
 
-  val Z3_mk_config  : unit -> Z3_config
-  val Z3_del_config : Z3_config -> unit
+  structure Config = (* Z3_config *)
+  struct
+    type Z3_config = Z3_config
+    type Z3_string = Z3_string
+
+    val Z3_mk_config
+      : unit -> Z3_config
+  
+    val Z3_del_config
+      : Z3_config -> unit
+  
+    val Z3_set_param_value
+      : Z3_config * Z3_string * Z3_string -> unit
+  end
+
   val Z3_mk_context : Z3_config -> Z3_context
   val Z3_mk_const : Z3_context * Z3_symbol * Z3_sort -> Z3_ast
   val Z3_del_context : Z3_context -> unit
@@ -863,8 +877,6 @@ struct
 
   val Z3_func_decl_to_string : Z3_context * Z3_func_decl -> Z3_string
   val Z3_ast_to_string : Z3_context * Z3_ast -> Z3_string
-
-  val Z3_set_param_value : Z3_config * Z3_string * Z3_string -> unit
 
   val Z3_mk_string_symbol : Z3_context * Z3_string -> Z3_symbol
   val Z3_set_error_handler : Z3_context * Z3_error_handler -> unit
