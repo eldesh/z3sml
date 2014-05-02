@@ -1,0 +1,41 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3_Parameter =
+struct
+  type Z3_context      = unit ptr
+  type Z3_params       = unit ptr
+  type Z3_symbol       = unit ptr
+  type Z3_param_descrs = unit ptr
+  type Z3_bool         = int
+  type Z3_string       = String.string
+ 
+  val Z3_mk_params
+    : Z3_context -> Z3_params
+
+  val Z3_params_inc_ref
+    : Z3_context * Z3_params -> unit
+
+  val Z3_params_dec_ref
+    : Z3_context * Z3_params -> unit
+
+  val Z3_params_set_bool
+    : Z3_context * Z3_params * Z3_symbol * Z3_bool -> unit
+
+  val Z3_params_set_uint
+    : Z3_context * Z3_params * Z3_symbol * Word32.word -> unit
+
+  val Z3_params_set_double
+    : Z3_context * Z3_params * Z3_symbol * Real.real -> unit
+
+  val Z3_params_set_symbol
+    : Z3_context * Z3_params * Z3_symbol * Z3_symbol -> unit
+
+  val Z3_params_to_string
+    : Z3_context * Z3_params -> Z3_string
+
+  val Z3_params_validate
+    : Z3_context * Z3_params * Z3_param_descrs -> unit
+
+end
+

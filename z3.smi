@@ -20,6 +20,7 @@ _require "./z3_arithmetic.smi"
 _require "./z3_propositional.smi"
 _require "./z3_config.smi"
 _require "./z3_context.smi"
+_require "./z3_parameter.smi"
 
 structure Z3 =
 struct
@@ -91,7 +92,6 @@ struct
       : Z3_config * Z3_string * Z3_string -> unit
   end
 
-
   structure Context = (* Z3_Context *)
   struct
     type Z3_config  = Z3_config
@@ -125,6 +125,44 @@ struct
       : Z3_context -> unit
   
   end (* Context *)
+
+  structure Parameter = (* Z3_Parameter *)
+  struct
+    type Z3_context      = Z3_context
+    type Z3_params       = Z3_params
+    type Z3_symbol       = Z3_symbol
+    type Z3_param_descrs = Z3_param_descrs
+    type Z3_bool         = Z3_bool
+    type Z3_string       = String.string
+
+    val Z3_mk_params
+      : Z3_context -> Z3_params
+  
+    val Z3_params_inc_ref
+      : Z3_context * Z3_params -> unit
+  
+    val Z3_params_dec_ref
+      : Z3_context * Z3_params -> unit
+  
+    val Z3_params_set_bool
+      : Z3_context * Z3_params * Z3_symbol * Z3_bool -> unit
+  
+    val Z3_params_set_uint
+      : Z3_context * Z3_params * Z3_symbol * Word32.word -> unit
+  
+    val Z3_params_set_double
+      : Z3_context * Z3_params * Z3_symbol * Real.real -> unit
+  
+    val Z3_params_set_symbol
+      : Z3_context * Z3_params * Z3_symbol * Z3_symbol -> unit
+  
+    val Z3_params_to_string
+      : Z3_context * Z3_params -> Z3_string
+  
+    val Z3_params_validate
+      : Z3_context * Z3_params * Z3_param_descrs -> unit
+  
+  end
 
   val Z3_mk_const : Z3_context * Z3_symbol * Z3_sort -> Z3_ast
 
