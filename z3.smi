@@ -21,6 +21,7 @@ _require "./z3_propositional.smi"
 _require "./z3_config.smi"
 _require "./z3_context.smi"
 _require "./z3_parameter.smi"
+_require "./z3_sort.smi"
 
 structure Z3 =
 struct
@@ -46,6 +47,9 @@ struct
   type Z3_solver       (= ptr)
   type Z3_stats        (= ptr)
   type Z3_context      (= ptr)
+  type Z3_sort_opt     (= ptr)
+  type Z3_constructor      (= ptr)
+  type Z3_constructor_list (= ptr)
   type Z3_string = String.string
   type Z3_bool         (= int)
 
@@ -162,7 +166,91 @@ struct
     val Z3_params_validate
       : Z3_context * Z3_params * Z3_param_descrs -> unit
   
-  end
+  end (* Parameter *)
+
+  structure Sort = (* Z3_Sort *)
+  struct
+    type Z3_context          = Z3_context
+    type Z3_params           = Z3_params
+    type Z3_sort             = Z3_sort
+    type Z3_symbol           = Z3_symbol
+    type Z3_func_decl        = Z3_func_decl
+    type Z3_sort_opt         = Z3_sort_opt
+    type Z3_constructor      = Z3_constructor
+    type Z3_constructor_list = Z3_constructor_list
+
+    val Z3_mk_uninterpreted_sort
+      : Z3_context * Z3_symbol -> Z3_sort
+  
+    val Z3_mk_bool_sort
+      : Z3_context -> Z3_sort
+  
+    val Z3_mk_int_sort
+      : Z3_context -> Z3_sort
+  
+    val Z3_mk_real_sort
+      : Z3_context -> Z3_sort
+  
+    val Z3_mk_bv_sort
+      : Z3_context * Word32.word -> Z3_sort
+  
+    (*
+    val Z3_mk_finite_domain_sort
+      : Z3_context * Z3_symbol * Word64.word -> Z3_sort
+     *)
+  
+    val Z3_mk_array_sort
+      : Z3_context * Z3_sort * Z3_sort -> Z3_sort
+  
+    val Z3_mk_tuple_sort
+      : Z3_context * Z3_sort * word
+                   * Z3_symbol vector * Z3_sort vector
+                   * Z3_func_decl ref * Z3_func_decl array
+                  -> Z3_sort
+  
+    val Z3_mk_enumeration_sort
+      : Z3_context * Z3_symbol * word
+                   * Z3_symbol vector * Z3_func_decl array
+                   * Z3_func_decl array
+                  -> Z3_sort
+  
+    val Z3_mk_list_sort
+      : Z3_context * Z3_symbol * Z3_sort
+                   * Z3_func_decl ref * Z3_func_decl ref
+                   * Z3_func_decl ref * Z3_func_decl ref
+                   * Z3_func_decl ref * Z3_func_decl ref
+                  -> Z3_sort
+  
+    val Z3_mk_constructor
+      : Z3_context * Z3_symbol * Z3_symbol * word
+                   * Z3_symbol vector * Z3_sort_opt vector * word array
+                  -> Z3_constructor
+  
+    val Z3_del_constructor
+      : Z3_context * Z3_constructor -> unit
+  
+    val Z3_mk_datatype
+      : Z3_context * Z3_symbol * word
+                   * Z3_constructor array
+                  -> Z3_sort
+  
+    val Z3_mk_constructor_list
+      : Z3_context * word * Z3_constructor vector -> Z3_constructor_list
+  
+    val Z3_del_constructor_list
+      : Z3_context * Z3_constructor_list -> unit
+  
+    val Z3_mk_datatypes
+      : Z3_context * word * Z3_symbol vector
+                   * Z3_sort array * Z3_constructor_list array
+                  -> unit
+  
+    val Z3_query_constructor
+      : Z3_context * Z3_constructor * word
+                   * Z3_func_decl ref * Z3_func_decl ref
+                   * Z3_func_decl array
+                 -> unit
+  end (* Sort *)
 
   val Z3_mk_const : Z3_context * Z3_symbol * Z3_sort -> Z3_ast
 
@@ -953,8 +1041,6 @@ struct
   val Z3_mk_string_symbol : Z3_context * Z3_string -> Z3_symbol
   val Z3_set_error_handler : Z3_context * Z3_error_handler -> unit
 
-  val Z3_mk_int_sort : Z3_context -> Z3_sort
-  val Z3_mk_bool_sort : Z3_context -> Z3_sort
   val Z3_mk_int : Z3_context * int * Z3_sort -> Z3_ast
 
   val Z3_model_to_string : Z3_context * Z3_model -> string

@@ -11,17 +11,17 @@ struct
     end
 
   fun int_var ctx name =
-    let val ty = Z3.Z3_mk_int_sort ctx
+    let val ty = Z3.Sort.Z3_mk_int_sort ctx
     in var ctx name ty
     end
 
   fun bool_var ctx name =
-    let val ty = Z3.Z3_mk_bool_sort ctx
+    let val ty = Z3.Sort.Z3_mk_bool_sort ctx
     in var ctx name ty
     end
 
   fun int ctx v =
-    let val ty = Z3.Z3_mk_int_sort ctx
+    let val ty = Z3.Sort.Z3_mk_int_sort ctx
     in Z3.Z3_mk_int (ctx, v, ty)
     end
 
