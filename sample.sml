@@ -60,10 +60,10 @@ struct
     with_config (fn cfg =>
     let
       val () = Z3.Config.Z3_set_param_value (cfg, "MODEL", "true")
-      val ctx = Z3.Z3_mk_context cfg
+      val ctx = Z3.Context.Z3_mk_context cfg
       val () = Z3.Z3_set_error_handler(ctx, fn _ => print "error\n")
       val r   = f ctx
-      val ()  = Z3.Z3_del_context ctx
+      val ()  = Z3.Context.Z3_del_context ctx
     in
       r
     end)
@@ -99,7 +99,7 @@ struct
       open Z3.Arithmetic
       val () = print "find_model_example2\n"
       val cfg = Z3.Config.Z3_mk_config ()
-      val ctx = Z3.Z3_mk_context cfg
+      val ctx = Z3.Context.Z3_mk_context cfg
 
       val x = int_var ctx "x"
       val y = int_var ctx "y"
@@ -123,7 +123,7 @@ struct
       D.Z3_assert_cnstr (ctx, c3);
       print "model for: x < y + 1, x > 2, not(x = y)\n";
       check ctx Z3.Z3_L_TRUE;
-      Z3.Z3_del_context ctx
+      Z3.Context.Z3_del_context ctx
     end
 
   fun mk_context () =
@@ -132,7 +132,7 @@ struct
       val () = Z3.Config.Z3_set_param_value (cfg, "MODEL", "true");
     in
       let
-        val ctx = Z3.Z3_mk_context cfg
+        val ctx = Z3.Context.Z3_mk_context cfg
       in
         Z3.Z3_set_error_handler (ctx, fn _=> print "error\n");
         Z3.Config.Z3_del_config cfg;

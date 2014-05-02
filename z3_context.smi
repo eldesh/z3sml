@@ -1,0 +1,37 @@
+_require "basis.smi"
+_require "ffi.smi"
+
+structure Z3_Context =
+struct
+  type Z3_config  = unit ptr
+  type Z3_context = unit ptr
+  type Z3_ast     = unit ptr
+  type Z3_string  = String.string
+  type Z3_bool    = int
+
+  val Z3_mk_context
+    : Z3_config -> Z3_context
+
+  val Z3_mk_context_rc
+    : Z3_config -> Z3_context
+
+  val Z3_del_context
+    : Z3_context -> unit
+
+  val Z3_inc_ref
+    : Z3_context * Z3_ast -> unit
+
+  val Z3_dec_ref
+    : Z3_context * Z3_ast -> unit
+
+  val Z3_update_param_value
+    : Z3_context * Z3_string * Z3_string -> unit
+
+  val Z3_get_param_value
+    : Z3_context * Z3_string * Z3_string ref -> Z3_bool
+
+  val Z3_interrupt
+    : Z3_context -> unit
+
+end
+

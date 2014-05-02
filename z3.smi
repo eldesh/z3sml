@@ -19,6 +19,7 @@ _require "./z3_bitvector.smi"
 _require "./z3_arithmetic.smi"
 _require "./z3_propositional.smi"
 _require "./z3_config.smi"
+_require "./z3_context.smi"
 
 structure Z3 =
 struct
@@ -90,9 +91,42 @@ struct
       : Z3_config * Z3_string * Z3_string -> unit
   end
 
-  val Z3_mk_context : Z3_config -> Z3_context
+
+  structure Context = (* Z3_Context *)
+  struct
+    type Z3_config  = Z3_config
+    type Z3_context = Z3_context
+    type Z3_ast     = Z3_ast
+    type Z3_string  = Z3_string
+    type Z3_bool    = Z3_bool
+
+    val Z3_mk_context
+      : Z3_config -> Z3_context
+  
+    val Z3_mk_context_rc
+      : Z3_config -> Z3_context
+  
+    val Z3_del_context
+      : Z3_context -> unit
+  
+    val Z3_inc_ref
+      : Z3_context * Z3_ast -> unit
+  
+    val Z3_dec_ref
+      : Z3_context * Z3_ast -> unit
+  
+    val Z3_update_param_value
+      : Z3_context * Z3_string * Z3_string -> unit
+  
+    val Z3_get_param_value
+      : Z3_context * Z3_string * Z3_string ref -> Z3_bool
+  
+    val Z3_interrupt
+      : Z3_context -> unit
+  
+  end (* Context *)
+
   val Z3_mk_const : Z3_context * Z3_symbol * Z3_sort -> Z3_ast
-  val Z3_del_context : Z3_context -> unit
 
   structure Propositional = (* Z3_Propositional *)
   struct

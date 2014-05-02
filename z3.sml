@@ -66,37 +66,10 @@ in
    *)
   structure Config = Z3_Config
 
-  val Z3_mk_context =
-    Dyn.dlsym (libz3, "Z3_mk_context")
-    : _import Z3_config -> Z3_context
-
-  val Z3_mk_context_rc =
-    Dyn.dlsym (libz3, "Z3_mk_context_rc")
-    : _import Z3_config -> Z3_context
-
-  val Z3_del_context =
-    Dyn.dlsym (libz3, "Z3_del_context")
-    : _import Z3_context -> ()
-
-  val Z3_inc_ref =
-    Dyn.dlsym (libz3, "Z3_inc_ref")
-    : _import (Z3_context, Z3_ast) -> ()
-
-  val Z3_dec_ref =
-    Dyn.dlsym (libz3, "Z3_dec_ref")
-    : _import (Z3_context, Z3_ast) -> ()
-
-  val Z3_update_param_value =
-    Dyn.dlsym (libz3, "Z3_update_param_value")
-    : _import (Z3_context, Z3_string, Z3_string) -> ()
-
-  val Z3_get_param_value =
-    Dyn.dlsym (libz3, "Z3_get_param_value")
-    : _import (Z3_context, Z3_string, Z3_string ref) -> Z3_bool
-
-  val Z3_interrupt =
-    Dyn.dlsym (libz3, "Z3_interrupt")
-    : _import Z3_context -> ()
+  (**
+   * Context
+   *)
+  structure Context = Z3_Context
 
   (**
    * Parameters
