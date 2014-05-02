@@ -28,7 +28,8 @@ SRCS = \
 	  z3_config.sml \
 	  z3_context.sml \
 	  z3_parameter.sml \
-	  z3_sort.sml
+	  z3_sort.sml \
+	  z3_parameter_desc.sml
 
 OBJS = $(SRCS:.sml=.o)
 

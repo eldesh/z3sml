@@ -22,6 +22,7 @@ _require "./z3_config.smi"
 _require "./z3_context.smi"
 _require "./z3_parameter.smi"
 _require "./z3_sort.smi"
+_require "./z3_parameter_desc.smi"
 
 structure Z3 =
 struct
@@ -78,6 +79,7 @@ struct
   type Z3_parameter_kind = Z3_enum.Z3_parameter_kind
   type Z3_ast_kind       = Z3_enum.Z3_ast_kind
   type Z3_sort_kind      = Z3_enum.Z3_sort_kind
+  type Z3_param_kind     = Z3_enum.Z3_param_kind
  
   type Z3_error_handler = Z3_context * Z3_error_code -> unit
 
@@ -167,6 +169,33 @@ struct
       : Z3_context * Z3_params * Z3_param_descrs -> unit
   
   end (* Parameter *)
+
+  structure ParameterDesc = (* Z3_ParameterDesc *)
+  struct
+    type Z3_context      = Z3_context
+    type Z3_param_descrs = Z3_param_descrs
+    type Z3_symbol       = Z3_symbol
+    type Z3_param_kind   = Z3_param_kind
+    type Z3_string       = Z3_string
+
+    val Z3_param_descrs_inc_ref
+      : Z3_context * Z3_param_descrs -> unit
+  
+    val Z3_param_descrs_dec_ref
+      : Z3_context * Z3_param_descrs -> unit
+  
+    val Z3_param_descrs_get_kind
+      : Z3_context * Z3_param_descrs * Z3_symbol -> Z3_param_kind
+  
+    val Z3_param_descrs_size
+      : Z3_context * Z3_param_descrs -> Word32.word
+  
+    val Z3_param_descrs_get_name
+      : Z3_context * Z3_param_descrs * word -> Z3_symbol
+  
+    val Z3_param_descrs_to_string
+      : Z3_context * Z3_param_descrs -> Z3_string
+  end (* ParameterDesc *)
 
   structure Sort = (* Z3_Sort *)
   struct
