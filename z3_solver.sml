@@ -17,7 +17,7 @@ in
   type Z3_ast     = unit ptr
   type Z3_ast_vector = unit ptr
   type Z3_string  = String.string
-  type Z3_lbool = int
+  type Z3_lbool   = Z3_enum.Z3_lbool
 
   val Z3_mk_solver =
     Dyn.dlsym(libz3, "Z3_mk_solver")

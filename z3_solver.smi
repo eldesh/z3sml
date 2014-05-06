@@ -1,5 +1,6 @@
 _require "basis.smi"
 _require "ffi.smi"
+_require "z3_enum.smi"
 
 structure Z3_Solver =
 struct
@@ -14,7 +15,7 @@ struct
   type Z3_ast     = unit ptr
   type Z3_ast_vector = unit ptr
   type Z3_string  = String.string
-  type Z3_lbool = int
+  type Z3_lbool   = Z3_enum.Z3_lbool
 
   val Z3_mk_solver
     : Z3_context -> Z3_solver
