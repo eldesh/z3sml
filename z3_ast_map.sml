@@ -11,7 +11,7 @@ in
   type Z3_ast_vector = unit ptr
   type Z3_ast_map    = unit ptr
   type Z3_string     = String.string
-  type Z3_bool          = int
+  type Z3_bool       = int
 
   val Z3_mk_ast_map =
     Dyn.dlsym(libz3, "Z3_mk_ast_map")

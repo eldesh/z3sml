@@ -124,8 +124,10 @@ struct
     val Z3_update_param_value
       : Z3_context * Z3_string * Z3_string -> unit
   
+      (*
     val Z3_get_param_value
       : Z3_context * Z3_string * Z3_string ref -> Z3_bool
+      *)
   
     val Z3_interrupt
       : Z3_context -> unit
