@@ -47,7 +47,8 @@ $(SAMPLE): sample/sample.smi $(OBJS)
 	$(SML) $(SMLFLAGS) -o $@ $<
 
 %.o: %.sml
-	$(SML) $(SMLFLAGS) -c $<
+	@echo "  SML# [$@]"
+	@$(SML) $(SMLFLAGS) -c $<
 
 %.d: %.sml
 	@echo "  GEN [$@]"
