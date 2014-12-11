@@ -36,12 +36,6 @@ in
     Dyn.dlsym (libz3, "Z3_update_param_value")
     : _import (Z3_context, Z3_string, Z3_string) -> ()
 
-    (*
-  val Z3_get_param_value =
-    Dyn.dlsym (libz3, "Z3_get_param_value")
-    : _import (Z3_context, Z3_string, Z3_string ref) -> Z3_bool
-    *)
-
   val Z3_interrupt =
     Dyn.dlsym (libz3, "Z3_interrupt")
     : _import Z3_context -> ()
