@@ -19,10 +19,29 @@ Build
 Just type `make` in this directory.
 
 
+How to Use
+--------------------------------
+
++ add *\_require "z3.smi"* to your .smi file
+  of your project which using this library.
+
+    (* foo.smi *)
+    \_require "z3.smi"
+    
+    (* foo.sml *)
+    open Z3
+    fun bar () = ...
+
+
++ build your project with the compiler switch _-I<path/to/dir/containts/z3.smi>_
+
+    $ smlsharp -I/path/to/z3sml -o foo foo.sml
+
+
 Supported Version
 --------------------------------
 
-*v4.3.2* is recommended.
+*v4.3.2* is supported.
 
 
 Link
