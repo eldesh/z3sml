@@ -2,7 +2,6 @@
 structure Z3_Config =
 struct
 local
-  structure Ptr = Pointer
   structure Dyn = DynamicLink
   val libz3 = Dyn.dlopen "libz3.so"
 in
