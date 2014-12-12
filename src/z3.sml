@@ -55,6 +55,11 @@ in
   val Z3_FALSe : Z3_bool = 0
 
   (**
+   * Global configuration
+   *)
+  structure Global = Z3_Global
+
+  (**
    * Config
    *)
   structure Config = Z3_Config

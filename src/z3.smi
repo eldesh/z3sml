@@ -1,5 +1,6 @@
 _require "basis.smi"
 _require "ffi.smi"
+_require "./z3_global.smi"
 _require "./z3_enum.smi"
 _require "./z3_fixedpoint.smi"
 _require "./z3_ast_vector.smi"
@@ -82,6 +83,16 @@ struct
   type Z3_param_kind     = Z3_enum.Z3_param_kind
  
   type Z3_error_handler = Z3_context * Z3_error_code -> unit
+
+  structure Global = (* Z3_global *)
+  struct
+    type Z3_bool = int
+    type Z3_string = String.string
+  
+    val Z3_global_param_set : Z3_string * Z3_string -> unit
+    val Z3_global_param_reset_all : unit -> unit
+    val Z3_global_param_get : Z3_string * Z3_string ref -> Z3_bool
+  end
 
   structure Config = (* Z3_config *)
   struct
