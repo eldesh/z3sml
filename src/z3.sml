@@ -52,7 +52,7 @@ in
   type Z3_error_handler = Z3_context * Z3_error_code -> unit
 
   val Z3_TRUE : Z3_bool = 1
-  val Z3_FALSe : Z3_bool = 0
+  val Z3_FALSE : Z3_bool = 0
 
   (**
    * Global configuration

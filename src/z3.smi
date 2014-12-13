@@ -84,6 +84,9 @@ struct
  
   type Z3_error_handler = Z3_context * Z3_error_code -> unit
 
+  val Z3_TRUE : Z3_bool
+  val Z3_FALSE : Z3_bool
+
   structure Global = (* Z3_global *)
   struct
     type Z3_bool = int
