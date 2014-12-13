@@ -3,7 +3,7 @@ structure Z3_Global =
 struct
 local
   structure Dyn = DynamicLink
-  val libz3 = Dyn.dlopen "libz3.so"
+  val libz3 = Library.libz3
 in
   type Z3_bool = int
   type Z3_string = String.string

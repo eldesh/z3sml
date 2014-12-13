@@ -1,0 +1,7 @@
+_require "ffi.smi"
+
+structure Library =
+struct
+  val libz3 : DynamicLink.lib
+end
+

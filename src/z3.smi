@@ -1,5 +1,6 @@
 _require "basis.smi"
 _require "ffi.smi"
+_require "./libh.smi"
 _require "./z3_global.smi"
 _require "./z3_enum.smi"
 _require "./z3_fixedpoint.smi"

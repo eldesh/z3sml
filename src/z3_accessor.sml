@@ -4,7 +4,7 @@ struct
 local
   structure Ptr = Pointer
   structure Dyn = DynamicLink
-  val libz3 = Dyn.dlopen "libz3.so"
+  val libz3 = Library.libz3
   structure E = Z3_enum
 in
   type Z3_context      = unit ptr
