@@ -39,6 +39,7 @@ SRCS = src/z3.sml \
 	   src/z3_sort.sml \
 	   src/z3_parameter_desc.sml \
 	   src/z3_global.sml \
+	   src/z3_algebraic.sml \
 	   src/libh.sml
 
 OBJS = $(SRCS:.sml=.o) $(SAMPLE_SRC:.sml=.o)

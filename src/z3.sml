@@ -55,6 +55,11 @@ in
   val Z3_FALSE : Z3_bool = 0
 
   (**
+   * Algebraic Numbers
+   *)
+  structure Algebraic = Z3_Algebraic
+
+  (**
    * Global configuration
    *)
   structure Global = Z3_Global

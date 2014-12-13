@@ -1,6 +1,7 @@
 _require "basis.smi"
 _require "ffi.smi"
 _require "./libh.smi"
+_require "./z3_algebraic.smi"
 _require "./z3_global.smi"
 _require "./z3_enum.smi"
 _require "./z3_fixedpoint.smi"
@@ -87,6 +88,71 @@ struct
 
   val Z3_TRUE : Z3_bool
   val Z3_FALSE : Z3_bool
+
+  structure Algebraic = (* Z3_Algebraic *)
+  struct
+    type Z3_context = Z3_context
+    type Z3_ast     = Z3_ast
+    type Z3_bool    = Z3_bool
+    type Z3_ast_vector = Z3_ast_vector
+
+    val Z3_algebraic_is_value
+      : Z3_context * Z3_ast -> Z3_bool
+
+    val Z3_algebraic_is_pos
+      : Z3_context * Z3_ast -> Z3_bool
+
+    val Z3_algebraic_is_neg
+      : Z3_context * Z3_ast -> Z3_bool
+
+    val Z3_algebraic_is_zero
+      : Z3_context * Z3_ast -> Z3_bool
+
+    val Z3_algebraic_sign
+      : Z3_context * Z3_ast -> int
+
+    val Z3_algebraic_add
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+    val Z3_algebraic_sub
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+    val Z3_algebraic_mul
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+    val Z3_algebraic_div
+      : Z3_context * Z3_ast * Z3_ast -> Z3_ast
+
+    val Z3_algebraic_root
+      : Z3_context * Z3_ast * word -> Z3_ast
+
+    val Z3_algebraic_power
+      : Z3_context * Z3_ast * word -> Z3_ast
+
+    val Z3_algebraic_lt
+      : Z3_context * Z3_ast * Z3_ast -> Z3_bool
+
+    val Z3_algebraic_gt
+      : Z3_context * Z3_ast * Z3_ast -> Z3_bool
+
+    val Z3_algebraic_le
+      : Z3_context * Z3_ast * Z3_ast -> Z3_bool
+
+    val Z3_algebraic_ge
+      : Z3_context * Z3_ast * Z3_ast -> Z3_bool
+
+    val Z3_algebraic_eq
+      : Z3_context * Z3_ast * Z3_ast -> Z3_bool
+
+    val Z3_algebraic_neq
+      : Z3_context * Z3_ast * Z3_ast -> Z3_bool
+
+    val Z3_algebraic_roots
+      : Z3_context * Z3_ast * word * Z3_ast array -> Z3_ast_vector
+
+    val Z3_algebraic_eval 
+      : Z3_context * Z3_ast * word * Z3_ast array -> int
+  end
 
   structure Global = (* Z3_global *)
   struct
