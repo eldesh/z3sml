@@ -15,36 +15,36 @@ in
     Ptr.importString o
     ( Dyn.dlsym(libz3, "Z3_stats_to_string")
     : _import (Z3_context, Z3_stats) -> char ptr)
-     
+
   val Z3_stats_inc_ref =
     Dyn.dlsym(libz3, "Z3_stats_inc_ref")
     : _import (Z3_context, Z3_stats) -> ()
-     
+
   val Z3_stats_dec_ref =
     Dyn.dlsym(libz3, "Z3_stats_dec_ref")
     : _import (Z3_context, Z3_stats) -> ()
-     
+
   val Z3_stats_size =
     Dyn.dlsym(libz3, "Z3_stats_size")
     : _import (Z3_context, Z3_stats) -> word
-     
+
   val Z3_stats_get_key =
     Ptr.importString o
     ( Dyn.dlsym(libz3, "Z3_stats_get_key")
     : _import (Z3_context, Z3_stats, word) -> char ptr)
-     
+
   val Z3_stats_is_uint =
     Dyn.dlsym(libz3, "Z3_stats_is_uint")
     : _import (Z3_context, Z3_stats, word) -> Z3_bool
-     
+
   val Z3_stats_is_double =
     Dyn.dlsym(libz3, "Z3_stats_is_double")
     : _import (Z3_context, Z3_stats, word) -> Z3_bool
-     
+
   val Z3_stats_get_uint_value =
     Dyn.dlsym(libz3, "Z3_stats_get_uint_value")
     : _import (Z3_context, Z3_stats, word) -> word
-     
+
   val Z3_stats_get_double_value =
     Dyn.dlsym(libz3, "Z3_stats_get_double_value")
     : _import (Z3_context, Z3_stats, word) -> real

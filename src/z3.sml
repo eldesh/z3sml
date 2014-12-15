@@ -172,7 +172,7 @@ in
   val Z3_mk_int64 =
     Dyn.dlsym(libz3, "Z3_mk_int64")
     : _import (Z3_context, Int64.int, Z3_sort) -> Z3_ast
-         
+
   val Z3_mk_unsigned_int64 =
     Dyn.dlsym(libz3, "Z3_mk_unsigned_int64")
     : _import (Z3_context, Word64.word, Z3_sort) -> Z3_ast
