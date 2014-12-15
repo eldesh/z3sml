@@ -32,6 +32,7 @@ in
   type Z3_solver       = unit ptr
   type Z3_stats        = unit ptr
   type Z3_rcf_num      = unit ptr
+  type Z3_literals     = unit ptr
 
   type Z3_context       = unit ptr
   type Z3_error_code    = word

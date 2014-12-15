@@ -54,6 +54,7 @@ struct
   type Z3_solver       (= ptr)
   type Z3_stats        (= ptr)
   type Z3_rcf_num      (= ptr)
+  type Z3_literals     (= ptr)
 
   type Z3_context      (= ptr)
   type Z3_sort_opt     (= ptr)
@@ -1414,17 +1415,164 @@ struct
 
   structure Deprecated =
   struct
-    type Z3_context = Z3_context
-    type Z3_model   = Z3_model
-    type Z3_ast     = Z3_ast
-    type Z3_lbool   = Z3_lbool
+    type Z3_context   = Z3_context
+    type Z3_model     = Z3_model
+    type Z3_ast       = Z3_ast
+    type Z3_symbol    = Z3_symbol
+    type Z3_sort      = Z3_sort
+    type Z3_lbool     = Z3_lbool
+    type Z3_bool      = Z3_bool
+    type Z3_string    = Z3_string
+    type Z3_literals  = Z3_literals
+    type Z3_func_decl = Z3_func_decl
+    type Z3_solver    = Z3_solver
 
-    val Z3_check_and_get_model : Z3_context * Z3_model ref -> Z3_lbool
-    val Z3_check : Z3_context -> Z3_lbool
-    val Z3_del_model : Z3_context * Z3_model -> unit
-    val Z3_assert_cnstr : Z3_context * Z3_ast -> unit
-    val Z3_context_to_string : Z3_context -> string
-  end
+    (*
+     * Deprecated Injective functions API
+     *)
+    val Z3_mk_injective_function
+      : Z3_context * Z3_symbol * word * Z3_sort vector * Z3_sort -> Z3_func_decl
+
+    (*
+     * Deprecated Constraints API
+     *)
+    val Z3_set_logic
+      : Z3_context * Z3_string -> Z3_bool
+
+    val Z3_push
+      : Z3_context -> unit
+
+    val Z3_pop
+      : Z3_context * word -> unit
+
+    val Z3_get_num_scopes
+      : Z3_context -> word
+
+    val Z3_persist_ast
+      : Z3_context * Z3_ast * word -> unit
+
+    val Z3_assert_cnstr
+      : Z3_context * Z3_ast -> unit
+
+    val Z3_check_and_get_model
+      : Z3_context * Z3_model ref -> Z3_lbool
+
+    val Z3_check
+      : Z3_context -> Z3_lbool
+
+    val Z3_check_assumptions
+      : Z3_context * word * Z3_ast vector * Z3_model ref
+        * Z3_ast ref * word ref * Z3_ast array -> Z3_lbool
+
+    val Z3_get_implied_equalities
+      : Z3_context * Z3_solver * word
+        * Z3_ast vector * word array -> Z3_lbool
+
+    val Z3_del_model
+      : Z3_context * Z3_model -> unit
+
+    (*
+     * Deprecated Search control API
+     *)
+    val Z3_soft_check_cancel
+      : Z3_context -> unit
+
+    val Z3_get_search_failure
+      : Z3_context -> Z3_enum.Z3_search_failure 
+
+    (*
+     * Deprecated Labels API
+     *)
+    val Z3_mk_label
+      : Z3_context * Z3_symbol * Z3_bool * Z3_ast -> Z3_ast
+
+    val Z3_get_relevant_labels
+      : Z3_context -> Z3_literals
+
+    val Z3_get_relevant_literals
+      : Z3_context -> Z3_literals
+
+    val Z3_get_guessed_literals
+      : Z3_context -> Z3_literals
+
+    val Z3_del_literals
+      : Z3_context * Z3_literals -> unit
+
+    val Z3_get_num_literals
+      : Z3_context * Z3_literals -> word
+
+    val Z3_get_label_symbol
+      : Z3_context * Z3_literals * word -> Z3_symbol
+
+    val Z3_get_literal
+      : Z3_context * Z3_literals * word -> Z3_ast
+
+    val Z3_disable_literal
+      : Z3_context * Z3_literals * word -> unit
+
+    val Z3_block_literals
+      : Z3_context * Z3_literals -> unit
+
+    (*
+     * Deprecated Model API
+     *)
+    val Z3_get_model_num_constants
+      : Z3_context * Z3_model -> word
+
+    val Z3_get_model_constant
+      : Z3_context * Z3_model * word -> Z3_func_decl
+
+    val Z3_get_model_num_funcs
+      : Z3_context * Z3_model -> word
+
+    val Z3_get_model_func_decl
+      : Z3_context * Z3_model * word -> Z3_func_decl
+
+    val Z3_eval_func_decl
+      : Z3_context * Z3_model * Z3_func_decl * Z3_ast ref -> Z3_bool
+
+    val Z3_is_array_value
+      : Z3_context * Z3_model * Z3_ast * word ref -> Z3_bool
+
+    val Z3_get_array_value
+      : Z3_context * Z3_model * Z3_ast * word
+        * Z3_ast array * Z3_ast array * Z3_ast ref -> unit
+
+    val Z3_get_model_func_else
+      : Z3_context * Z3_model * word -> Z3_ast
+
+    val Z3_get_model_func_num_entries
+      : Z3_context * Z3_model * word -> word
+
+    val Z3_get_model_func_entry_num_args
+      : Z3_context * Z3_model * word * word -> word
+
+    val Z3_get_model_func_entry_arg
+      : Z3_context * Z3_model * word * word -> Z3_ast
+
+    val Z3_get_model_func_entry_value
+      : Z3_context * Z3_model * word * word -> Z3_ast
+
+    val Z3_eval
+      : Z3_context * Z3_model * Z3_ast * Z3_ast ref -> Z3_bool
+
+    val Z3_eval_decl
+      : Z3_context * Z3_model * Z3_func_decl
+         * word * Z3_ast vector * Z3_ast ref -> Z3_bool
+
+    (*
+     * Deprecated String conversion API
+     *)
+    val Z3_context_to_string
+      : Z3_context -> Z3_string
+
+    val Z3_statistics_to_string
+      : Z3_context -> Z3_string
+
+    val Z3_get_context_assignment
+      : Z3_context -> Z3_ast
+
+  end (* Deprecated *)
 
 end
 
