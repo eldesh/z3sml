@@ -31,6 +31,7 @@ in
   type Z3_apply_result = unit ptr
   type Z3_solver       = unit ptr
   type Z3_stats        = unit ptr
+  type Z3_rcf_num      = unit ptr
 
   type Z3_context       = unit ptr
   type Z3_error_code    = word
@@ -361,6 +362,18 @@ in
    * Statistics
    *)
   structure Statistics = Z3_Statistics
+
+  (**
+   * Polynominal
+   *)
+  val Z3_polynomial_subresultants =
+    Dyn.dlsym(libz3, "Z3_polynomial_subresultants")
+    : _import (Z3_context, Z3_ast, Z3_ast, Z3_ast) -> Z3_ast_vector
+
+  (**
+   * Real Closed Fields API
+   *)
+  structure RealClosedField = Z3_RealClosedField
 
   (**
    * Deprecxated Constraints API

@@ -26,6 +26,7 @@ _require "./z3_context.smi"
 _require "./z3_parameter.smi"
 _require "./z3_sort.smi"
 _require "./z3_parameter_desc.smi"
+_require "./z3_realclosedfield.smi"
 
 structure Z3 =
 struct
@@ -50,6 +51,8 @@ struct
   type Z3_apply_result (= ptr)
   type Z3_solver       (= ptr)
   type Z3_stats        (= ptr)
+  type Z3_rcf_num      (= ptr)
+
   type Z3_context      (= ptr)
   type Z3_sort_opt     (= ptr)
   type Z3_constructor      (= ptr)
@@ -1251,6 +1254,84 @@ struct
     val Z3_solver_to_string
       : Z3_context * Z3_solver -> Z3_string
   end (* Solver *)
+
+  val Z3_polynomial_subresultants
+    : Z3_context * Z3_ast * Z3_ast * Z3_ast -> Z3_ast_vector
+
+  structure RealClosedField =
+  struct
+    type Z3_context = Z3_context
+    type Z3_rcf_num = Z3_rcf_num
+
+    val Z3_rcf_del
+      : Z3_context * Z3_rcf_num -> unit
+
+    val Z3_rcf_mk_rational
+      : Z3_context * Z3_string -> Z3_rcf_num
+
+    val Z3_rcf_mk_small_int
+      : Z3_context * int -> Z3_rcf_num
+
+    val Z3_rcf_mk_pi
+      : Z3_context -> Z3_rcf_num
+
+    val Z3_rcf_mk_e
+      : Z3_context -> Z3_rcf_num
+
+    val Z3_rcf_mk_infinitesimal
+      : Z3_context -> Z3_rcf_num
+
+    val Z3_rcf_mk_roots
+      : Z3_context * word * Z3_rcf_num vector * Z3_rcf_num array -> word
+
+    val Z3_rcf_add
+      : Z3_context * Z3_rcf_num * Z3_rcf_num -> Z3_rcf_num
+
+    val Z3_rcf_sub
+      : Z3_context * Z3_rcf_num * Z3_rcf_num -> Z3_rcf_num
+
+    val Z3_rcf_mul
+      : Z3_context * Z3_rcf_num * Z3_rcf_num -> Z3_rcf_num
+
+    val Z3_rcf_div
+      : Z3_context * Z3_rcf_num * Z3_rcf_num -> Z3_rcf_num
+
+    val Z3_rcf_neg
+      : Z3_context * Z3_rcf_num -> Z3_rcf_num
+
+    val Z3_rcf_inv
+      : Z3_context * Z3_rcf_num -> Z3_rcf_num
+
+    val Z3_rcf_power
+      : Z3_context * Z3_rcf_num * word -> Z3_rcf_num
+
+    val Z3_rcf_lt
+      : Z3_context * Z3_rcf_num * Z3_rcf_num -> Z3_rcf_num
+
+    val Z3_rcf_gt
+      : Z3_context * Z3_rcf_num * Z3_rcf_num -> Z3_rcf_num
+
+    val Z3_rcf_le
+      : Z3_context * Z3_rcf_num * Z3_rcf_num -> Z3_rcf_num
+
+    val Z3_rcf_ge
+      : Z3_context * Z3_rcf_num * Z3_rcf_num -> Z3_rcf_num
+
+    val Z3_rcf_eq
+      : Z3_context * Z3_rcf_num * Z3_rcf_num -> Z3_rcf_num
+
+    val Z3_rcf_neq
+      : Z3_context * Z3_rcf_num * Z3_rcf_num -> Z3_rcf_num
+
+    val Z3_rcf_num_to_string
+      : Z3_context * Z3_rcf_num * Z3_bool * Z3_bool -> Z3_string
+
+    val Z3_rcf_num_to_decimal_string
+      : Z3_context * Z3_rcf_num * word -> Z3_string
+
+    val Z3_rcf_get_numerator_denominator
+      : Z3_context * Z3_rcf_num * Z3_rcf_num ref * Z3_rcf_num ref -> unit
+  end (* Z3_RealClosedField *)
 
   structure Deprecated =
   struct
