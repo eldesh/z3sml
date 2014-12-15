@@ -383,30 +383,7 @@ in
   (**
    * Deprecxated Constraints API
    *)
-  structure Deprecated =
-  struct
-    val Z3_check_and_get_model =
-      Dyn.dlsym (libz3, "Z3_check_and_get_model")
-      : _import (Z3_context, Z3_model ref) -> Z3_lbool
-
-    val Z3_check =
-      Dyn.dlsym (libz3, "Z3_check")
-      : _import Z3_context -> Z3_lbool
-
-    val Z3_del_model =
-      Dyn.dlsym (libz3, "Z3_del_model")
-      : _import (Z3_context, Z3_model) -> ()
-
-    val Z3_assert_cnstr =
-      Dyn.dlsym (libz3, "Z3_assert_cnstr")
-      : _import (Z3_context, Z3_ast) -> ()
-
-    val Z3_context_to_string =
-      Ptr.importString o
-      (Dyn.dlsym (libz3, "Z3_context_to_string")
-      : _import Z3_context -> char ptr)
-
-  end (* Deprecated *)
+  structure Deprecated = Z3_Deprecated
 
 end (* local *)
 end

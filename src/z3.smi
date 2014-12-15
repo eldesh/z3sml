@@ -28,6 +28,7 @@ _require "./z3_sort.smi"
 _require "./z3_parameter_desc.smi"
 _require "./z3_realclosedfield.smi"
 _require "./z3_interpolation.smi"
+_require "./z3_deprecated.smi"
 
 structure Z3 =
 struct
@@ -1413,11 +1414,16 @@ struct
 
   structure Deprecated =
   struct
+    type Z3_context = Z3_context
+    type Z3_model   = Z3_model
+    type Z3_ast     = Z3_ast
+    type Z3_lbool   = Z3_lbool
+
     val Z3_check_and_get_model : Z3_context * Z3_model ref -> Z3_lbool
     val Z3_check : Z3_context -> Z3_lbool
     val Z3_del_model : Z3_context * Z3_model -> unit
     val Z3_assert_cnstr : Z3_context * Z3_ast -> unit
-	val Z3_context_to_string : Z3_context -> string
+    val Z3_context_to_string : Z3_context -> string
   end
 
 end
