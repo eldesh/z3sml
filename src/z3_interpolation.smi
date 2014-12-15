@@ -1,0 +1,48 @@
+_require "basis.smi"
+_require "ffi.smi"
+_require "libh.smi"
+_require "z3_enum.smi"
+
+structure Z3_Interpolation =
+struct
+  type Z3_ast        = unit ptr
+  type Z3_context    = unit ptr
+  type Z3_string     = String.string
+  type Z3_config     = unit ptr
+  type Z3_params     = unit ptr
+  type Z3_lbool      = Z3_enum.Z3_lbool
+  type Z3_ast_vector = unit ptr
+  type Z3_model      = unit ptr
+
+  val Z3_mk_interpolant
+    : Z3_context * Z3_ast -> Z3_ast
+
+  val Z3_mk_interpolation_context
+    : Z3_config -> Z3_config
+
+  val Z3_get_interpolant
+    : Z3_context * Z3_ast * Z3_ast * Z3_params -> Z3_ast_vector
+
+  val Z3_compute_interpolant
+    : Z3_context * Z3_ast * Z3_params
+              * Z3_ast_vector ref * Z3_model ref -> Z3_lbool
+
+  val Z3_interpolation_profile
+    : Z3_context -> Z3_string
+
+  val Z3_read_interpolation_problem
+    : Z3_context * word ref * Z3_ast ref vector
+               * word ref vector * Z3_string
+               * Z3_string ref * word ref * Z3_ast ref vector -> int
+
+  val Z3_check_interpolant
+    : Z3_context * word * Z3_ast vector
+               * word vector * Z3_ast vector * Z3_string ref
+               * word * Z3_ast vector -> int
+              
+  val Z3_write_interpolation_problem
+    : Z3_context * word * Z3_ast vector
+               * word vector * Z3_string * word * Z3_ast vector -> unit
+
+end
+

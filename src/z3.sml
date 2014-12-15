@@ -364,6 +364,11 @@ in
   structure Statistics = Z3_Statistics
 
   (**
+   * Statistics
+   *)
+  structure Interpolation = Z3_Interpolation
+
+  (**
    * Polynominal
    *)
   val Z3_polynomial_subresultants =

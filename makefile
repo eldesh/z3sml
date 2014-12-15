@@ -40,6 +40,7 @@ SRCS = src/z3.sml \
 	   src/z3_parameter_desc.sml \
 	   src/z3_global.sml \
 	   src/z3_algebraic.sml \
+	   src/z3_interpolation.sml \
 	   src/z3_realclosedfield.sml \
 	   src/libh.sml
 
@@ -48,7 +49,7 @@ OBJS = $(SRCS:.sml=.o) $(SAMPLE_SRC:.sml=.o)
 all: $(TARGET) $(SAMPLE)
 
 $(SAMPLE): sample/sample.smi $(OBJS)
-	$(SML) $(SMLFLAGS) -o $@ $<
+	@$(SML) $(SMLFLAGS) -o $@ $<
 
 %.o: %.sml
 	@echo "  SML# [$@]"

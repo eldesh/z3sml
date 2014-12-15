@@ -27,6 +27,7 @@ _require "./z3_parameter.smi"
 _require "./z3_sort.smi"
 _require "./z3_parameter_desc.smi"
 _require "./z3_realclosedfield.smi"
+_require "./z3_interpolation.smi"
 
 structure Z3 =
 struct
@@ -1254,6 +1255,48 @@ struct
     val Z3_solver_to_string
       : Z3_context * Z3_solver -> Z3_string
   end (* Solver *)
+
+  structure Interpolation =
+  struct
+    type Z3_ast        = Z3_ast
+    type Z3_context    = Z3_context
+    type Z3_string     = Z3_string
+    type Z3_config     = Z3_config
+    type Z3_params     = Z3_params
+    type Z3_lbool      = Z3_lbool
+    type Z3_ast_vector = Z3_ast_vector
+    type Z3_model      = Z3_model
+
+    val Z3_mk_interpolant
+      : Z3_context * Z3_ast -> Z3_ast
+
+    val Z3_mk_interpolation_context
+      : Z3_config -> Z3_config
+
+    val Z3_get_interpolant
+      : Z3_context * Z3_ast * Z3_ast * Z3_params -> Z3_ast_vector
+
+    val Z3_compute_interpolant
+      : Z3_context * Z3_ast * Z3_params
+                * Z3_ast_vector ref * Z3_model ref -> Z3_lbool
+
+    val Z3_interpolation_profile
+      : Z3_context -> Z3_string
+
+    val Z3_read_interpolation_problem
+      : Z3_context * word ref * Z3_ast ref vector
+                 * word ref vector * Z3_string
+                 * Z3_string ref * word ref * Z3_ast ref vector -> int
+
+    val Z3_check_interpolant
+      : Z3_context * word * Z3_ast vector
+                 * word vector * Z3_ast vector * Z3_string ref
+                 * word * Z3_ast vector -> int
+
+    val Z3_write_interpolation_problem
+      : Z3_context * word * Z3_ast vector
+                 * word vector * Z3_string * word * Z3_ast vector -> unit
+  end (* Interpolation *)
 
   val Z3_polynomial_subresultants
     : Z3_context * Z3_ast * Z3_ast * Z3_ast -> Z3_ast_vector
