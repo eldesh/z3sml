@@ -41,7 +41,6 @@ struct
   type Z3_app          (= ptr)
   type Z3_pattern      (= ptr)
   type Z3_params       (= ptr)
-  type Z3_param_descrs (= ptr)
   type Z3_model         = unit ptr
   type Z3_func_interp  (= ptr)
   type Z3_func_entry   (= ptr)
@@ -55,13 +54,21 @@ struct
   type Z3_stats        (= ptr)
   type Z3_rcf_num      (= ptr)
   type Z3_literals     (= ptr)
+  type Z3_goal         (= ptr)
 
-  type Z3_context      (= ptr)
-  type Z3_sort_opt     (= ptr)
+  type Z3_context          (= ptr)
+  type Z3_sort_opt         (= ptr)
   type Z3_constructor      (= ptr)
   type Z3_constructor_list (= ptr)
-  type Z3_string = String.string
-  type Z3_bool         (= int)
+  type Z3_string            = String.string
+  type Z3_bool             (= int)
+  type Z3_string_ptr        = Z3_string ref
+  type Z3_param_descrs     (= ptr)
+  type Z3_contextarget     (= ptr)
+  type Z3_theory           (= ptr)
+  type Z3_theory_data      (= ptr)
+
+  type Z3_ast_print_mode = Z3_enum.Z3_ast_print_mode
 
   type Z3_lbool = Z3_enum.Z3_lbool
   val Z3_L_FALSE : Z3_lbool
@@ -89,6 +96,7 @@ struct
   type Z3_ast_kind       = Z3_enum.Z3_ast_kind
   type Z3_sort_kind      = Z3_enum.Z3_sort_kind
   type Z3_param_kind     = Z3_enum.Z3_param_kind
+  type Z3_goal_prec      = Z3_enum.Z3_goal_prec
 
   type Z3_error_handler = Z3_context * Z3_error_code -> unit
 
@@ -156,7 +164,7 @@ struct
     val Z3_algebraic_roots
       : Z3_context * Z3_ast * word * Z3_ast array -> Z3_ast_vector
 
-    val Z3_algebraic_eval 
+    val Z3_algebraic_eval
       : Z3_context * Z3_ast * word * Z3_ast array -> int
   end
 
@@ -371,7 +379,20 @@ struct
                  -> unit
   end (* Sort *)
 
-  val Z3_mk_const : Z3_context * Z3_symbol * Z3_sort -> Z3_ast
+  val Z3_mk_func_decl
+    : Z3_context * Z3_symbol * word * Z3_sort vector * Z3_sort -> Z3_func_decl
+
+  val Z3_mk_app
+    : Z3_context * Z3_func_decl * word * Z3_ast vector -> Z3_func_decl
+
+  val Z3_mk_const
+    : Z3_context * Z3_symbol * Z3_sort -> Z3_ast
+
+  val Z3_mk_fresh_func_decl
+    : Z3_context * Z3_string * word * Z3_sort vector * Z3_sort -> Z3_func_decl
+
+  val Z3_mk_fresh_const
+    : Z3_context * Z3_string * Z3_sort -> Z3_ast
 
   structure Propositional = (* Z3_Propositional *)
   struct
@@ -679,6 +700,18 @@ struct
     val Z3_mk_set_subset
       : Z3_context * Z3_ast * Z3_ast -> Z3_ast
   end (* Array *)
+
+  val Z3_mk_numeral
+    : Z3_context * Z3_string * Z3_sort -> Z3_ast
+
+  val Z3_mk_real
+    : Z3_context * int * int -> Z3_ast
+
+  val Z3_mk_int
+    : Z3_context * int * Z3_sort -> Z3_ast
+
+  val Z3_mk_unsigned_int
+    : Z3_context * word * Z3_sort -> Z3_ast
 
   structure Quantifier = (* Z3_Quantifier *)
   struct
@@ -1003,6 +1036,18 @@ struct
 
   end (* Accessor *)
 
+  val Z3_update_term
+    : Z3_context * Z3_ast * word * Z3_ast array -> Z3_ast
+
+  val Z3_substitute
+    : Z3_context * Z3_ast * word * Z3_ast vector * Z3_ast array -> Z3_ast
+
+  val Z3_substitute_vars
+    : Z3_context * Z3_ast * word * Z3_ast array -> Z3_ast
+
+  val Z3_translate
+    : Z3_context * Z3_ast * Z3_contextarget -> Z3_ast
+
   structure Model = (* Z3_Models *)
   struct
     type Z3_context     = Z3_context
@@ -1091,6 +1136,42 @@ struct
 
   end
 
+  val Z3_open_log
+    : Z3_string -> Z3_bool
+
+  val Z3_append_log
+    : Z3_string -> unit
+
+  val Z3_close_log
+    : unit -> unit
+
+  val Z3_toggle_warning_messages
+    : Z3_bool -> unit
+
+  val Z3_set_ast_print_mode
+    : Z3_context * Z3_ast_print_mode -> unit
+
+  val Z3_ast_to_string
+     : Z3_context * Z3_ast -> Z3_string
+
+  val Z3_pattern_to_string
+     : Z3_context * Z3_pattern -> Z3_string
+
+  val Z3_sort_to_string
+     : Z3_context * Z3_sort -> Z3_string
+
+  val Z3_func_decl_to_string
+     : Z3_context * Z3_func_decl -> Z3_string
+
+  val Z3_model_to_string
+     : Z3_context * Z3_model -> Z3_string
+
+  val Z3_benchmark_to_smtlib_string
+     : Z3_context * Z3_string * Z3_string
+                * Z3_string * Z3_string
+                * word * Z3_ast array * Z3_ast
+                -> Z3_string
+
   structure Parser = (* Z3_Parser *)
   struct
     type Z3_symbol    = Z3_symbol
@@ -1154,14 +1235,20 @@ struct
 
   end
 
-  val Z3_func_decl_to_string : Z3_context * Z3_func_decl -> Z3_string
-  val Z3_ast_to_string : Z3_context * Z3_ast -> Z3_string
+  val Z3_get_error_code
+    : Z3_context -> Z3_error_code
 
-  val Z3_set_error_handler : Z3_context * Z3_error_handler -> unit
+  val Z3_set_error_handler
+    : Z3_context * Z3_error_handler -> unit
 
-  val Z3_mk_int : Z3_context * int * Z3_sort -> Z3_ast
+  val Z3_set_error
+    : Z3_context * Z3_error_code -> unit
 
-  val Z3_model_to_string : Z3_context * Z3_model -> string
+  val Z3_get_error_msg
+    : Z3_error_code -> Z3_string
+
+  val Z3_get_error_msg_ex
+    : Z3_context * Z3_error_code -> Z3_string
 
   val Z3_get_version
     : word ref * word ref * word ref * word ref -> unit
@@ -1174,6 +1261,496 @@ struct
 
   val Z3_reset_memory
     : unit -> unit
+
+  structure ExternalTheoryPlugin = (* Z3_ExternalTheoryPlugin *)
+  struct
+    type Z3_context     = Z3_context
+    type Z3_theory      = Z3_theory
+    type Z3_theory_data = Z3_theory_data
+    type Z3_symbol      = Z3_symbol
+    type Z3_sort        = Z3_sort
+    type Z3_ast         = Z3_ast
+    type Z3_func_decl   = Z3_func_decl
+
+    type Z3_string = Z3_string
+    type Z3_bool   = Z3_bool
+
+    val Z3_mk_theory
+      : Z3_context * Z3_string * Z3_theory_data -> Z3_theory
+
+    val Z3_theory_get_ext_data
+      : Z3_theory -> Z3_theory_data
+
+    val Z3_theory_mk_sort
+      : Z3_context * Z3_theory * Z3_symbol -> Z3_sort
+
+    val Z3_theory_mk_value
+      : Z3_context * Z3_theory * Z3_symbol * Z3_sort -> Z3_ast
+
+    val Z3_theory_mk_constant
+      : Z3_context * Z3_theory * Z3_symbol * Z3_sort -> Z3_ast
+
+    val Z3_theory_mk_func_decl
+      : Z3_context * Z3_theory * Z3_symbol * word * Z3_sort vector * Z3_sort -> Z3_func_decl
+
+    val Z3_theory_get_context
+      : Z3_theory -> Z3_context
+
+    val Z3_set_delete_callback
+      : Z3_theory * (Z3_theory -> unit) -> unit
+
+    val Z3_set_new_app_callback
+      : Z3_theory * (Z3_theory * Z3_ast -> unit) -> unit
+
+    val Z3_set_new_elem_callback
+      : Z3_theory * (Z3_theory * Z3_ast -> unit) -> unit
+
+    val Z3_set_init_search_callback
+      : Z3_theory * (Z3_theory -> unit) -> unit
+
+    val Z3_set_push_callback
+      : Z3_theory * (Z3_theory -> unit) -> unit
+
+    val Z3_set_pop_callback
+      : Z3_theory * (Z3_theory -> unit) -> unit
+
+    val Z3_set_restart_callback
+      : Z3_theory * (Z3_theory -> unit) -> unit
+
+    val Z3_set_reset_callback
+      : Z3_theory * (Z3_theory -> unit) -> unit
+
+    val Z3_set_final_check_callback
+      : Z3_theory * (Z3_theory -> Z3_bool) -> unit
+
+    val Z3_set_new_eq_callback
+      : Z3_theory * (Z3_theory * Z3_ast * Z3_ast -> unit) -> unit
+
+    val Z3_set_new_diseq_callback
+      : Z3_theory * (Z3_theory * Z3_ast * Z3_ast -> unit) -> unit
+
+    val Z3_set_new_assignment_callback
+      : Z3_theory * (Z3_theory * Z3_ast * Z3_bool -> unit) -> unit
+
+    val Z3_set_new_relevant_callback
+      : Z3_theory * (Z3_theory * Z3_ast -> unit) -> unit
+
+    val Z3_theory_assert_axiom
+      : Z3_theory * Z3_ast -> unit
+
+    val Z3_theory_assume_eq
+      : Z3_theory * Z3_ast * Z3_ast -> unit
+
+    val Z3_theory_enable_axiom_simplification
+      : Z3_theory * Z3_bool -> unit
+
+    val Z3_theory_get_eqc_root
+      : Z3_theory * Z3_ast -> Z3_ast
+
+    val Z3_theory_get_eqc_next
+      : Z3_theory * Z3_ast -> Z3_ast
+
+    val Z3_theory_get_num_parents
+      : Z3_theory * Z3_ast -> word
+
+    val Z3_theory_get_parent
+      : Z3_theory * Z3_ast * word -> Z3_ast
+
+    val Z3_theory_is_value
+      : Z3_theory * Z3_ast -> Z3_bool
+
+    val Z3_theory_is_decl
+      : Z3_theory * Z3_func_decl -> Z3_bool
+
+    val Z3_theory_get_num_elems
+      : Z3_theory -> word
+
+    val Z3_theory_get_elem
+      : Z3_theory * word -> Z3_ast
+
+    val Z3_theory_get_num_apps
+      : Z3_theory -> word
+
+    val Z3_theory_get_app
+      : Z3_theory * word -> Z3_ast
+
+  end (* ExternalTheoryPlugin *)
+
+  structure Fixedpoint = (* Z3_Fixedpoint *)
+  struct
+    type Z3_fixedpoint   = Z3_fixedpoint
+    type Z3_context      = Z3_context
+    type Z3_symbol       = Z3_symbol
+    type Z3_ast          = Z3_ast
+    type Z3_func_decl    = Z3_func_decl
+    type Z3_params       = Z3_params
+    type Z3_param_descrs = Z3_param_descrs
+    type Z3_ast_vector   = Z3_ast_vector
+    type Z3_string       = Z3_string
+    type Z3_stats        = Z3_stats
+    type Z3_lbool        = Z3_lbool
+
+    val Z3_mk_fixedpoint
+      : Z3_context -> Z3_fixedpoint
+
+    val Z3_fixedpoint_inc_ref
+      : Z3_context * Z3_fixedpoint -> unit
+
+    val Z3_fixedpoint_dec_ref
+      : Z3_context * Z3_fixedpoint -> unit
+
+    val Z3_fixedpoint_add_rule
+      : Z3_context * Z3_fixedpoint * Z3_ast * Z3_symbol -> unit
+
+    val Z3_fixedpoint_add_fact
+      : Z3_context * Z3_fixedpoint * Z3_func_decl * word * word array -> unit
+
+    val Z3_fixedpoint_assert
+      : Z3_context * Z3_fixedpoint * Z3_ast -> unit
+
+    val Z3_fixedpoint_query
+      : Z3_context * Z3_fixedpoint * Z3_ast -> Z3_lbool
+
+    val Z3_fixedpoint_query_relations
+      : Z3_context * Z3_fixedpoint * word * Z3_func_decl vector -> Z3_lbool
+
+    val Z3_fixedpoint_get_answer
+      : Z3_context * Z3_fixedpoint -> Z3_ast
+
+    val Z3_fixedpoint_get_reason_unknown
+       : Z3_context * Z3_fixedpoint -> Z3_string
+
+    val Z3_fixedpoint_update_rule
+      : Z3_context * Z3_fixedpoint * Z3_ast * Z3_symbol -> unit
+
+    val Z3_fixedpoint_get_num_levels
+      : Z3_context * Z3_fixedpoint * Z3_func_decl -> word
+
+    val Z3_fixedpoint_get_cover_delta
+      : Z3_context * Z3_fixedpoint * int * Z3_func_decl -> Z3_ast
+
+    val Z3_fixedpoint_add_cover
+      : Z3_context * Z3_fixedpoint * int * Z3_func_decl * Z3_ast -> unit
+
+    val Z3_fixedpoint_get_statistics
+      : Z3_context * Z3_fixedpoint -> Z3_stats
+
+    val Z3_fixedpoint_register_relation
+      : Z3_context * Z3_fixedpoint * Z3_func_decl -> unit
+
+    val Z3_fixedpoint_set_predicate_representation
+      : Z3_context * Z3_fixedpoint * Z3_func_decl * word * Z3_symbol vector -> unit
+
+    val Z3_fixedpoint_set_params
+      : Z3_context * Z3_fixedpoint * Z3_params -> unit
+
+    val Z3_fixedpoint_get_help
+       : Z3_context * Z3_fixedpoint -> Z3_string
+
+    val Z3_fixedpoint_get_param_descrs
+      : Z3_context * Z3_fixedpoint -> Z3_param_descrs
+
+    val Z3_fixedpoint_to_string
+      : Z3_context * Z3_fixedpoint * word * Z3_ast array -> Z3_string
+
+    val Z3_fixedpoint_push
+      : Z3_context * Z3_fixedpoint -> unit
+
+    val Z3_fixedpoint_pop
+      : Z3_context * Z3_fixedpoint -> unit
+
+    val Z3_fixedpoint_init
+      : Z3_context * Z3_fixedpoint * unit ptr -> unit
+
+  end (* Fixedpoint *)
+
+  structure AstVector = (* Z3_Ast_Vector *)
+  struct
+    type Z3_context    = Z3_context
+    type Z3_ast        = Z3_ast
+    type Z3_ast_vector = Z3_ast_vector
+    type Z3_string     = Z3_string
+
+    val Z3_mk_ast_vector
+      : Z3_context -> Z3_ast_vector
+
+    val Z3_ast_vector_inc_ref
+      : Z3_context * Z3_ast_vector -> unit
+
+    val Z3_ast_vector_dec_ref
+      : Z3_context * Z3_ast_vector -> unit
+
+    val Z3_ast_vector_size
+      : Z3_context * Z3_ast_vector -> word
+
+    val Z3_ast_vector_get
+      : Z3_context * Z3_ast_vector * word -> Z3_ast
+
+    val Z3_ast_vector_set
+      : Z3_context * Z3_ast_vector * word * Z3_ast -> unit
+
+    val Z3_ast_vector_resize
+      : Z3_context * Z3_ast_vector * word -> unit
+
+    val Z3_ast_vector_push
+      : Z3_context * Z3_ast_vector * Z3_ast -> unit
+
+    val Z3_ast_vector_translate
+      : Z3_context * Z3_ast_vector * Z3_context -> Z3_ast_vector
+
+    val Z3_ast_vector_to_string
+      : Z3_context * Z3_ast_vector -> Z3_string
+
+  end (* AstVector *)
+
+  structure AstMap = (* Z3_Ast_Map *)
+  struct
+    type Z3_context    = Z3_context
+    type Z3_ast        = Z3_ast
+    type Z3_ast_vector = Z3_ast_vector
+    type Z3_ast_map    = Z3_ast_map
+    type Z3_string     = Z3_string
+    type Z3_bool       = Z3_bool
+
+    val Z3_mk_ast_map
+      : Z3_context -> Z3_ast_map
+
+    val Z3_ast_map_inc_ref
+      : Z3_context * Z3_ast_map -> unit
+
+    val Z3_ast_map_dec_ref
+      : Z3_context * Z3_ast_map -> unit
+
+    val Z3_ast_map_contains
+      : Z3_context * Z3_ast_map * Z3_ast -> Z3_bool
+
+    val Z3_ast_map_find
+      : Z3_context * Z3_ast_map * Z3_ast -> Z3_ast
+
+    val Z3_ast_map_insert
+      : Z3_context * Z3_ast_map * Z3_ast * Z3_ast -> unit
+
+    val Z3_ast_map_erase
+      : Z3_context * Z3_ast_map * Z3_ast -> unit
+
+    val Z3_ast_map_reset
+      : Z3_context * Z3_ast_map -> unit
+
+    val Z3_ast_map_size
+      : Z3_context * Z3_ast_map -> word
+
+    val Z3_ast_map_keys
+      : Z3_context * Z3_ast_map -> Z3_ast_vector
+
+    val Z3_ast_map_to_string
+       : Z3_context * Z3_ast_map -> Z3_string
+
+  end (* AstMap *)
+
+  structure Goal = (* Z3_Goal *)
+  struct
+    type Z3_context   = Z3_context
+    type Z3_goal      = Z3_goal
+    type Z3_ast       = Z3_ast
+    type Z3_bool      = Z3_bool
+    type Z3_goal_prec = Z3_goal_prec
+    type Z3_string    = Z3_string
+
+    val Z3_mk_goal
+      : Z3_context * Z3_bool * Z3_bool * Z3_bool -> Z3_goal
+
+    val Z3_goal_inc_ref
+      : Z3_context * Z3_goal -> unit
+
+    val Z3_goal_dec_ref
+      : Z3_context * Z3_goal -> unit
+
+    val Z3_goal_precision
+      : Z3_context * Z3_goal -> Z3_goal_prec
+
+    val Z3_goal_assert
+      : Z3_context * Z3_goal * Z3_ast -> unit
+
+    val Z3_goal_inconsistent
+      : Z3_context * Z3_goal -> Z3_bool
+
+    val Z3_goal_depth
+      : Z3_context * Z3_goal -> word
+
+    val Z3_goal_reset
+      : Z3_context * Z3_goal -> unit
+
+    val Z3_goal_size
+      : Z3_context * Z3_goal -> word
+
+    val Z3_goal_formula
+      : Z3_context * Z3_goal * word -> Z3_ast
+
+    val Z3_goal_num_exprs
+      : Z3_context * Z3_goal -> word
+
+    val Z3_goal_is_decided_sat
+      : Z3_context * Z3_goal -> Z3_bool
+
+    val Z3_goal_is_decided_unsat
+      : Z3_context * Z3_goal -> Z3_bool
+
+    val Z3_goal_translate
+      : Z3_context * Z3_goal * Z3_context -> Z3_goal
+
+    val Z3_goal_to_string
+      : Z3_context * Z3_goal -> Z3_string
+
+  end (* Goal *)
+
+  structure TacticAndProbe = (* Z3_Tactic_And_Probe *)
+  struct
+    type Z3_context      = Z3_context
+    type Z3_tactic       = Z3_tactic
+    type Z3_probe        = Z3_probe
+    type Z3_goal         = Z3_goal
+    type Z3_apply_result = Z3_apply_result
+    type Z3_params       = Z3_params
+    type Z3_model        = Z3_model
+    type Z3_string       = Z3_string
+    type Z3_param_descrs = Z3_param_descrs
+
+    val Z3_mk_tactic
+      : Z3_context * Z3_string -> Z3_tactic
+
+    val Z3_tactic_inc_ref
+      : Z3_context * Z3_tactic -> unit
+
+    val Z3_tactic_dec_ref
+      : Z3_context * Z3_tactic -> unit
+
+    val Z3_mk_probe
+      : Z3_context * Z3_string -> Z3_probe
+
+    val Z3_probe_inc_ref
+      : Z3_context * Z3_probe -> unit
+
+    val Z3_probe_dec_ref
+      : Z3_context * Z3_probe -> unit
+
+    val Z3_tactic_and_then
+      : Z3_context * Z3_tactic * Z3_tactic -> Z3_tactic
+
+    val Z3_tactic_or_else
+      : Z3_context * Z3_tactic * Z3_tactic -> Z3_tactic
+
+    val Z3_tactic_par_or
+      : Z3_context * word * Z3_tactic vector -> Z3_tactic
+
+    val Z3_tactic_par_and_then
+      : Z3_context * Z3_tactic * Z3_tactic -> Z3_tactic
+
+    val Z3_tactic_try_for
+      : Z3_context * Z3_tactic * word -> Z3_tactic
+
+    val Z3_tactic_when
+      : Z3_context * Z3_probe * Z3_tactic -> Z3_tactic
+
+    val Z3_tactic_cond
+      : Z3_context * Z3_probe * Z3_tactic * Z3_tactic -> Z3_tactic
+
+    val Z3_tactic_repeat
+      : Z3_context * Z3_tactic * word -> Z3_tactic
+
+    val Z3_tactic_skip
+      : Z3_context -> Z3_tactic
+
+    val Z3_tactic_fail
+      : Z3_context -> Z3_tactic
+
+    val Z3_tactic_fail_if
+      : Z3_context * Z3_probe -> Z3_tactic
+
+    val Z3_tactic_fail_if_not_decided
+      : Z3_context -> Z3_tactic
+
+    val Z3_tactic_using_params
+      : Z3_context * Z3_tactic * Z3_params -> Z3_tactic
+
+    val Z3_probe_const
+      : Z3_context * real -> Z3_probe
+
+    val Z3_probe_lt
+      : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+
+    val Z3_probe_gt
+      : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+
+    val Z3_probe_le
+      : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+
+    val Z3_probe_ge
+      : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+
+    val Z3_probe_eq
+      : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+
+    val Z3_probe_and
+      : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+
+    val Z3_probe_or
+      : Z3_context * Z3_probe * Z3_probe -> Z3_probe
+
+    val Z3_probe_not
+      : Z3_context * Z3_probe -> Z3_probe
+
+    val Z3_get_num_tactics
+      : Z3_context -> word
+
+    val Z3_get_tactic_name
+      : Z3_context * word -> Z3_string
+
+    val Z3_get_num_probes
+      : Z3_context -> word
+
+    val Z3_get_probe_name
+      : Z3_context * word -> Z3_string
+
+    val Z3_tactic_get_help
+      : Z3_context * Z3_tactic -> Z3_string
+
+    val Z3_tactic_get_param_descrs
+      : Z3_context * Z3_tactic -> Z3_param_descrs
+
+    val Z3_tactic_get_descr
+      : Z3_context * Z3_string -> Z3_string
+
+    val Z3_probe_get_descr
+      : Z3_context * Z3_string -> Z3_string
+
+    val Z3_probe_apply
+      : Z3_context * Z3_probe * Z3_goal -> real
+
+    val Z3_tactic_apply
+      : Z3_context * Z3_tactic * Z3_goal -> Z3_apply_result
+
+    val Z3_tactic_apply_ex
+      : Z3_context * Z3_tactic * Z3_goal * Z3_params -> Z3_apply_result
+
+    val Z3_apply_result_inc_ref
+      : Z3_context * Z3_apply_result -> unit
+
+    val Z3_apply_result_dec_ref
+      : Z3_context * Z3_apply_result -> unit
+
+    val Z3_apply_result_to_string
+      : Z3_context * Z3_apply_result -> Z3_string
+
+    val Z3_apply_result_get_num_subgoals
+      : Z3_context * Z3_apply_result -> word
+
+    val Z3_apply_result_get_subgoal
+      : Z3_context * Z3_apply_result * word -> Z3_goal
+
+    val Z3_apply_result_convert_model
+      : Z3_context * Z3_apply_result * word * Z3_model -> Z3_model
+
+  end (* TacticAndProbe *)
 
   structure Solver = (* Z3_Solver *)
   struct
@@ -1483,7 +2060,7 @@ struct
       : Z3_context -> unit
 
     val Z3_get_search_failure
-      : Z3_context -> Z3_enum.Z3_search_failure 
+      : Z3_context -> Z3_enum.Z3_search_failure
 
     (*
      * Deprecated Labels API

@@ -33,21 +33,19 @@ in
   type Z3_stats        = unit ptr
   type Z3_rcf_num      = unit ptr
   type Z3_literals     = unit ptr
+  type Z3_goal         = unit ptr
 
-  type Z3_context       = unit ptr
-  type Z3_error_code    = word
-  type Z3_bool          = int
-  type Z3_string        = string
-  type Z3_string_ptr    = Z3_string ref
-  type Z3_param_descrs     = unit ptr
+  type Z3_context          = unit ptr
+  type Z3_sort_opt         = unit ptr
   type Z3_constructor      = unit ptr
   type Z3_constructor_list = unit ptr
-  type Z3_sort_opt         = unit ptr
-  type Z3_ast_print_mode   = unit ptr
+  type Z3_string           = string
+  type Z3_bool             = int
+  type Z3_string_ptr       = Z3_string ref
+  type Z3_param_descrs     = unit ptr
   type Z3_contextarget     = unit ptr
   type Z3_theory           = unit ptr
   type Z3_theory_data      = unit ptr
-  type Z3_ast_vector       = unit ptr
 
   open Z3_enum
 
@@ -382,7 +380,7 @@ in
   structure RealClosedField = Z3_RealClosedField
 
   (**
-   * Deprecxated Constraints API
+   * Deprecxated API
    *)
   structure Deprecated = Z3_Deprecated
 

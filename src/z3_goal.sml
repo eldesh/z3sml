@@ -10,7 +10,7 @@ in
   type Z3_goal      = unit ptr
   type Z3_ast       = unit ptr
   type Z3_bool      = int
-  type Z3_goal_prec = int
+  type Z3_goal_prec = Z3_enum.Z3_goal_prec
   type Z3_string    = String.string
 
   val Z3_mk_goal =
