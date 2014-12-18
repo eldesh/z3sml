@@ -384,7 +384,7 @@ struct
     : Z3_context * Z3_symbol * word * Z3_sort vector * Z3_sort -> Z3_func_decl
 
   val Z3_mk_app
-    : Z3_context * Z3_func_decl * word * Z3_ast vector -> Z3_func_decl
+    : Z3_context * Z3_func_decl * word * Z3_ast vector -> Z3_ast
 
   val Z3_mk_const
     : Z3_context * Z3_symbol * Z3_sort -> Z3_ast

@@ -109,7 +109,7 @@ in
 
   val Z3_mk_app =
     Dyn.dlsym (libz3, "Z3_mk_app")
-    : _import (Z3_context, Z3_func_decl, word, Z3_ast vector) -> Z3_func_decl
+    : _import (Z3_context, Z3_func_decl, word, Z3_ast vector) -> Z3_ast
 
   val Z3_mk_const =
     Dyn.dlsym (libz3, "Z3_mk_const")
