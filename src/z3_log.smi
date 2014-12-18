@@ -1,0 +1,22 @@
+_require "basis.smi"
+_require "ffi.smi"
+_require "libh.smi"
+
+structure Z3_Log =
+struct
+  type Z3_string = string
+  type Z3_bool   = int
+
+  val Z3_open_log
+    : Z3_string -> Z3_bool
+
+  val Z3_append_log
+    : Z3_string -> unit
+
+  val Z3_close_log
+    : unit -> unit
+
+  val Z3_toggle_warning_messages
+    : Z3_bool -> unit
+end
+

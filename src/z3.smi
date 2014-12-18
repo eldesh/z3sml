@@ -29,6 +29,7 @@ _require "./z3_parameter_desc.smi"
 _require "./z3_realclosedfield.smi"
 _require "./z3_interpolation.smi"
 _require "./z3_deprecated.smi"
+_require "./z3_log.smi"
 
 structure Z3 =
 struct
@@ -1136,17 +1137,23 @@ struct
 
   end
 
-  val Z3_open_log
-    : Z3_string -> Z3_bool
+  structure Log = (* Z3_Log *)
+  struct
+    type Z3_string = Z3_string
+    type Z3_bool   = Z3_bool
 
-  val Z3_append_log
-    : Z3_string -> unit
+    val Z3_open_log
+      : Z3_string -> Z3_bool
 
-  val Z3_close_log
-    : unit -> unit
+    val Z3_append_log
+      : Z3_string -> unit
 
-  val Z3_toggle_warning_messages
-    : Z3_bool -> unit
+    val Z3_close_log
+      : unit -> unit
+
+    val Z3_toggle_warning_messages
+      : Z3_bool -> unit
+  end (* Log *)
 
   val Z3_set_ast_print_mode
     : Z3_context * Z3_ast_print_mode -> unit

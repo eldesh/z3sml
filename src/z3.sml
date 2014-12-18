@@ -214,6 +214,7 @@ in
   (**
    * Interaction logging.
    *)
+  structure Log = Z3_Log
   val Z3_open_log =
     Dyn.dlsym(libz3, "Z3_open_log")
     : _import Z3_string -> Z3_bool

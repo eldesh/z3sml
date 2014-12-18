@@ -43,6 +43,7 @@ SRCS = src/z3.sml \
 	   src/z3_interpolation.sml \
 	   src/z3_realclosedfield.sml \
 	   src/z3_deprecated.sml \
+	   src/z3_log.sml \
 	   src/libh.sml
 
 OBJS = $(SRCS:.sml=.o) $(SAMPLE_SRC:.sml=.o)
