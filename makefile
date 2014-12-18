@@ -47,7 +47,11 @@ SRCS = src/z3.sml \
 
 OBJS = $(SRCS:.sml=.o) $(SAMPLE_SRC:.sml=.o)
 
-all: $(TARGET) $(SAMPLE)
+all: $(TARGET) sample
+
+.PHONY: sample
+sample: $(SAMPLE)
+	./sample/sample
 
 $(SAMPLE): sample/sample.smi $(OBJS)
 	@$(SML) $(SMLFLAGS) -o $@ $<
