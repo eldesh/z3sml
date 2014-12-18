@@ -281,6 +281,12 @@ struct
       : Z3_context * Z3_param_descrs -> Z3_string
   end (* ParameterDesc *)
 
+  val Z3_mk_int_symbol
+    : Z3_context * int -> Z3_symbol
+
+  val Z3_mk_string_symbol
+    : Z3_context * Z3_string -> Z3_symbol
+
   structure Sort = (* Z3_Sort *)
   struct
     type Z3_context          = Z3_context
@@ -1151,7 +1157,6 @@ struct
   val Z3_func_decl_to_string : Z3_context * Z3_func_decl -> Z3_string
   val Z3_ast_to_string : Z3_context * Z3_ast -> Z3_string
 
-  val Z3_mk_string_symbol : Z3_context * Z3_string -> Z3_symbol
   val Z3_set_error_handler : Z3_context * Z3_error_handler -> unit
 
   val Z3_mk_int : Z3_context * int * Z3_sort -> Z3_ast

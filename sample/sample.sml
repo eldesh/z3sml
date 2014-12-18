@@ -83,6 +83,38 @@ struct
                    , "END OF CONTEXT\n"])
     end)
 
+  fun demorgan () =
+    with_context (fn ctx =>
+    let
+      val ()        = print "demorgan\n"
+      val bool_sort = Z3.Sort.Z3_mk_bool_sort ctx
+      val symbol_x  = Z3.Z3_mk_int_symbol (ctx, 0)
+      val symbol_y  = Z3.Z3_mk_int_symbol (ctx, 1)
+      val x         = Z3.Z3_mk_const (ctx, symbol_x, bool_sort)
+      val y         = Z3.Z3_mk_const (ctx, symbol_y, bool_sort)
+      val not_x     = Prop.Z3_mk_not (ctx, x)
+      val not_y     = Prop.Z3_mk_not (ctx, y)
+      (*
+       * De Morgan - with a negation around
+       * !(!(x && y) <-> (!x || !y))
+       *)
+      val args    = Array.fromList [x, y]
+      val x_and_y = Prop.Z3_mk_and (ctx, 0w2, Array.vector args)
+      val ls      = Prop.Z3_mk_not (ctx, x_and_y)
+      val () = Array.update (args, 0, not_x)
+      val () = Array.update (args, 1, not_y)
+      val rs                 = Prop.Z3_mk_or (ctx, 0w2, Array.vector args)
+      val conjecture         = Prop.Z3_mk_iff(ctx, ls, rs)
+      val negated_conjecture = Prop.Z3_mk_not(ctx, conjecture)
+      val () = D.Z3_assert_cnstr (ctx, negated_conjecture)
+      val smt = D.Z3_check ctx
+    in
+           if smt = Z3.Z3_L_FALSE then print "DeMorgan is valid\n"
+      else if smt = Z3.Z3_L_TRUE  then print "Undef\n"
+      else if smt = Z3.Z3_L_UNDEF then print "DeMorgan is not valid\n"
+      else raise Fail "Sample DeMorgan"
+    end)
+
   fun find_model_example1 () =
     with_context (fn ctx =>
     let
@@ -202,6 +234,7 @@ struct
   fun main (name, args) =
     (display_version();
      simple_example();
+     demorgan();
      tutorial_sample();
      find_model_example1();
      find_model_example2()
