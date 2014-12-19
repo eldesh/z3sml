@@ -231,13 +231,107 @@ struct
          decls
     end)
 
+  fun mk_unary_app ctx f x =
+    let
+      val args = Vector.fromList [x]
+    in
+      Z3.Z3_mk_app (ctx, f, 0w1, args)
+    end
+
+  fun using get release f =
+    let
+      val resource = get ()
+      val r = f resource handle exn => (release resource; raise exn)
+      val () = release resource
+    in r
+    end
+
+  fun local_ctx ctx f =
+    using (fn () => (D.Z3_push ctx; ctx))
+          (fn ctx' => D.Z3_pop (ctx', 0w1))
+          f
+
+  exception Unexpected of string
+
+  fun prove ctx f is_valid =
+    local_ctx ctx (fn ctx =>
+    let
+      val is_valid = is_valid = Z3.Z3_TRUE
+      val not_f = Prop.Z3_mk_not (ctx, f)
+      val () = D.Z3_assert_cnstr (ctx, not_f)
+      val m : Z3.Z3_model ref = ref (Ptr.NULL())
+      val ret = D.Z3_check_and_get_model (ctx, m)
+    in
+      using (fn()=> m) (fn m=> if not (Ptr.isNull (!m))
+                               then D.Z3_del_model (ctx, !m)
+                               else ())
+      (fn ref m =>
+        if ret = Z3.Z3_L_FALSE
+        then
+          (print "valid\n";
+           if not is_valid then raise Unexpected "prove/valid" else ())
+        else if ret = Z3.Z3_L_UNDEF
+        then
+          (print "unknown\n";
+           if not (Ptr.isNull m)
+           then print(concat["potential counterexample:\n"
+                            , Z3.Z3_model_to_string (ctx, m), "\n"])
+           else ();
+           if is_valid then raise Unexpected "prove/unknown" else ())
+        else if ret = Z3.Z3_L_TRUE
+        then
+          (print "invalid\n";
+           if not (Ptr.isNull m)
+           then print(concat["counterexample:\n"
+                            , Z3.Z3_model_to_string (ctx, m), "\n"])
+           else ();
+           if is_valid then raise Unexpected "prove/invalid" else ())
+        else ())
+    end)
+
+  fun prove_example1() =
+    (print "\nprove_example1\n";
+     with_context (fn ctx =>
+     let
+       (* create uninterpreted type *)
+       val U_name   = Z3.Z3_mk_string_symbol (ctx, "U")
+       val U        = Z3.Sort.Z3_mk_uninterpreted_sort (ctx, U_name)
+       (* declare function g *)
+       val g_name   = Z3.Z3_mk_string_symbol (ctx, "g")
+       val g_domain = Vector.fromList [U]
+       val g        = Z3.Z3_mk_func_decl (ctx, g_name, 0w1, g_domain, U)
+       (* create x and y *)
+       val x_name   = Z3.Z3_mk_string_symbol (ctx, "x")
+       val y_name   = Z3.Z3_mk_string_symbol (ctx, "y")
+       val x        = Z3.Z3_mk_const (ctx, x_name, U)
+       val y        = Z3.Z3_mk_const (ctx, y_name, U)
+       (* create g(x), g(y) *)
+       val gx       = mk_unary_app ctx g x
+       val gy       = mk_unary_app ctx g y
+       (* assert x = y *)
+       val ()  = D.Z3_assert_cnstr (ctx, Prop.Z3_mk_eq (ctx, x, y))
+       (* prove g(x) = g(y) *)
+       val f   = Prop.Z3_mk_eq (ctx, gx, gy)
+       val ()  = print "prove: x = y implies g(x) = g(y)\n"
+       val ()  = prove ctx f Z3.Z3_TRUE
+       (* create g(g(x)) *)
+       val ggx = mk_unary_app ctx g gx
+       (* disprove g(g(x)) = g(y) *)
+       val f   = Prop.Z3_mk_eq (ctx, ggx, gy)
+       val ()  = print "disprove: x = y implies g(g(x)) = g(y)\n"
+       val ()  = prove ctx f Z3.Z3_FALSE
+     in
+       ()
+     end))
+
   fun main (name, args) =
     (display_version();
      simple_example();
      demorgan();
-     tutorial_sample();
      find_model_example1();
-     find_model_example2()
+     find_model_example2();
+     prove_example1();
+     tutorial_sample()
      )
 end
 val _ =  Main.main (CommandLine.name(), CommandLine.arguments())

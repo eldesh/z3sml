@@ -62,7 +62,7 @@ struct
   type Z3_constructor      (= ptr)
   type Z3_constructor_list (= ptr)
   type Z3_string            = String.string
-  type Z3_bool             (= int)
+  eqtype Z3_bool           (= int)
   type Z3_string_ptr        = Z3_string ref
   type Z3_param_descrs     (= ptr)
   type Z3_contextarget     (= ptr)
