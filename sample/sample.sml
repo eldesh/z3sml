@@ -324,6 +324,67 @@ struct
        ()
      end))
 
+  fun mk_var ctx name ty =
+    Z3.Z3_mk_const (ctx, Z3.Z3_mk_string_symbol (ctx, name), ty)
+
+  fun mk_int_var ctx name =
+    mk_var ctx name (Z3.Sort.Z3_mk_int_sort ctx)
+
+  fun mk_int ctx n =
+    Z3.Z3_mk_int (ctx, n, Z3.Sort.Z3_mk_int_sort ctx)
+
+  fun prove_example2() =
+    (print "\nprove_example2\n";
+     with_context (fn ctx =>
+     let
+       (* declare function g *)
+       val int_sort = Z3.Sort.Z3_mk_int_sort ctx
+       val g_name   = Z3.Z3_mk_string_symbol (ctx, "g")
+       val g_domain = Vector.fromList [int_sort]
+       val g        = Z3.Z3_mk_func_decl (ctx, g_name, 0w1, g_domain, int_sort)
+       (* create x, y, and z *)
+       val x        = mk_int_var ctx "x"
+       val y        = mk_int_var ctx "y"
+       val z        = mk_int_var ctx "z"
+       (* create gx, gy, gz *)
+       val gx       = mk_unary_app ctx g x
+       val gy       = mk_unary_app ctx g y
+       val gz       = mk_unary_app ctx g z
+       (* create zero *)
+       val zero     = mk_int ctx 0
+       (* assert not(g(g(x) - g(y)) = g(z)) *)
+       val args     = Vector.fromList [gx, gy]
+       val gx_gy    = Z3.Arithmetic.Z3_mk_sub (ctx, 0w2, args)
+       val ggx_gy   = mk_unary_app ctx g gx_gy
+       val eq       = Prop.Z3_mk_eq  (ctx, ggx_gy, gz)
+       val c1       = Prop.Z3_mk_not (ctx, eq)
+       val () = D.Z3_assert_cnstr (ctx, c1)
+       (* assert x + z <= y *)
+       val args     = Vector.fromList [x,z]
+       val x_plus_z = Z3.Arithmetic.Z3_mk_add (ctx, 0w2, args)
+       val c2       = Z3.Arithmetic.Z3_mk_le (ctx, x_plus_z, y)
+       val () = D.Z3_assert_cnstr (ctx, c2)
+       (* assert y <= x *)
+       val c3       = Z3.Arithmetic.Z3_mk_le (ctx, y, x)
+       val () = D.Z3_assert_cnstr (ctx, c3)
+     in
+       (* prove z < 0 *)
+       let
+         val f = Z3.Arithmetic.Z3_mk_lt (ctx, z, zero)
+       in
+         print "prove: not(g(g(x) - g(y)) = g(z)), x + z <= y <= x implies z < 0\n";
+         prove ctx f Z3.Z3_TRUE
+       end;
+       (* disprove z < ~1 *)
+       let
+         val minus_one = mk_int ctx ~1
+         val f = Z3.Arithmetic.Z3_mk_lt (ctx, z, minus_one)
+       in
+         print "disprove: not(g(g(x) - g(y)) = g(z)), x + z <= y <= x implies z < -1\n";
+         prove ctx f Z3.Z3_FALSE
+       end
+     end))
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -331,6 +392,7 @@ struct
      find_model_example1();
      find_model_example2();
      prove_example1();
+     prove_example2();
      tutorial_sample()
      )
 end
