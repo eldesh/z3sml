@@ -579,6 +579,65 @@ struct
       else ()
     end
 
+  fun mk_context_custom cfg error_handler =
+    let
+      val ()  = Z3.Config.Z3_set_param_value (cfg, "model", "true")
+      val ctx = Z3.Context.Z3_mk_context cfg
+      val ()  = Z3.Z3_set_error_handler(ctx, error_handler)
+    in
+      ctx
+    end
+
+  fun assert_inj_axiom ctx f i =
+    let
+      val sz = Z3.Accessor.Z3_get_domain_size (ctx, f)
+      val _  = if i >= sz then raise Fail "failed to create inj axiom"
+               else ()
+      val finv_domain = Z3.Accessor.Z3_get_range (ctx, f)
+      val finv_range  = Z3.Accessor.Z3_get_domain(ctx, f, i)
+      val finv        = Z3.Z3_mk_fresh_func_decl(ctx, "inv"
+                            , 0w1, Vector.fromList[finv_domain]
+                            , finv_range)
+      (* allocate temporary arrays *)
+      val types = Vector.tabulate(Word.toInt sz, fn j=>
+                     Z3.Accessor.Z3_get_domain (ctx, f, Word.fromInt j))
+      val names = Vector.tabulate(Word.toInt sz, fn j=>
+                     Z3.Z3_mk_int_symbol (ctx, j))
+      val xs    = Vector.tabulate(Word.toInt sz, fn j=>
+                     Z3.Quantifier.Z3_mk_bound(ctx, Word.fromInt j, Vector.sub(types, j)))
+      val x_i   = Vector.sub (xs, Word.toInt i)
+      val fxs   = Z3.Z3_mk_app (ctx, f, sz, xs)
+      val finv_fxs = mk_unary_app ctx finv fxs
+      val eq       = Prop.Z3_mk_eq (ctx, finv_fxs, x_i)
+      val p        = Z3.Quantifier.Z3_mk_pattern(ctx
+                                                , 0w1, Vector.fromList[fxs])
+      val () = print(concat["pattern: ", Z3.Z3_pattern_to_string(ctx, p), "\n\n"])
+      val q  = Z3.Quantifier.Z3_mk_forall (ctx, 0w0, 0w1, Vector.fromList[p], sz
+                                            , types, names, eq)
+    in
+      print(concat["assert axiom:\n", Z3.Z3_ast_to_string(ctx, q), "\n"]);
+      D.Z3_assert_cnstr(ctx, q)
+    end
+
+  fun quantifier_example1() =
+    (print "\nquantifier_example1\n";
+     let
+       val ctx = with_config (fn cfg =>
+                  (Z3.Global.Z3_global_param_set("smt.mbqi.max_iterations", "10");
+                   mk_context_custom cfg (fn _ => print "error\n")
+                  ))
+       (* declare function f *)
+       val int_sort = Z3.Sort.Z3_mk_int_sort ctx
+       val f_name   = Z3.Z3_mk_string_symbol (ctx, "f")
+       val f_domain = Vector.fromList [int_sort, int_sort]
+       val f        = Z3.Z3_mk_func_decl(ctx, f_name, 0w2, f_domain, int_sort)
+
+       (* assert that f is injective in the second argument. *)
+       val () = assert_inj_axiom ctx f 0w1
+     in
+       ()
+     end)
+
   fun push_pop_example1 () =
     (print "\npush_pop_example1\n";
      with_context (fn ctx =>
@@ -643,6 +702,7 @@ struct
      prove_example1();
      prove_example2();
      push_pop_example1();
+     quantifier_example1();
      tutorial_sample();
      OS.Process.success
     )
