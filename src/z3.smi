@@ -2142,7 +2142,7 @@ struct
       : Z3_context * Z3_model * word * word -> word
 
     val Z3_get_model_func_entry_arg
-      : Z3_context * Z3_model * word * word -> Z3_ast
+      : Z3_context * Z3_model * word * word * word -> Z3_ast
 
     val Z3_get_model_func_entry_value
       : Z3_context * Z3_model * word * word -> Z3_ast

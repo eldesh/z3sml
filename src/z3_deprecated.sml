@@ -177,7 +177,7 @@ in
 
   val Z3_get_model_func_entry_arg =
     Dyn.dlsym (libz3, "Z3_get_model_func_entry_arg")
-    : _import (Z3_context, Z3_model, word, word) -> Z3_ast
+    : _import (Z3_context, Z3_model, word, word, word) -> Z3_ast
 
   val Z3_get_model_func_entry_value =
     Dyn.dlsym (libz3, "Z3_get_model_func_entry_value")
