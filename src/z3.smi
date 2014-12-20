@@ -62,47 +62,19 @@ struct
   type Z3_constructor      (= ptr)
   type Z3_constructor_list (= ptr)
   type Z3_string            = String.string
-  eqtype Z3_bool           (= int)
   type Z3_string_ptr        = Z3_string ref
   type Z3_param_descrs     (= ptr)
   type Z3_contextarget     (= ptr)
   type Z3_theory           (= ptr)
   type Z3_theory_data      (= ptr)
 
-  type Z3_ast_print_mode = Z3_enum.Z3_ast_print_mode
+  type Z3_error_handler = Z3_context * Z3_enum.Z3_error_code -> unit
 
-  type Z3_lbool = Z3_enum.Z3_lbool
-  val Z3_L_FALSE : Z3_lbool
-  val Z3_L_TRUE  : Z3_lbool
-  val Z3_L_UNDEF : Z3_lbool
-
-  type Z3_error_code = Z3_enum.Z3_error_code
-  val Z3_OK                : Z3_error_code
-  val Z3_SORT_ERROR        : Z3_error_code
-  val Z3_IOB               : Z3_error_code
-  val Z3_INVALID_ARG       : Z3_error_code
-  val Z3_PARSER_ERROR      : Z3_error_code
-  val Z3_NO_PARSER         : Z3_error_code
-  val Z3_INVALID_PATTERN   : Z3_error_code
-  val Z3_MEMOUT_FAIL       : Z3_error_code
-  val Z3_FILE_ACCESS_ERROR : Z3_error_code
-  val Z3_INTERNAL_FATAL    : Z3_error_code
-  val Z3_INVALID_USAGE     : Z3_error_code
-  val Z3_DEC_REF_ERROR     : Z3_error_code
-  val Z3_EXCEPTION         : Z3_error_code
-
-  type Z3_decl_kind      = Z3_enum.Z3_decl_kind
-  type Z3_symbol_kind    = Z3_enum.Z3_symbol_kind
-  type Z3_parameter_kind = Z3_enum.Z3_parameter_kind
-  type Z3_ast_kind       = Z3_enum.Z3_ast_kind
-  type Z3_sort_kind      = Z3_enum.Z3_sort_kind
-  type Z3_param_kind     = Z3_enum.Z3_param_kind
-  type Z3_goal_prec      = Z3_enum.Z3_goal_prec
-
-  type Z3_error_handler = Z3_context * Z3_error_code -> unit
-
-  val Z3_TRUE : Z3_bool
+  eqtype Z3_bool           (= int)
+  val Z3_TRUE  : Z3_bool
   val Z3_FALSE : Z3_bool
+
+  structure Enum = Z3_enum
 
   structure Algebraic = (* Z3_Algebraic *)
   struct
@@ -273,7 +245,7 @@ struct
     type Z3_context      = Z3_context
     type Z3_param_descrs = Z3_param_descrs
     type Z3_symbol       = Z3_symbol
-    type Z3_param_kind   = Z3_param_kind
+    type Z3_param_kind   = Enum.Z3_param_kind
     type Z3_string       = Z3_string
 
     val Z3_param_descrs_inc_ref
@@ -792,12 +764,12 @@ struct
 
     type Z3_string       = Z3_string
 
-    type Z3_decl_kind      = Z3_decl_kind
-    type Z3_symbol_kind    = Z3_symbol_kind
-    type Z3_parameter_kind = Z3_parameter_kind
-    type Z3_lbool          = Z3_lbool
-    type Z3_ast_kind       = Z3_ast_kind
-    type Z3_sort_kind      = Z3_sort_kind
+    type Z3_decl_kind      = Enum.Z3_decl_kind
+    type Z3_symbol_kind    = Enum.Z3_symbol_kind
+    type Z3_parameter_kind = Enum.Z3_parameter_kind
+    type Z3_lbool          = Enum.Z3_lbool
+    type Z3_ast_kind       = Enum.Z3_ast_kind
+    type Z3_sort_kind      = Enum.Z3_sort_kind
     type Z3_bool           = Z3_bool
 
     val Z3_get_symbol_kind
@@ -942,7 +914,7 @@ struct
       : Z3_context * Z3_ast -> Z3_bool
 
     val Z3_get_bool_value
-      : Z3_context * Z3_ast -> Z3_lbool
+      : Z3_context * Z3_ast -> Enum.Z3_lbool
 
     val Z3_get_ast_kind
       : Z3_context * Z3_ast -> Z3_ast_kind
@@ -1161,7 +1133,7 @@ struct
   end (* Log *)
 
   val Z3_set_ast_print_mode
-    : Z3_context * Z3_ast_print_mode -> unit
+    : Z3_context * Enum.Z3_ast_print_mode -> unit
 
   val Z3_ast_to_string
      : Z3_context * Z3_ast -> Z3_string
@@ -1248,19 +1220,19 @@ struct
   end
 
   val Z3_get_error_code
-    : Z3_context -> Z3_error_code
+    : Z3_context -> Enum.Z3_error_code
 
   val Z3_set_error_handler
     : Z3_context * Z3_error_handler -> unit
 
   val Z3_set_error
-    : Z3_context * Z3_error_code -> unit
+    : Z3_context * Enum.Z3_error_code -> unit
 
   val Z3_get_error_msg
-    : Z3_error_code -> Z3_string
+    : Enum.Z3_error_code -> Z3_string
 
   val Z3_get_error_msg_ex
-    : Z3_context * Z3_error_code -> Z3_string
+    : Z3_context * Enum.Z3_error_code -> Z3_string
 
   val Z3_get_version
     : word ref * word ref * word ref * word ref -> unit
@@ -1400,7 +1372,7 @@ struct
     type Z3_ast_vector   = Z3_ast_vector
     type Z3_string       = Z3_string
     type Z3_stats        = Z3_stats
-    type Z3_lbool        = Z3_lbool
+    type Z3_lbool        = Enum.Z3_lbool
 
     val Z3_mk_fixedpoint
       : Z3_context -> Z3_fixedpoint
@@ -1565,7 +1537,7 @@ struct
     type Z3_goal      = Z3_goal
     type Z3_ast       = Z3_ast
     type Z3_bool      = Z3_bool
-    type Z3_goal_prec = Z3_goal_prec
+    type Z3_goal_prec = Enum.Z3_goal_prec
     type Z3_string    = Z3_string
 
     val Z3_mk_goal
@@ -1777,7 +1749,7 @@ struct
     type Z3_ast          = Z3_ast
     type Z3_ast_vector   = Z3_ast_vector
     type Z3_string       = Z3_string
-    type Z3_lbool        = Z3_lbool
+    type Z3_lbool        = Enum.Z3_lbool
 
     val Z3_mk_solver
       : Z3_context -> Z3_solver
@@ -1894,7 +1866,7 @@ struct
     type Z3_string     = Z3_string
     type Z3_config     = Z3_config
     type Z3_params     = Z3_params
-    type Z3_lbool      = Z3_lbool
+    type Z3_lbool      = Enum.Z3_lbool
     type Z3_ast_vector = Z3_ast_vector
     type Z3_model      = Z3_model
 
@@ -2014,7 +1986,7 @@ struct
     type Z3_ast       = Z3_ast
     type Z3_symbol    = Z3_symbol
     type Z3_sort      = Z3_sort
-    type Z3_lbool     = Z3_lbool
+    type Z3_lbool     = Enum.Z3_lbool
     type Z3_bool      = Z3_bool
     type Z3_string    = Z3_string
     type Z3_literals  = Z3_literals

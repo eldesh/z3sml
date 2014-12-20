@@ -4,6 +4,12 @@ struct
   structure Ptr = Pointer
   structure D = Z3.Deprecated
   structure Prop = Z3.Propositional
+  structure E = Z3.Enum
+
+  fun for v inv next f =
+    if inv v
+    then (f v; for (next v) inv next f)
+    else ()
 
   fun var ctx name ty =
     let val sym = Z3.Z3_mk_string_symbol (ctx, name)
@@ -30,14 +36,14 @@ struct
       val m : Z3.Z3_model ref = ref (Ptr.NULL())
       val result = D.Z3_check_and_get_model (ctx, m)
       val () =
-        if result=Z3.Z3_L_FALSE
+        if result = E.Z3_L_FALSE
         then print "unsat\n"
-        else if result=Z3.Z3_L_UNDEF
+        else if result = E.Z3_L_UNDEF
         then (print "unknown\n";
               print (concat["potential model:\n"
                            , Z3.Z3_model_to_string (ctx, !m)
                            , "\n"]))
-        else if result=Z3.Z3_L_TRUE
+        else if result = E.Z3_L_TRUE
         then (print (concat["sat\n"
                            , Z3.Z3_model_to_string (ctx, !m)
                            , "\n"]))
@@ -57,21 +63,24 @@ struct
     end
 
   fun with_context f =
-    with_config (fn cfg =>
     let
-      val () = Z3.Config.Z3_set_param_value (cfg, "MODEL", "true")
-      val ctx = Z3.Context.Z3_mk_context cfg
-      val () = Z3.Z3_set_error_handler(ctx, fn _ => print "error\n")
+      val ctx = with_config
+                  (fn cfg =>
+                    (Z3.Config.Z3_set_param_value (cfg, "model", "true");
+                     let val ctx = Z3.Context.Z3_mk_context cfg in
+                       Z3.Z3_set_error_handler(ctx, fn _ => print "error\n");
+                       ctx
+                     end))
       val r   = f ctx
       val ()  = Z3.Context.Z3_del_context ctx
     in
       r
-    end)
+    end
 
   fun lbool_to_string x =
-    if x=Z3.Z3_L_FALSE then "L_FALSE"
-    else if x=Z3.Z3_L_UNDEF then "L_UNDEF"
-    else if x=Z3.Z3_L_TRUE  then "L_TRUE"
+         if x = E.Z3_L_FALSE then "L_FALSE"
+    else if x = E.Z3_L_UNDEF then "L_UNDEF"
+    else if x = E.Z3_L_TRUE  then "L_TRUE"
     else raise Fail "lbool_to_string"
 
   fun simple_example () =
@@ -109,9 +118,9 @@ struct
       val () = D.Z3_assert_cnstr (ctx, negated_conjecture)
       val smt = D.Z3_check ctx
     in
-           if smt = Z3.Z3_L_FALSE then print "DeMorgan is valid\n"
-      else if smt = Z3.Z3_L_TRUE  then print "Undef\n"
-      else if smt = Z3.Z3_L_UNDEF then print "DeMorgan is not valid\n"
+           if smt = E.Z3_L_FALSE then print "DeMorgan is valid\n"
+      else if smt = E.Z3_L_TRUE  then print "Undef\n"
+      else if smt = E.Z3_L_UNDEF then print "DeMorgan is not valid\n"
       else raise Fail "Sample DeMorgan"
     end)
 
@@ -123,7 +132,7 @@ struct
       val x_xor_y = Prop.Z3_mk_xor (ctx, x, y)
       val () = D.Z3_assert_cnstr (ctx, x_xor_y)
     in
-      check ctx Z3.Z3_L_TRUE
+      check ctx E.Z3_L_TRUE
     end)
 
   fun find_model_example2 () =
@@ -147,14 +156,14 @@ struct
       val () = D.Z3_assert_cnstr (ctx, c2)
 
       val () = print "model for: x < y + 1, x > 2\n"
-      val () = check ctx Z3.Z3_L_TRUE
+      val () = check ctx E.Z3_L_TRUE
 
       val x_eq_y = Prop.Z3_mk_eq (ctx, x, y)
       val c3     = Prop.Z3_mk_not(ctx, x_eq_y)
     in
       D.Z3_assert_cnstr (ctx, c3);
       print "model for: x < y + 1, x > 2, not(x = y)\n";
-      check ctx Z3.Z3_L_TRUE;
+      check ctx E.Z3_L_TRUE;
       Z3.Context.Z3_del_context ctx
     end
 
@@ -207,7 +216,7 @@ struct
         let
           val v = Z3.Solver.Z3_solver_check (ctx, solver)
         in
-          if v=Z3.Z3_L_TRUE
+          if v= E.Z3_L_TRUE
           then Z3.Solver.Z3_solver_get_model (ctx, solver)
           else raise Fail "solver_check"
         end
@@ -252,6 +261,7 @@ struct
           f
 
   exception Unexpected of string
+  exception Unreachable of string
 
   fun prove ctx f is_valid =
     local_ctx ctx (fn ctx =>
@@ -266,11 +276,11 @@ struct
                                then D.Z3_del_model (ctx, !m)
                                else ())
       (fn ref m =>
-        if ret = Z3.Z3_L_FALSE
+        if ret = E.Z3_L_FALSE
         then
           (print "valid\n";
            if not is_valid then raise Unexpected "prove/valid" else ())
-        else if ret = Z3.Z3_L_UNDEF
+        else if ret = E.Z3_L_UNDEF
         then
           (print "unknown\n";
            if not (Ptr.isNull m)
@@ -278,7 +288,7 @@ struct
                             , Z3.Z3_model_to_string (ctx, m), "\n"])
            else ();
            if is_valid then raise Unexpected "prove/unknown" else ())
-        else if ret = Z3.Z3_L_TRUE
+        else if ret = E.Z3_L_TRUE
         then
           (print "invalid\n";
            if not (Ptr.isNull m)
@@ -385,6 +395,245 @@ struct
        end
      end))
 
+  structure Display =
+  struct
+    fun symbol c out s =
+      let
+        val kind = Z3.Accessor.Z3_get_symbol_kind (c, s)
+      in
+        if kind = E.Z3_INT_SYMBOL
+        then
+          TextIO.output (out, concat["#", Int.toString
+                                         (Z3.Accessor.Z3_get_symbol_int(c, s))])
+        else if kind = E.Z3_STRING_SYMBOL
+        then
+          TextIO.output (out, Z3.Accessor.Z3_get_symbol_string(c, s))
+        else
+          raise Unreachable "Display.symbol"
+      end
+
+    fun sort c out ty =
+      let
+        fun succ w = w + 0w1
+        val printf = TextIO.output
+        val kind = Z3.Accessor.Z3_get_sort_kind (c, ty)
+      in
+        if kind = E.Z3_UNINTERPRETED_SORT
+        then symbol c out (Z3.Accessor.Z3_get_sort_name (c, ty))
+        else if kind = E.Z3_BOOL_SORT
+        then printf (out, "bool")
+        else if kind = E.Z3_INT_SORT
+        then printf (out, "int")
+        else if kind = E.Z3_REAL_SORT
+        then printf (out, "real")
+        else if kind = E.Z3_BV_SORT
+        then printf (out, concat["bv"
+                          , Word.toString(Z3.Accessor.Z3_get_bv_sort_size(c,ty))])
+        else if kind = E.Z3_ARRAY_SORT
+        then
+          (printf (out, "[");
+           sort c out (Z3.Accessor.Z3_get_array_sort_domain(c, ty));
+           printf (out, "->");
+           sort c out (Z3.Accessor.Z3_get_array_sort_range (c, ty));
+           printf (out, "]"))
+        else if kind = E.Z3_DATATYPE_SORT
+        then
+          ((if Z3.Accessor.Z3_get_datatype_sort_num_constructors(c, ty) <> 0w1
+            then printf (out, Z3.Z3_sort_to_string(c, ty))
+            else ());
+           printf (out, "(");
+           for 0w0 (fn i=> i < Z3.Accessor.Z3_get_tuple_sort_num_fields(c, ty)) succ
+           (fn i=>
+             let
+               val field = Z3.Accessor.Z3_get_tuple_sort_field_decl(c, ty, i)
+             in
+               (if i > 0w0 then printf (out, ", ") else ());
+               sort c out (Z3.Accessor.Z3_get_range(c, field))
+             end);
+           printf (out, ")"))
+        else
+          (printf (out, "unknown[");
+           symbol c out (Z3.Accessor.Z3_get_sort_name(c, ty));
+           printf (out, "]");
+           raise Fail "unknown")
+      end
+
+    fun ast c out v =
+      let
+        fun succ w = w + 0w1
+        val kind = Z3.Accessor.Z3_get_ast_kind (c, v)
+      in
+        if kind = E.Z3_NUMERAL_AST
+        then
+          (TextIO.output (out, Z3.Accessor.Z3_get_numeral_string (c, v));
+           TextIO.output (out, ":");
+           sort c out (Z3.Accessor.Z3_get_sort (c, v)))
+        else if kind = E.Z3_APP_AST
+        then
+          let
+            val app = Z3.Accessor.Z3_to_app (c, v)
+            val num_fields = Z3.Accessor.Z3_get_app_num_args (c, app)
+            val d = Z3.Accessor.Z3_get_app_decl (c, app)
+          in
+            TextIO.output (out, Z3.Z3_func_decl_to_string(c, d));
+            if num_fields > 0w0
+            then
+              (TextIO.output (out, "[");
+               for 0w0 (fn i=> i < num_fields) succ (fn i=>
+                 (if i > 0w0 then TextIO.output (out, ", ") else ();
+                  ast c out (Z3.Accessor.Z3_get_app_arg (c, app, i))
+                 )
+               );
+               TextIO.output (out, "]")
+              )
+            else
+              ()
+          end
+        else if kind = E.Z3_QUANTIFIER_AST
+        then
+          TextIO.output (out, "quantifier")
+        else
+          TextIO.output (out, "#unknown")
+      end
+
+    fun function_interpretations c out m =
+      let
+        fun succ w = w + 0w1
+      in
+        TextIO.output(out, "function interpretations:\n");
+        for 0w0 (fn i=> i < D.Z3_get_model_num_funcs(c, m)) succ
+        (fn i=>
+        let
+          val fdecl = D.Z3_get_model_func_decl(c, m, i)
+          val () = symbol c out (Z3.Accessor.Z3_get_decl_name(c, fdecl))
+          val () = TextIO.output (out, " = {")
+          val num_entries = D.Z3_get_model_func_num_entries(c, m, i)
+        in
+          for 0w0 (fn j=> j < num_entries) succ
+          (fn j=>
+           (if j > 0w0 then TextIO.output(out, ", ") else ();
+            TextIO.output(out, "(");
+            for 0w0 (fn k=> k < D.Z3_get_model_func_entry_num_args(c, m, i, j)) succ
+            (fn k=>
+             (if k > 0w0 then TextIO.output(out, ", ") else ();
+              ast c out (D.Z3_get_model_func_entry_arg(c, m, i, j, k))
+             )
+            );
+            TextIO.output(out, "|->");
+            ast c out (D.Z3_get_model_func_entry_value(c, m, i, j));
+            TextIO.output(out, ")")
+           )
+          );
+          if num_entries > 0w0 then TextIO.output(out, ", ") else ();
+          TextIO.output(out, "(else|->");
+          ast c out (D.Z3_get_model_func_else(c, m, i));
+          TextIO.output(out, ")]\n")
+        end)
+      end
+
+    fun model ctx out m =
+      let
+        fun succ w = w + 0w1
+        val num_constants = D.Z3_get_model_num_constants (ctx, m)
+      in
+        for 0w0 (fn i=> i<num_constants) succ (fn i=>
+        let
+          val cnst = D.Z3_get_model_constant (ctx, m, i)
+          val name = Z3.Accessor.Z3_get_decl_name (ctx, cnst)
+          val () = symbol ctx out name
+          val () = TextIO.output (out, " = ")
+          val a = Z3.Z3_mk_app (ctx, cnst, 0w0, Vector.fromList[])
+          val v = ref a
+          val ok = D.Z3_eval (ctx, m, a, v)
+        in
+          ast ctx out (!v);
+          TextIO.output (out, "\n")
+        end);
+        function_interpretations ctx out m
+      end
+
+  end (* Display *)
+
+  fun check2 ctx expected_result =
+    let
+      val m : Z3.Z3_model ref = ref (Ptr.NULL())
+      val result = D.Z3_check_and_get_model (ctx, m)
+    in
+      if result = E.Z3_L_FALSE
+      then
+        print "unsat\n"
+      else if result = E.Z3_L_UNDEF
+      then
+        (print "unknown\n";
+         print "potential model:\n";
+         Display.model ctx TextIO.stdOut (!m))
+      else if result = E.Z3_L_TRUE
+      then
+        (print "sat\n";
+         Display.model ctx TextIO.stdOut (!m))
+      else ();
+      if not (Ptr.isNull (!m))
+      then D.Z3_del_model (ctx, !m) else ();
+      if result <> expected_result
+      then raise Unexpected "check2"
+      else ()
+    end
+
+  fun push_pop_example1 () =
+    (print "\npush_pop_example1\n";
+     with_context (fn ctx =>
+     let
+       (* create a big number *)
+       val int_sort   = Z3.Sort.Z3_mk_int_sort ctx
+       val big_number = Z3.Z3_mk_numeral
+                         (ctx, "1000000000000000000000000000000000000000000000000000000", int_sort)
+       (* create number 3 *)
+       val three      = Z3.Z3_mk_numeral (ctx, "3", int_sort)
+       (* create x *)
+       val x_sym      = Z3.Z3_mk_string_symbol (ctx, "x")
+       val x          = Z3.Z3_mk_const (ctx, x_sym, int_sort)
+       (* assert x >= "big number" *)
+       val c1         = Z3.Arithmetic.Z3_mk_ge (ctx, x, big_number)
+       val ()         = print "assert: x >= 'big number'\n"
+       val ()         = D.Z3_assert_cnstr (ctx, c1)
+       (* create a backtracking point *)
+       val ()         = print "push\n"
+     in
+       local_ctx ctx (fn ctx =>
+       let
+         val () = print (concat["number of scopes: "
+                               , Word.toString (D.Z3_get_num_scopes ctx)
+                               , "\n"])
+         val c2 = Z3.Arithmetic.Z3_mk_le (ctx, x, three)
+         val () = print "assert: x <= 3\n"
+         val () = D.Z3_assert_cnstr (ctx, c2)
+       in
+         (* context is inconsistent at this point *)
+         check2 ctx E.Z3_L_FALSE;
+         (* backtrack: the constraint x <= 3 will be removed, since it was
+          * asserted after the last Z3_push. *)
+         print "pop\n"
+       end);
+       print (concat["number of scopes: "
+            , Word.toString (D.Z3_get_num_scopes ctx), "\n"]);
+       (* the context is consistent again. *)
+       check2 ctx E.Z3_L_TRUE;
+
+       (* new constraints can be asserted... *)
+       let
+         (* create y *)
+         val y_sym = Z3.Z3_mk_string_symbol (ctx, "y")
+         val y     = Z3.Z3_mk_const (ctx, y_sym, int_sort)
+         (* assert y > x *)
+         val c3    = Z3.Arithmetic.Z3_mk_gt(ctx, y, x)
+       in
+         print "assert: y > x\n";
+         D.Z3_assert_cnstr(ctx, c3);
+         (* the context is still consistent *)
+         check2 ctx E.Z3_L_TRUE
+       end
+     end))
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -393,8 +642,12 @@ struct
      find_model_example2();
      prove_example1();
      prove_example2();
-     tutorial_sample()
-     )
+     push_pop_example1();
+     tutorial_sample();
+     OS.Process.success
+    )
+    handle exn => (print(concat["main:uncaught exception[", exnMessage exn, "]\n"]);
+                   OS.Process.failure)
 end
 val _ =  Main.main (CommandLine.name(), CommandLine.arguments())
 

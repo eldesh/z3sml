@@ -40,19 +40,22 @@ in
   type Z3_constructor      = unit ptr
   type Z3_constructor_list = unit ptr
   type Z3_string           = string
-  type Z3_bool             = int
   type Z3_string_ptr       = Z3_string ref
   type Z3_param_descrs     = unit ptr
   type Z3_contextarget     = unit ptr
   type Z3_theory           = unit ptr
   type Z3_theory_data      = unit ptr
 
-  open Z3_enum
+  type Z3_error_handler = Z3_context * Z3_enum.Z3_error_code -> unit
 
-  type Z3_error_handler = Z3_context * Z3_error_code -> unit
+  type Z3_bool             = int
+  val Z3_TRUE  : Z3_bool   = 1
+  val Z3_FALSE : Z3_bool   = 0
 
-  val Z3_TRUE : Z3_bool = 1
-  val Z3_FALSE : Z3_bool = 0
+  (**
+   * Z3 enum constants
+   *)
+  structure Enum = Z3_enum
 
   (**
    * Algebraic Numbers
@@ -236,7 +239,7 @@ in
    *)
   val Z3_set_ast_print_mode =
     Dyn.dlsym(libz3, "Z3_set_ast_print_mode")
-    : _import (Z3_context, Z3_ast_print_mode) -> ()
+    : _import (Z3_context, Enum.Z3_ast_print_mode) -> ()
 
   val Z3_ast_to_string =
     Ptr.importString o
@@ -281,20 +284,20 @@ in
    *)
   val Z3_get_error_code =
     Dyn.dlsym(libz3, "Z3_get_error_code")
-    : _import Z3_context -> Z3_error_code
+    : _import Z3_context -> Enum.Z3_error_code
 
   val Z3_set_error_handler =
     Dyn.dlsym(libz3, "Z3_set_error_handler")
-    : _import (Z3_context, (Z3_context, Z3_error_code)->()) -> ()
+    : _import (Z3_context, (Z3_context, Enum.Z3_error_code)->()) -> ()
 
   val Z3_set_error =
     Dyn.dlsym(libz3, "Z3_set_error")
-    : _import (Z3_context, Z3_error_code) -> ()
+    : _import (Z3_context, Enum.Z3_error_code) -> ()
 
   val Z3_get_error_msg =
     Ptr.importString o
     ( Dyn.dlsym(libz3, "Z3_get_error_msg")
-      : _import Z3_error_code -> char ptr)
+      : _import Enum.Z3_error_code -> char ptr)
 
   (**
    * BEGIN_MLAPI_EXCLUDE Z3_string
@@ -302,7 +305,7 @@ in
   val Z3_get_error_msg_ex =
     Ptr.importString o
     ( Dyn.dlsym(libz3, "Z3_get_error_msg_ex")
-      : _import (Z3_context, Z3_error_code) -> char ptr)
+      : _import (Z3_context, Enum.Z3_error_code) -> char ptr)
 
   (**
    * Miscellaneous
