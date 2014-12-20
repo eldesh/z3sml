@@ -13,15 +13,16 @@ struct
   type Z3_bool    = int
 
   val Z3_mk_pattern
-    : Z3_context * word * Z3_ast array -> Z3_pattern
+    : Z3_context * word * Z3_ast vector -> Z3_pattern
 
   val Z3_mk_bound
     : Z3_context * word * Z3_sort -> Z3_ast
 
   val Z3_mk_forall
-    : Z3_context * word * word * Z3_pattern * word
-                 * Z3_sort * Z3_symbol vector * Z3_ast
-                -> Z3_ast
+    : Z3_context * word
+                 * word * Z3_pattern vector
+                 * word * Z3_sort vector * Z3_symbol vector
+                 * Z3_ast -> Z3_ast
 
   val Z3_mk_exists
     : Z3_context * word * word * Z3_pattern * word
