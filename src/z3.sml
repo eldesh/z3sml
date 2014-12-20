@@ -218,21 +218,6 @@ in
    * Interaction logging.
    *)
   structure Log = Z3_Log
-  val Z3_open_log =
-    Dyn.dlsym(libz3, "Z3_open_log")
-    : _import Z3_string -> Z3_bool
-
-  val Z3_append_log =
-    Dyn.dlsym(libz3, "Z3_append_log")
-    : _import Z3_string -> ()
-
-  val Z3_close_log =
-    Dyn.dlsym(libz3, "Z3_close_log")
-    : _import () -> ()
-
-  val Z3_toggle_warning_messages =
-    Dyn.dlsym(libz3, "Z3_toggle_warning_messages")
-    : _import Z3_bool -> ()
 
   (**
    * String conversion
