@@ -31,6 +31,7 @@ _require "./z3_interpolation.smi"
 _require "./z3_deprecated.smi"
 _require "./z3_log.smi"
 _require "./z3_numerals.smi"
+_require "./z3_stringconv.smi"
 
 structure Z3 =
 struct
@@ -1142,29 +1143,41 @@ struct
       : Z3_bool -> unit
   end (* Log *)
 
-  val Z3_set_ast_print_mode
-    : Z3_context * Enum.Z3_ast_print_mode -> unit
+  structure Stringconv = (* Z3_Stringconv *)
+  struct
+    type Z3_context        = Z3_context
+    type Z3_ast            = Z3_ast
+    type Z3_string         = Z3_string
+    type Z3_pattern        = Z3_pattern
+    type Z3_model          = Z3_model
+    type Z3_func_decl      = Z3_func_decl
+    type Z3_sort           = Z3_sort
+    type Z3_ast_print_mode = Enum.Z3_ast_print_mode
 
-  val Z3_ast_to_string
-     : Z3_context * Z3_ast -> Z3_string
+    val Z3_set_ast_print_mode
+      : Z3_context * Z3_ast_print_mode -> unit
 
-  val Z3_pattern_to_string
-     : Z3_context * Z3_pattern -> Z3_string
+    val Z3_ast_to_string
+       : Z3_context * Z3_ast -> Z3_string
 
-  val Z3_sort_to_string
-     : Z3_context * Z3_sort -> Z3_string
+    val Z3_pattern_to_string
+       : Z3_context * Z3_pattern -> Z3_string
 
-  val Z3_func_decl_to_string
-     : Z3_context * Z3_func_decl -> Z3_string
+    val Z3_sort_to_string
+       : Z3_context * Z3_sort -> Z3_string
 
-  val Z3_model_to_string
-     : Z3_context * Z3_model -> Z3_string
+    val Z3_func_decl_to_string
+       : Z3_context * Z3_func_decl -> Z3_string
 
-  val Z3_benchmark_to_smtlib_string
-     : Z3_context * Z3_string * Z3_string
-                * Z3_string * Z3_string
-                * word * Z3_ast array * Z3_ast
-                -> Z3_string
+    val Z3_model_to_string
+       : Z3_context * Z3_model -> Z3_string
+
+    val Z3_benchmark_to_smtlib_string
+       : Z3_context * Z3_string * Z3_string
+                  * Z3_string * Z3_string
+                  * word * Z3_ast array * Z3_ast
+                  -> Z3_string
+  end (* Stringconv *)
 
   structure Parser = (* Z3_Parser *)
   struct

@@ -198,42 +198,7 @@ in
   (**
    * String conversion
    *)
-  val Z3_set_ast_print_mode =
-    Dyn.dlsym(libz3, "Z3_set_ast_print_mode")
-    : _import (Z3_context, Enum.Z3_ast_print_mode) -> ()
-
-  val Z3_ast_to_string =
-    Ptr.importString o
-    (Dyn.dlsym(libz3, "Z3_ast_to_string")
-     : _import (Z3_context, Z3_ast) -> char ptr)
-
-  val Z3_pattern_to_string =
-    Ptr.importString o
-    (Dyn.dlsym(libz3, "Z3_pattern_to_string")
-     : _import (Z3_context, Z3_pattern) -> char ptr)
-
-  val Z3_sort_to_string =
-    Ptr.importString o
-    (Dyn.dlsym(libz3, "Z3_sort_to_string")
-     : _import (Z3_context, Z3_sort) -> char ptr)
-
-  val Z3_func_decl_to_string =
-    Ptr.importString o
-    (Dyn.dlsym(libz3, "Z3_func_decl_to_string")
-     : _import (Z3_context, Z3_func_decl) -> char ptr)
-
-  val Z3_model_to_string =
-    Ptr.importString o
-    (Dyn.dlsym(libz3, "Z3_model_to_string")
-     : _import (Z3_context, Z3_model) -> char ptr)
-
-  val Z3_benchmark_to_smtlib_string =
-    Ptr.importString o
-    (Dyn.dlsym(libz3, "Z3_benchmark_to_smtlib_string")
-     : _import (Z3_context, Z3_string, Z3_string
-                , Z3_string, Z3_string
-                , word, Z3_ast array, Z3_ast
-                ) -> char ptr)
+  structure Stringconv = Z3_Stringconv
 
   (**
    * Parser interface

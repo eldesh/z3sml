@@ -41,11 +41,11 @@ struct
         else if result = E.Z3_L_UNDEF
         then (print "unknown\n";
               print (concat["potential model:\n"
-                           , Z3.Z3_model_to_string (ctx, !m)
+                           , Z3.Stringconv.Z3_model_to_string (ctx, !m)
                            , "\n"]))
         else if result = E.Z3_L_TRUE
         then (print (concat["sat\n"
-                           , Z3.Z3_model_to_string (ctx, !m)
+                           , Z3.Stringconv.Z3_model_to_string (ctx, !m)
                            , "\n"]))
         else ()
     in
@@ -232,9 +232,9 @@ struct
           let
             val ast = Z3.Model.Z3_model_get_const_interp (ctx, model, decl)
           in
-            print (concat[Z3.Z3_func_decl_to_string (ctx, decl)
+            print (concat[Z3.Stringconv.Z3_func_decl_to_string (ctx, decl)
                          , " -> "
-                         ,Z3.Z3_ast_to_string (ctx, ast)
+                         ,Z3.Stringconv.Z3_ast_to_string (ctx, ast)
                          , "\n"])
           end)
          decls
@@ -285,7 +285,7 @@ struct
           (print "unknown\n";
            if not (Ptr.isNull m)
            then print(concat["potential counterexample:\n"
-                            , Z3.Z3_model_to_string (ctx, m), "\n"])
+                            , Z3.Stringconv.Z3_model_to_string (ctx, m), "\n"])
            else ();
            if is_valid then raise Unexpected "prove/unknown" else ())
         else if ret = E.Z3_L_TRUE
@@ -293,7 +293,7 @@ struct
           (print "invalid\n";
            if not (Ptr.isNull m)
            then print(concat["counterexample:\n"
-                            , Z3.Z3_model_to_string (ctx, m), "\n"])
+                            , Z3.Stringconv.Z3_model_to_string (ctx, m), "\n"])
            else ();
            if is_valid then raise Unexpected "prove/invalid" else ())
         else ())
@@ -439,7 +439,7 @@ struct
         else if kind = E.Z3_DATATYPE_SORT
         then
           ((if Z3.Accessor.Z3_get_datatype_sort_num_constructors(c, ty) <> 0w1
-            then printf (out, Z3.Z3_sort_to_string(c, ty))
+            then printf (out, Z3.Stringconv.Z3_sort_to_string(c, ty))
             else ());
            printf (out, "(");
            for 0w0 (fn i=> i < Z3.Accessor.Z3_get_tuple_sort_num_fields(c, ty)) succ
@@ -475,7 +475,7 @@ struct
             val num_fields = Z3.Accessor.Z3_get_app_num_args (c, app)
             val d = Z3.Accessor.Z3_get_app_decl (c, app)
           in
-            TextIO.output (out, Z3.Z3_func_decl_to_string(c, d));
+            TextIO.output (out, Z3.Stringconv.Z3_func_decl_to_string(c, d));
             if num_fields > 0w0
             then
               (TextIO.output (out, "[");
@@ -611,11 +611,11 @@ struct
       val eq       = Prop.Z3_mk_eq (ctx, finv_fxs, x_i)
       val p        = Z3.Quantifier.Z3_mk_pattern(ctx
                                                 , 0w1, Vector.fromList[fxs])
-      val () = print(concat["pattern: ", Z3.Z3_pattern_to_string(ctx, p), "\n\n"])
+      val () = print(concat["pattern: ", Z3.Stringconv.Z3_pattern_to_string(ctx, p), "\n\n"])
       val q  = Z3.Quantifier.Z3_mk_forall (ctx, 0w0, 0w1, Vector.fromList[p], sz
                                             , types, names, eq)
     in
-      print(concat["assert axiom:\n", Z3.Z3_ast_to_string(ctx, q), "\n"]);
+      print(concat["assert axiom:\n", Z3.Stringconv.Z3_ast_to_string(ctx, q), "\n"]);
       D.Z3_assert_cnstr(ctx, q)
     end
 

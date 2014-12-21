@@ -1,0 +1,41 @@
+_require "basis.smi"
+_require "ffi.smi"
+_require "libh.smi"
+_require "z3_enum.smi"
+
+structure Z3_Stringconv = (* Z3_Stringconv *)
+struct
+  type Z3_context   = unit ptr
+  type Z3_ast       = unit ptr
+  type Z3_string    = string
+  type Z3_pattern   = unit ptr
+  type Z3_model     = unit ptr
+  type Z3_func_decl = unit ptr
+  type Z3_sort      = unit ptr
+  type Z3_ast_print_mode = Z3_enum.Z3_ast_print_mode
+
+  val Z3_set_ast_print_mode
+    : Z3_context * Z3_ast_print_mode -> unit
+
+  val Z3_ast_to_string
+     : Z3_context * Z3_ast -> Z3_string
+
+  val Z3_pattern_to_string
+     : Z3_context * Z3_pattern -> Z3_string
+
+  val Z3_sort_to_string
+     : Z3_context * Z3_sort -> Z3_string
+
+  val Z3_func_decl_to_string
+     : Z3_context * Z3_func_decl -> Z3_string
+
+  val Z3_model_to_string
+     : Z3_context * Z3_model -> Z3_string
+
+  val Z3_benchmark_to_smtlib_string
+     : Z3_context * Z3_string * Z3_string
+                * Z3_string * Z3_string
+                * word * Z3_ast array * Z3_ast
+                -> Z3_string
+end
+
