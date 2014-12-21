@@ -1037,13 +1037,13 @@ struct
   end (* Accessor *)
 
   val Z3_update_term
-    : Z3_context * Z3_ast * word * Z3_ast array -> Z3_ast
+    : Z3_context * Z3_ast * word * Z3_ast vector -> Z3_ast
 
   val Z3_substitute
     : Z3_context * Z3_ast * word * Z3_ast vector * Z3_ast array -> Z3_ast
 
   val Z3_substitute_vars
-    : Z3_context * Z3_ast * word * Z3_ast array -> Z3_ast
+    : Z3_context * Z3_ast * word * Z3_ast vector -> Z3_ast
 
   val Z3_translate
     : Z3_context * Z3_ast * Z3_contextarget -> Z3_ast

@@ -171,7 +171,7 @@ in
    *)
   val Z3_update_term =
     Dyn.dlsym(libz3, "Z3_update_term")
-    : _import (Z3_context, Z3_ast, word, Z3_ast array) -> Z3_ast
+    : _import (Z3_context, Z3_ast, word, Z3_ast vector) -> Z3_ast
 
   val Z3_substitute =
     Dyn.dlsym(libz3, "Z3_substitute")
@@ -179,7 +179,7 @@ in
 
   val Z3_substitute_vars =
     Dyn.dlsym(libz3, "Z3_substitute_vars")
-    : _import (Z3_context, Z3_ast, word, Z3_ast array) -> Z3_ast
+    : _import (Z3_context, Z3_ast, word, Z3_ast vector) -> Z3_ast
 
   val Z3_translate =
     Dyn.dlsym(libz3, "Z3_translate")
