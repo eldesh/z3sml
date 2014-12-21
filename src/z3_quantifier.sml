@@ -24,47 +24,60 @@ in
 
   val Z3_mk_forall =
     Dyn.dlsym(libz3, "Z3_mk_forall")
-    : _import (Z3_context, word, word, Z3_pattern vector, word, Z3_sort vector,
-    Z3_symbol vector, Z3_ast) -> Z3_ast
+    : _import (Z3_context, word
+              , word, Z3_pattern vector
+              , word, Z3_sort vector, Z3_symbol vector
+              , Z3_ast) -> Z3_ast
 
   val Z3_mk_exists =
     Dyn.dlsym(libz3, "Z3_mk_exists")
-    : _import (Z3_context, word, word, Z3_pattern, word, Z3_sort,
-    Z3_symbol vector, Z3_ast) -> Z3_ast
+    : _import (Z3_context, word
+              , word, Z3_pattern vector
+              , word, Z3_sort vector, Z3_symbol vector
+              , Z3_ast) -> Z3_ast
 
   val Z3_mk_quantifier =
     Dyn.dlsym(libz3, "Z3_mk_quantifier")
-    : _import (Z3_context, Z3_bool, word, word, Z3_pattern, word,
-    Z3_sort, Z3_symbol vector, Z3_ast) -> Z3_ast
+    : _import (Z3_context, Z3_bool, word
+              , word, Z3_pattern vector
+              , word, Z3_sort vector, Z3_symbol vector
+              , Z3_ast) -> Z3_ast
 
   val Z3_mk_quantifier_ex =
     Dyn.dlsym(libz3, "Z3_mk_quantifier_ex")
     : _import (Z3_context, Z3_bool, word
-                , Z3_symbol, Z3_symbol, word
-                , Z3_pattern, word, Z3_ast vector
-                , word, Z3_sort, Z3_symbol vector, Z3_ast
-                ) -> Z3_ast
+              , Z3_symbol, Z3_symbol
+              , word, Z3_pattern vector
+              , word, Z3_ast vector
+              , word, Z3_sort vector, Z3_symbol vector
+              , Z3_ast) -> Z3_ast
 
   val Z3_mk_forall_const =
     Dyn.dlsym(libz3, "Z3_mk_forall_const")
-    : _import (Z3_context, word, word, Z3_app, word, Z3_pattern, Z3_ast) -> Z3_ast
+    : _import (Z3_context, word
+              , word, Z3_app vector
+              , word, Z3_pattern vector, Z3_ast) -> Z3_ast
 
   val Z3_mk_exists_const =
     Dyn.dlsym(libz3, "Z3_mk_exists_const")
-    : _import (Z3_context, word, word, Z3_app, word, Z3_pattern, Z3_ast) -> Z3_ast
+    : _import (Z3_context, word
+              , word, Z3_app vector
+              , word, Z3_pattern vector, Z3_ast) -> Z3_ast
 
   val Z3_mk_quantifier_const =
     Dyn.dlsym(libz3, "Z3_mk_quantifier_const")
-    : _import (Z3_context, Z3_bool, word, word, Z3_app
-                , word, Z3_pattern, Z3_ast
-                ) -> Z3_ast
+    : _import (Z3_context, Z3_bool, word
+              , word, Z3_app vector
+              , word, Z3_pattern vector
+              , Z3_ast) -> Z3_ast
 
   val Z3_mk_quantifier_const_ex =
     Dyn.dlsym(libz3, "Z3_mk_quantifier_const_ex")
-    : _import (Z3_context, Z3_bool, word, Z3_symbol
-                , Z3_symbol, word, Z3_app, word
-                , Z3_pattern, word, Z3_ast vector, Z3_ast
-                ) -> Z3_ast
+    : _import (Z3_context, Z3_bool, word, Z3_symbol, Z3_symbol
+              , word, Z3_app vector
+              , word, Z3_pattern vector
+              , word, Z3_ast vector
+              , Z3_ast) -> Z3_ast
 
 end (* local *)
 end
