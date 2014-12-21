@@ -208,30 +208,7 @@ in
   (**
    * Error Handling
    *)
-  val Z3_get_error_code =
-    Dyn.dlsym(libz3, "Z3_get_error_code")
-    : _import Z3_context -> Enum.Z3_error_code
-
-  val Z3_set_error_handler =
-    Dyn.dlsym(libz3, "Z3_set_error_handler")
-    : _import (Z3_context, (Z3_context, Enum.Z3_error_code)->()) -> ()
-
-  val Z3_set_error =
-    Dyn.dlsym(libz3, "Z3_set_error")
-    : _import (Z3_context, Enum.Z3_error_code) -> ()
-
-  val Z3_get_error_msg =
-    Ptr.importString o
-    ( Dyn.dlsym(libz3, "Z3_get_error_msg")
-      : _import Enum.Z3_error_code -> char ptr)
-
-  (**
-   * BEGIN_MLAPI_EXCLUDE Z3_string
-   *)
-  val Z3_get_error_msg_ex =
-    Ptr.importString o
-    ( Dyn.dlsym(libz3, "Z3_get_error_msg_ex")
-      : _import (Z3_context, Enum.Z3_error_code) -> char ptr)
+  structure Error = Z3_Error
 
   (**
    * Miscellaneous

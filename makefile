@@ -46,6 +46,7 @@ SRCS = src/z3.sml \
 	   src/z3_log.sml \
 	   src/z3_numerals.sml \
 	   src/z3_stringconv.sml \
+	   src/z3_error.sml \
 	   src/libh.sml
 
 OBJS = $(SRCS:.sml=.o) $(SAMPLE_SRC:.sml=.o)

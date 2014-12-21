@@ -20,6 +20,7 @@ in
   type Z3_literals = unit ptr
   type Z3_func_decl = unit ptr
   type Z3_solver    = unit ptr
+  type Z3_error_code = Z3_enum.Z3_error_code
 
   (*
    * Deprecated Injective functions API
@@ -208,6 +209,11 @@ in
   val Z3_get_context_assignment =
     Dyn.dlsym (libz3, "Z3_get_context_assignment")
     : _import Z3_context -> Z3_ast
+
+  val Z3_get_error_msg =
+    Ptr.importString o
+    ( Dyn.dlsym(libz3, "Z3_get_error_msg")
+      : _import Z3_error_code -> char ptr)
 
 end (* local *)
 end

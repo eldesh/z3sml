@@ -32,6 +32,7 @@ _require "./z3_deprecated.smi"
 _require "./z3_log.smi"
 _require "./z3_numerals.smi"
 _require "./z3_stringconv.smi"
+_require "./z3_error.smi"
 
 structure Z3 =
 struct
@@ -1250,22 +1251,27 @@ struct
      val Z3_get_smtlib_error
         : Z3_context -> Z3_string
 
-  end
+  end (* Parser *)
 
-  val Z3_get_error_code
-    : Z3_context -> Enum.Z3_error_code
+  structure Error = (* Z3_Error *)
+  struct
+    type Z3_context       = Z3_context
+    type Z3_error_code    = Enum.Z3_error_code
+    type Z3_error_handler = Z3_error_handler
+    type Z3_string        = Z3_string
 
-  val Z3_set_error_handler
-    : Z3_context * Z3_error_handler -> unit
+    val Z3_get_error_code
+      : Z3_context -> Z3_error_code
 
-  val Z3_set_error
-    : Z3_context * Enum.Z3_error_code -> unit
+    val Z3_set_error_handler
+      : Z3_context * Z3_error_handler -> unit
 
-  val Z3_get_error_msg
-    : Enum.Z3_error_code -> Z3_string
+    val Z3_set_error
+      : Z3_context * Z3_error_code -> unit
 
-  val Z3_get_error_msg_ex
-    : Z3_context * Enum.Z3_error_code -> Z3_string
+    val Z3_get_error_msg_ex
+      : Z3_context * Z3_error_code -> Z3_string
+  end (* Error *)
 
   val Z3_get_version
     : word ref * word ref * word ref * word ref -> unit
@@ -2025,6 +2031,7 @@ struct
     type Z3_literals  = Z3_literals
     type Z3_func_decl = Z3_func_decl
     type Z3_solver    = Z3_solver
+    type Z3_error_code = Z3_enum.Z3_error_code
 
     (*
      * Deprecated Injective functions API
@@ -2170,6 +2177,12 @@ struct
 
     val Z3_get_context_assignment
       : Z3_context -> Z3_ast
+
+    (*
+     * Deprecated Error Handling API
+     *)
+    val Z3_get_error_msg
+      : Z3_error_code -> Z3_string
 
   end (* Deprecated *)
 

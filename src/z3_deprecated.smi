@@ -16,6 +16,7 @@ struct
   type Z3_literals = unit ptr
   type Z3_func_decl = unit ptr
   type Z3_solver    = unit ptr
+  type Z3_error_code = Z3_enum.Z3_error_code
 
   (*
    * Deprecated Injective functions API
@@ -161,6 +162,12 @@ struct
 
   val Z3_get_context_assignment
     : Z3_context -> Z3_ast
+
+  (*
+   * Deprecated Error Handling API
+   *)
+  val Z3_get_error_msg
+    : Z3_error_code -> Z3_string
 
 end
 

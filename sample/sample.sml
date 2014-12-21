@@ -68,7 +68,7 @@ struct
                   (fn cfg =>
                     (Z3.Config.Z3_set_param_value (cfg, "model", "true");
                      let val ctx = Z3.Context.Z3_mk_context cfg in
-                       Z3.Z3_set_error_handler(ctx, fn _ => print "error\n");
+                       Z3.Error.Z3_set_error_handler(ctx, fn _ => print "error\n");
                        ctx
                      end))
       val r   = f ctx
@@ -175,7 +175,7 @@ struct
       let
         val ctx = Z3.Context.Z3_mk_context cfg
       in
-        Z3.Z3_set_error_handler (ctx, fn _=> print "error\n");
+        Z3.Error.Z3_set_error_handler (ctx, fn _=> print "error\n");
         Z3.Config.Z3_del_config cfg;
         ctx
       end
@@ -583,7 +583,7 @@ struct
     let
       val ()  = Z3.Config.Z3_set_param_value (cfg, "model", "true")
       val ctx = Z3.Context.Z3_mk_context cfg
-      val ()  = Z3.Z3_set_error_handler(ctx, error_handler)
+      val ()  = Z3.Error.Z3_set_error_handler(ctx, error_handler)
     in
       ctx
     end
