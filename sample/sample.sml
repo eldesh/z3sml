@@ -28,7 +28,7 @@ struct
 
   fun int ctx v =
     let val ty = Z3.Sort.Z3_mk_int_sort ctx
-    in Z3.Z3_mk_int (ctx, v, ty)
+    in Z3.Numerals.Z3_mk_int (ctx, v, ty)
     end
 
   fun check ctx expected =
@@ -341,7 +341,7 @@ struct
     mk_var ctx name (Z3.Sort.Z3_mk_int_sort ctx)
 
   fun mk_int ctx n =
-    Z3.Z3_mk_int (ctx, n, Z3.Sort.Z3_mk_int_sort ctx)
+    Z3.Numerals.Z3_mk_int (ctx, n, Z3.Sort.Z3_mk_int_sort ctx)
 
   fun prove_example2() =
     (print "\nprove_example2\n";
@@ -644,10 +644,10 @@ struct
      let
        (* create a big number *)
        val int_sort   = Z3.Sort.Z3_mk_int_sort ctx
-       val big_number = Z3.Z3_mk_numeral
+       val big_number = Z3.Numerals.Z3_mk_numeral
                          (ctx, "1000000000000000000000000000000000000000000000000000000", int_sort)
        (* create number 3 *)
-       val three      = Z3.Z3_mk_numeral (ctx, "3", int_sort)
+       val three      = Z3.Numerals.Z3_mk_numeral (ctx, "3", int_sort)
        (* create x *)
        val x_sym      = Z3.Z3_mk_string_symbol (ctx, "x")
        val x          = Z3.Z3_mk_const (ctx, x_sym, int_sort)

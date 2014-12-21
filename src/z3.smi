@@ -30,6 +30,7 @@ _require "./z3_realclosedfield.smi"
 _require "./z3_interpolation.smi"
 _require "./z3_deprecated.smi"
 _require "./z3_log.smi"
+_require "./z3_numerals.smi"
 
 structure Z3 =
 struct
@@ -679,17 +680,25 @@ struct
       : Z3_context * Z3_ast * Z3_ast -> Z3_ast
   end (* Array *)
 
-  val Z3_mk_numeral
-    : Z3_context * Z3_string * Z3_sort -> Z3_ast
+  structure Numerals =
+  struct
+    type Z3_context = Z3_context
+    type Z3_string  = Z3_string
+    type Z3_sort    = Z3_sort
+    type Z3_ast     = Z3_ast
 
-  val Z3_mk_real
-    : Z3_context * int * int -> Z3_ast
+    val Z3_mk_numeral
+      : Z3_context * Z3_string * Z3_sort -> Z3_ast
 
-  val Z3_mk_int
-    : Z3_context * int * Z3_sort -> Z3_ast
+    val Z3_mk_real
+      : Z3_context * int * int -> Z3_ast
 
-  val Z3_mk_unsigned_int
-    : Z3_context * word * Z3_sort -> Z3_ast
+    val Z3_mk_int
+      : Z3_context * int * Z3_sort -> Z3_ast
+
+    val Z3_mk_unsigned_int
+      : Z3_context * word * Z3_sort -> Z3_ast
+  end (* Numerals *)
 
   structure Quantifier = (* Z3_Quantifier *)
   struct

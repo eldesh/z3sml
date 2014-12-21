@@ -1,0 +1,23 @@
+_require "ffi.smi"
+_require "libh.smi"
+
+structure Z3_Numerals =
+struct
+  type Z3_context = unit ptr
+  type Z3_string  = string
+  type Z3_sort    = unit ptr
+  type Z3_ast     = unit ptr
+
+  val Z3_mk_numeral
+    : Z3_context * Z3_string * Z3_sort -> Z3_ast
+
+  val Z3_mk_real
+    : Z3_context * int * int -> Z3_ast
+
+  val Z3_mk_int
+    : Z3_context * int * Z3_sort -> Z3_ast
+
+  val Z3_mk_unsigned_int
+    : Z3_context * word * Z3_sort -> Z3_ast
+end
+
