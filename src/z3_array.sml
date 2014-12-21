@@ -29,7 +29,7 @@ in
 
   val Z3_mk_array_default =
     Dyn.dlsym(libz3, "Z3_mk_array_default")
-    : _import (Z3_context, Z3_ast array) -> Z3_ast
+    : _import (Z3_context, Z3_ast) -> Z3_ast
 
 end (* local *)
 end

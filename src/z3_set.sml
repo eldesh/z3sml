@@ -32,11 +32,11 @@ in
 
   val Z3_mk_set_union =
     Dyn.dlsym(libz3, "Z3_mk_set_union")
-    : _import (Z3_context, word, Z3_ast array) -> Z3_ast
+    : _import (Z3_context, word, Z3_ast vector) -> Z3_ast
 
   val Z3_mk_set_intersect =
     Dyn.dlsym(libz3, "Z3_mk_set_intersect")
-    : _import (Z3_context, word, Z3_ast array) -> Z3_ast
+    : _import (Z3_context, word, Z3_ast vector) -> Z3_ast
 
   val Z3_mk_set_difference =
     Dyn.dlsym(libz3, "Z3_mk_set_difference")

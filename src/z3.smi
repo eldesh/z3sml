@@ -639,7 +639,7 @@ struct
       : Z3_context * Z3_func_decl * word * Z3_ast vector -> Z3_ast
 
     val Z3_mk_array_default
-      : Z3_context * Z3_ast array -> Z3_ast
+      : Z3_context * Z3_ast -> Z3_ast
   end
 
   structure Set = (* Z3_Set *)
@@ -664,10 +664,10 @@ struct
       : Z3_context * Z3_ast * Z3_ast -> Z3_ast
 
     val Z3_mk_set_union
-      : Z3_context * word * Z3_ast array -> Z3_ast
+      : Z3_context * word * Z3_ast vector -> Z3_ast
 
     val Z3_mk_set_intersect
-      : Z3_context * word * Z3_ast array -> Z3_ast
+      : Z3_context * word * Z3_ast vector -> Z3_ast
 
     val Z3_mk_set_difference
       : Z3_context * Z3_ast * Z3_ast -> Z3_ast
@@ -680,7 +680,7 @@ struct
 
     val Z3_mk_set_subset
       : Z3_context * Z3_ast * Z3_ast -> Z3_ast
-  end (* Array *)
+  end (* Set *)
 
   structure Numerals =
   struct
