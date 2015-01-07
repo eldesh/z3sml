@@ -108,11 +108,11 @@ struct
        * !(!(x && y) <-> (!x || !y))
        *)
       val args    = Array.fromList [x, y]
-      val x_and_y = Prop.Z3_mk_and (ctx, 0w2, Array.vector args)
+      val x_and_y = Prop.Z3_mk_and (ctx, Array.vector args)
       val ls      = Prop.Z3_mk_not (ctx, x_and_y)
       val () = Array.update (args, 0, not_x)
       val () = Array.update (args, 1, not_y)
-      val rs                 = Prop.Z3_mk_or (ctx, 0w2, Array.vector args)
+      val rs                 = Prop.Z3_mk_or (ctx, Array.vector args)
       val conjecture         = Prop.Z3_mk_iff(ctx, ls, rs)
       val negated_conjecture = Prop.Z3_mk_not(ctx, conjecture)
       val () = D.Z3_assert_cnstr (ctx, negated_conjecture)
