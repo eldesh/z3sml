@@ -311,13 +311,13 @@ struct
       : Z3_context * Z3_sort * Z3_sort -> Z3_sort
 
     val Z3_mk_tuple_sort
-      : Z3_context * Z3_sort * word
+      : Z3_context * Z3_sort
                    * Z3_symbol vector * Z3_sort vector
                    * Z3_func_decl ref * Z3_func_decl array
                   -> Z3_sort
 
     val Z3_mk_enumeration_sort
-      : Z3_context * Z3_symbol * word
+      : Z3_context * Z3_symbol
                    * Z3_symbol vector * Z3_func_decl array
                    * Z3_func_decl array
                   -> Z3_sort
@@ -330,7 +330,7 @@ struct
                   -> Z3_sort
 
     val Z3_mk_constructor
-      : Z3_context * Z3_symbol * Z3_symbol * word
+      : Z3_context * Z3_symbol * Z3_symbol
                    * Z3_symbol vector * Z3_sort_opt vector * word array
                   -> Z3_constructor
 
@@ -338,23 +338,23 @@ struct
       : Z3_context * Z3_constructor -> unit
 
     val Z3_mk_datatype
-      : Z3_context * Z3_symbol * word
+      : Z3_context * Z3_symbol
                    * Z3_constructor array
                   -> Z3_sort
 
     val Z3_mk_constructor_list
-      : Z3_context * word * Z3_constructor vector -> Z3_constructor_list
+      : Z3_context * Z3_constructor vector -> Z3_constructor_list
 
     val Z3_del_constructor_list
       : Z3_context * Z3_constructor_list -> unit
 
     val Z3_mk_datatypes
-      : Z3_context * word * Z3_symbol vector
+      : Z3_context * Z3_symbol vector
                    * Z3_sort array * Z3_constructor_list array
                   -> unit
 
     val Z3_query_constructor
-      : Z3_context * Z3_constructor * word
+      : Z3_context * Z3_constructor
                    * Z3_func_decl ref * Z3_func_decl ref
                    * Z3_func_decl array
                  -> unit
