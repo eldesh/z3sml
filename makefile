@@ -60,7 +60,7 @@ sample: $(SAMPLE)
 $(SAMPLE): sample/sample.smi $(OBJS)
 	@$(SML) $(SMLFLAGS) -o $@ $<
 
-%.o: %.sml
+$(OBJS): %.o: %.sml
 	@echo "  SML# [$@]"
 	@$(SML) $(SMLFLAGS) -c $<
 

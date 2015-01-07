@@ -106,21 +106,32 @@ in
   (**
    * Constans and Applications
    *)
-  val Z3_mk_func_decl =
-    Dyn.dlsym (libz3, "Z3_mk_func_decl")
-    : _import (Z3_context, Z3_symbol, word, Z3_sort vector, Z3_sort) -> Z3_func_decl
+  fun Z3_mk_func_decl (c, s, domain, range) =
+    _ffiapply (Dyn.dlsym (libz3, "Z3_mk_func_decl"))
+    ( c : Z3_context
+    , s : Z3_symbol
+    , Vector.length domain : int
+    , domain : Z3_sort vector
+    , range : Z3_sort) : Z3_func_decl
 
-  val Z3_mk_app =
-    Dyn.dlsym (libz3, "Z3_mk_app")
-    : _import (Z3_context, Z3_func_decl, word, Z3_ast vector) -> Z3_ast
+  fun Z3_mk_app (c, d, args) =
+    _ffiapply (Dyn.dlsym (libz3, "Z3_mk_app"))
+    ( c : Z3_context
+    , d : Z3_func_decl
+    , Vector.length args : int
+    , args : Z3_ast vector) : Z3_ast
 
   val Z3_mk_const =
     Dyn.dlsym (libz3, "Z3_mk_const")
     : _import (Z3_context, Z3_symbol, Z3_sort) -> Z3_ast
 
-  val Z3_mk_fresh_func_decl =
-    Dyn.dlsym (libz3, "Z3_mk_fresh_func_decl")
-    : _import (Z3_context, Z3_string, word, Z3_sort vector, Z3_sort) -> Z3_func_decl
+  fun Z3_mk_fresh_func_decl (c, prefix, domain, range) =
+    _ffiapply (Dyn.dlsym (libz3, "Z3_mk_fresh_func_decl"))
+    ( c : Z3_context
+    , prefix : Z3_string
+    , Vector.length domain : int
+    , domain : Z3_sort vector
+    , range : Z3_sort) : Z3_func_decl
 
   val Z3_mk_fresh_const =
     Dyn.dlsym (libz3, "Z3_mk_fresh_const")
@@ -169,17 +180,27 @@ in
   (**
    * Modifiers
    *)
-  val Z3_update_term =
-    Dyn.dlsym(libz3, "Z3_update_term")
-    : _import (Z3_context, Z3_ast, word, Z3_ast vector) -> Z3_ast
+  fun Z3_update_term (c, a, args) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_update_term"))
+    ( c : Z3_context
+    , a : Z3_ast
+    , Vector.length args : int
+    , args : Z3_ast vector) : Z3_ast
 
-  val Z3_substitute =
-    Dyn.dlsym(libz3, "Z3_substitute")
-    : _import (Z3_context, Z3_ast, word, Z3_ast vector, Z3_ast array) -> Z3_ast
+  fun Z3_substitute (c, a, from, to) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_substitute"))
+    ( c : Z3_context
+    , a : Z3_ast
+    , Vector.length from : int
+    , from : Z3_ast vector
+    , to   : Z3_ast vector) : Z3_ast
 
-  val Z3_substitute_vars =
-    Dyn.dlsym(libz3, "Z3_substitute_vars")
-    : _import (Z3_context, Z3_ast, word, Z3_ast vector) -> Z3_ast
+  fun Z3_substitute_vars (c, a, to) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_substitute_vars"))
+    ( c : Z3_context
+    , a : Z3_ast
+    , Vector.length to : int
+    , to : Z3_ast vector) : Z3_ast
 
   val Z3_translate =
     Dyn.dlsym(libz3, "Z3_translate")

@@ -361,16 +361,16 @@ struct
   end (* Sort *)
 
   val Z3_mk_func_decl
-    : Z3_context * Z3_symbol * word * Z3_sort vector * Z3_sort -> Z3_func_decl
+    : Z3_context * Z3_symbol * Z3_sort vector * Z3_sort -> Z3_func_decl
 
   val Z3_mk_app
-    : Z3_context * Z3_func_decl * word * Z3_ast vector -> Z3_ast
+    : Z3_context * Z3_func_decl * Z3_ast vector -> Z3_ast
 
   val Z3_mk_const
     : Z3_context * Z3_symbol * Z3_sort -> Z3_ast
 
   val Z3_mk_fresh_func_decl
-    : Z3_context * Z3_string * word * Z3_sort vector * Z3_sort -> Z3_func_decl
+    : Z3_context * Z3_string * Z3_sort vector * Z3_sort -> Z3_func_decl
 
   val Z3_mk_fresh_const
     : Z3_context * Z3_string * Z3_sort -> Z3_ast
@@ -1037,13 +1037,13 @@ struct
   end (* Accessor *)
 
   val Z3_update_term
-    : Z3_context * Z3_ast * word * Z3_ast vector -> Z3_ast
+    : Z3_context * Z3_ast * Z3_ast vector -> Z3_ast
 
   val Z3_substitute
-    : Z3_context * Z3_ast * word * Z3_ast vector * Z3_ast array -> Z3_ast
+    : Z3_context * Z3_ast * Z3_ast vector * Z3_ast vector -> Z3_ast
 
   val Z3_substitute_vars
-    : Z3_context * Z3_ast * word * Z3_ast vector -> Z3_ast
+    : Z3_context * Z3_ast * Z3_ast vector -> Z3_ast
 
   val Z3_translate
     : Z3_context * Z3_ast * Z3_contextarget -> Z3_ast

@@ -244,7 +244,7 @@ struct
     let
       val args = Vector.fromList [x]
     in
-      Z3.Z3_mk_app (ctx, f, 0w1, args)
+      Z3.Z3_mk_app (ctx, f, args)
     end
 
   fun using get release f =
@@ -309,7 +309,7 @@ struct
        (* declare function g *)
        val g_name   = Z3.Z3_mk_string_symbol (ctx, "g")
        val g_domain = Vector.fromList [U]
-       val g        = Z3.Z3_mk_func_decl (ctx, g_name, 0w1, g_domain, U)
+       val g        = Z3.Z3_mk_func_decl (ctx, g_name, g_domain, U)
        (* create x and y *)
        val x_name   = Z3.Z3_mk_string_symbol (ctx, "x")
        val y_name   = Z3.Z3_mk_string_symbol (ctx, "y")
@@ -351,7 +351,7 @@ struct
        val int_sort = Z3.Sort.Z3_mk_int_sort ctx
        val g_name   = Z3.Z3_mk_string_symbol (ctx, "g")
        val g_domain = Vector.fromList [int_sort]
-       val g        = Z3.Z3_mk_func_decl (ctx, g_name, 0w1, g_domain, int_sort)
+       val g        = Z3.Z3_mk_func_decl (ctx, g_name, g_domain, int_sort)
        (* create x, y, and z *)
        val x        = mk_int_var ctx "x"
        val y        = mk_int_var ctx "y"
@@ -542,7 +542,7 @@ struct
           val name = Z3.Accessor.Z3_get_decl_name (ctx, cnst)
           val () = symbol ctx out name
           val () = TextIO.output (out, " = ")
-          val a = Z3.Z3_mk_app (ctx, cnst, 0w0, Vector.fromList[])
+          val a = Z3.Z3_mk_app (ctx, cnst, Vector.fromList[])
           val v = ref a
           val ok = D.Z3_eval (ctx, m, a, v)
         in
@@ -596,8 +596,7 @@ struct
       val finv_domain = Z3.Accessor.Z3_get_range (ctx, f)
       val finv_range  = Z3.Accessor.Z3_get_domain(ctx, f, i)
       val finv        = Z3.Z3_mk_fresh_func_decl(ctx, "inv"
-                            , 0w1, Vector.fromList[finv_domain]
-                            , finv_range)
+                            , Vector.fromList[finv_domain], finv_range)
       (* allocate temporary arrays *)
       val types = Vector.tabulate(Word.toInt sz, fn j=>
                      Z3.Accessor.Z3_get_domain (ctx, f, Word.fromInt j))
@@ -606,7 +605,7 @@ struct
       val xs    = Vector.tabulate(Word.toInt sz, fn j=>
                      Z3.Quantifier.Z3_mk_bound(ctx, Word.fromInt j, Vector.sub(types, j)))
       val x_i   = Vector.sub (xs, Word.toInt i)
-      val fxs   = Z3.Z3_mk_app (ctx, f, sz, xs)
+      val fxs   = Z3.Z3_mk_app (ctx, f, xs)
       val finv_fxs = mk_unary_app ctx finv fxs
       val eq       = Prop.Z3_mk_eq (ctx, finv_fxs, x_i)
       val p        = Z3.Quantifier.Z3_mk_pattern(ctx
@@ -630,7 +629,7 @@ struct
        val int_sort = Z3.Sort.Z3_mk_int_sort ctx
        val f_name   = Z3.Z3_mk_string_symbol (ctx, "f")
        val f_domain = Vector.fromList [int_sort, int_sort]
-       val f        = Z3.Z3_mk_func_decl(ctx, f_name, 0w2, f_domain, int_sort)
+       val f        = Z3.Z3_mk_func_decl(ctx, f_name, f_domain, int_sort)
 
        (* assert that f is injective in the second argument. *)
        val () = assert_inj_axiom ctx f 0w1
