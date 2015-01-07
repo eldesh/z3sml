@@ -30,13 +30,17 @@ in
     Dyn.dlsym(libz3, "Z3_mk_set_del")
     : _import (Z3_context, Z3_ast, Z3_ast) -> Z3_ast
 
-  val Z3_mk_set_union =
-    Dyn.dlsym(libz3, "Z3_mk_set_union")
-    : _import (Z3_context, word, Z3_ast vector) -> Z3_ast
+  fun Z3_mk_set_union (c, args) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_mk_set_union"))
+    ( c : Z3_context
+    , Vector.length args : int
+    , args : Z3_ast vector) : Z3_ast
 
-  val Z3_mk_set_intersect =
-    Dyn.dlsym(libz3, "Z3_mk_set_intersect")
-    : _import (Z3_context, word, Z3_ast vector) -> Z3_ast
+  fun Z3_mk_set_intersect (c, args) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_mk_set_intersect"))
+    ( c : Z3_context
+    , Vector.length args : int
+    , args : Z3_ast vector) : Z3_ast
 
   val Z3_mk_set_difference =
     Dyn.dlsym(libz3, "Z3_mk_set_difference")
