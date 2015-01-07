@@ -13,34 +13,45 @@ in
   type Z3_func_decl = unit ptr
   type Z3_string    = String.string
 
-  val Z3_parse_smtlib2_string =
-    Dyn.dlsym(libz3, "Z3_parse_smtlib2_string")
-    : _import (Z3_context, Z3_string, word
-                , Z3_symbol vector, Z3_sort, word
-                , Z3_symbol vector
-                , Z3_func_decl vector
-                ) -> Z3_ast
+  fun Z3_parse_smtlib2_string (c, str, sort_names, sorts, decl_names, decls) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_parse_smtlib2_string"))
+    ( c : Z3_context
+    , str : Z3_string
+    , Vector.length sort_names : int, sort_names : Z3_symbol vector
+    , sorts : Z3_sort vector
+    , Vector.length decl_names : int, decl_names : Z3_symbol vector
+    , decls : Z3_func_decl vector
+    ) : Z3_ast
 
-  val Z3_parse_smtlib2_file =
-    Dyn.dlsym(libz3, "Z3_parse_smtlib2_file")
-    : _import (Z3_context, Z3_string, word
-                , Z3_symbol vector, Z3_sort, word,
-                Z3_symbol vector, Z3_func_decl vector
-                ) -> Z3_ast
+  fun Z3_parse_smtlib2_file (c, file_name, sort_names, sorts, decl_names, decls) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_parse_smtlib2_file"))
+    ( c : Z3_context
+    , file_name : Z3_string
+    , Vector.length sort_names : int, sort_names : Z3_symbol vector
+    , sorts : Z3_sort vector
+    , Vector.length decl_names : int, decl_names : Z3_symbol vector
+    , decls : Z3_func_decl vector
+    ) : Z3_ast
 
-  val Z3_parse_smtlib_string =
-    Dyn.dlsym(libz3, "Z3_parse_smtlib_string")
-    : _import (Z3_context, Z3_string, word
-                , Z3_symbol vector, Z3_sort, word
-                , Z3_symbol vector, Z3_func_decl vector
-                ) -> ()
+  fun Z3_parse_smtlib_string (c, str, sort_names, sorts, decl_names, decls) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_parse_smtlib_string"))
+    ( c : Z3_context
+    , str : Z3_string
+    , Vector.length sort_names : int, sort_names : Z3_symbol vector
+    , sorts : Z3_sort vector
+    , Vector.length decl_names : int, decl_names : Z3_symbol vector
+    , decls : Z3_func_decl vector
+    ) : ()
 
-  val Z3_parse_smtlib_file =
-    Dyn.dlsym(libz3, "Z3_parse_smtlib_file")
-    : _import (Z3_context, Z3_string, word
-                , Z3_symbol vector, Z3_sort, word
-                , Z3_symbol vector, Z3_func_decl vector
-                ) -> ()
+  fun Z3_parse_smtlib_file (c, file_name, sort_names, sorts, decl_names, decls) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_parse_smtlib_file"))
+    ( c : Z3_context
+    , file_name : Z3_string
+    , Vector.length sort_names : int, sort_names : Z3_symbol vector
+    , sorts : Z3_sort vector
+    , Vector.length decl_names : int, decl_names : Z3_symbol vector
+    , decls : Z3_func_decl vector
+    ) : ()
 
   val Z3_get_smtlib_num_formulas =
     Dyn.dlsym(libz3, "Z3_get_smtlib_num_formulas")

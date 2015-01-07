@@ -1200,29 +1200,28 @@ struct
     type Z3_string    = Z3_string
 
     val Z3_parse_smtlib2_string
-      : Z3_context * Z3_string * word
-                   * Z3_symbol vector * Z3_sort * word
-                   * Z3_symbol vector
-                   * Z3_func_decl vector
-                  -> Z3_ast
+      : Z3_context * Z3_string
+                   * Z3_symbol vector * Z3_sort vector
+                   * Z3_symbol vector * Z3_func_decl vector
+				   -> Z3_ast
 
     val Z3_parse_smtlib2_file
-      : Z3_context * Z3_string * word
-                   * Z3_symbol vector * Z3_sort * word
+      : Z3_context * Z3_string
+                   * Z3_symbol vector * Z3_sort vector
                    * Z3_symbol vector * Z3_func_decl vector
-                  -> Z3_ast
+				   -> Z3_ast
 
     val Z3_parse_smtlib_string
-      : Z3_context * Z3_string * word
-                   * Z3_symbol vector * Z3_sort * word
+      : Z3_context * Z3_string
+                   * Z3_symbol vector * Z3_sort vector
                    * Z3_symbol vector * Z3_func_decl vector
-                  -> unit
+				   -> unit
 
     val Z3_parse_smtlib_file
-      : Z3_context * Z3_string * word
-                   * Z3_symbol vector * Z3_sort * word
+      : Z3_context * Z3_string
+                   * Z3_symbol vector * Z3_sort vector
                    * Z3_symbol vector * Z3_func_decl vector
-                  -> unit
+				   -> unit
 
     val Z3_get_smtlib_num_formulas
       : Z3_context -> word
