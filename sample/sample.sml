@@ -608,11 +608,9 @@ struct
       val fxs   = Z3.Z3_mk_app (ctx, f, xs)
       val finv_fxs = mk_unary_app ctx finv fxs
       val eq       = Prop.Z3_mk_eq (ctx, finv_fxs, x_i)
-      val p        = Z3.Quantifier.Z3_mk_pattern(ctx
-                                                , 0w1, Vector.fromList[fxs])
+      val p        = Z3.Quantifier.Z3_mk_pattern(ctx, Vector.fromList[fxs])
       val () = print(concat["pattern: ", Z3.Stringconv.Z3_pattern_to_string(ctx, p), "\n\n"])
-      val q  = Z3.Quantifier.Z3_mk_forall (ctx, 0w0, 0w1, Vector.fromList[p], sz
-                                            , types, names, eq)
+      val q  = Z3.Quantifier.Z3_mk_forall (ctx, 0w0, Vector.fromList[p], types, names, eq)
     in
       print(concat["assert axiom:\n", Z3.Stringconv.Z3_ast_to_string(ctx, q), "\n"]);
       D.Z3_assert_cnstr(ctx, q)
