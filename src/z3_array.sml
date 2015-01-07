@@ -23,9 +23,12 @@ in
     Dyn.dlsym(libz3, "Z3_mk_const_array")
     : _import (Z3_context, Z3_sort, Z3_ast) -> Z3_ast
 
-  val Z3_mk_map =
-    Dyn.dlsym(libz3, "Z3_mk_map")
-    : _import (Z3_context, Z3_func_decl, word, Z3_ast vector) -> Z3_ast
+  fun Z3_mk_map (c, d, args) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_mk_map"))
+    ( c : Z3_context
+    , d : Z3_func_decl
+    , Vector.length args : int
+    , args : Z3_ast vector) : Z3_ast
 
   val Z3_mk_array_default =
     Dyn.dlsym(libz3, "Z3_mk_array_default")
