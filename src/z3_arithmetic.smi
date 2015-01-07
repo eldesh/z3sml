@@ -8,13 +8,13 @@ struct
   type Z3_ast     = unit ptr
 
   val Z3_mk_add
-    : Z3_context * word * Z3_ast vector -> Z3_ast
+    : Z3_context * Z3_ast vector -> Z3_ast
 
   val Z3_mk_mul
-    : Z3_context * word * Z3_ast vector -> Z3_ast
+    : Z3_context * Z3_ast vector -> Z3_ast
 
   val Z3_mk_sub
-    : Z3_context * word * Z3_ast vector -> Z3_ast
+    : Z3_context * Z3_ast vector -> Z3_ast
 
   val Z3_mk_unary_minus
     : Z3_context * Z3_ast -> Z3_ast

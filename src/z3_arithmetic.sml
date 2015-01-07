@@ -9,17 +9,23 @@ in
   type Z3_context = unit ptr
   type Z3_ast     = unit ptr
 
-  val Z3_mk_add =
-    Dyn.dlsym(libz3, "Z3_mk_add") 
-    : _import (Z3_context, word, Z3_ast vector) -> Z3_ast
+  fun Z3_mk_add (c, args) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_mk_add"))
+    ( c : Z3_context
+    , Vector.length args : int
+    , args : Z3_ast vector) : Z3_ast
 
-  val Z3_mk_mul =
-    Dyn.dlsym(libz3, "Z3_mk_mul") 
-    : _import (Z3_context, word, Z3_ast vector) -> Z3_ast
+  fun Z3_mk_mul (c, args) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_mk_mul"))
+    ( c : Z3_context
+    , Vector.length args : int
+    , args : Z3_ast vector) : Z3_ast
 
-  val Z3_mk_sub =
-    Dyn.dlsym(libz3, "Z3_mk_sub") 
-    : _import (Z3_context, word, Z3_ast vector) -> Z3_ast
+  fun Z3_mk_sub (c, args) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_mk_sub"))
+    ( c : Z3_context
+    , Vector.length args : int
+    , args : Z3_ast vector) : Z3_ast
 
   val Z3_mk_unary_minus =
     Dyn.dlsym(libz3, "Z3_mk_unary_minus") 

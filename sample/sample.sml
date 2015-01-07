@@ -147,7 +147,7 @@ struct
       val one = int ctx 1
       val two = int ctx 2
 
-      val y_plus_one = Z3.Arithmetic.Z3_mk_add (ctx, 0w2, Vector.fromList [y, one])
+      val y_plus_one = Z3.Arithmetic.Z3_mk_add (ctx, Vector.fromList [y, one])
 
       val c1 = Z3_mk_lt (ctx, x, y_plus_one)
       val c2 = Z3_mk_gt (ctx, x, two)
@@ -203,8 +203,8 @@ struct
       val two   = int ctx 2
       val seven = int ctx 7
       val ten   = int ctx 10
-      fun add ctx (l,r) = Z3_mk_add (ctx, 0w2, Vector.fromList [l, r])
-      fun mul ctx (l,r) = Z3_mk_mul (ctx, 0w2, Vector.fromList [l, r])
+      fun add ctx (l,r) = Z3_mk_add (ctx, Vector.fromList [l, r])
+      fun mul ctx (l,r) = Z3_mk_mul (ctx, Vector.fromList [l, r])
       val () = app (fn assert => Z3.Solver.Z3_solver_assert (ctx, solver, assert))
                     [ Z3_mk_gt (ctx, x, two) (* x < 2 *)
                     , Z3_mk_lt (ctx, y, ten) (* y < 10 *)
@@ -364,14 +364,14 @@ struct
        val zero     = mk_int ctx 0
        (* assert not(g(g(x) - g(y)) = g(z)) *)
        val args     = Vector.fromList [gx, gy]
-       val gx_gy    = Z3.Arithmetic.Z3_mk_sub (ctx, 0w2, args)
+       val gx_gy    = Z3.Arithmetic.Z3_mk_sub (ctx, args)
        val ggx_gy   = mk_unary_app ctx g gx_gy
        val eq       = Prop.Z3_mk_eq  (ctx, ggx_gy, gz)
        val c1       = Prop.Z3_mk_not (ctx, eq)
        val () = D.Z3_assert_cnstr (ctx, c1)
        (* assert x + z <= y *)
        val args     = Vector.fromList [x,z]
-       val x_plus_z = Z3.Arithmetic.Z3_mk_add (ctx, 0w2, args)
+       val x_plus_z = Z3.Arithmetic.Z3_mk_add (ctx, args)
        val c2       = Z3.Arithmetic.Z3_mk_le (ctx, x_plus_z, y)
        val () = D.Z3_assert_cnstr (ctx, c2)
        (* assert y <= x *)
