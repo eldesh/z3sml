@@ -46,9 +46,12 @@ in
     Dyn.dlsym(libz3, "Z3_fixedpoint_query")
     : _import (Z3_context, Z3_fixedpoint, Z3_ast) -> Z3_lbool
 
-  val Z3_fixedpoint_query_relations =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_query_relations")
-    : _import (Z3_context, Z3_fixedpoint, word, Z3_func_decl vector) -> Z3_lbool
+  fun Z3_fixedpoint_query_relations (c, d, relations) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_fixedpoint_query_relations"))
+    ( c : Z3_context
+    , d : Z3_fixedpoint
+    , Vector.length relations : int
+    , relations : Z3_func_decl vector) : Z3_lbool
 
   val Z3_fixedpoint_get_answer =
     Dyn.dlsym(libz3, "Z3_fixedpoint_get_answer")
@@ -83,9 +86,13 @@ in
     Dyn.dlsym(libz3, "Z3_fixedpoint_register_relation")
     : _import (Z3_context, Z3_fixedpoint, Z3_func_decl) -> ()
 
-  val Z3_fixedpoint_set_predicate_representation =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_set_predicate_representation")
-    : _import (Z3_context, Z3_fixedpoint, Z3_func_decl, word, Z3_symbol vector) -> ()
+  fun Z3_fixedpoint_set_predicate_representation (c, d, f, relation_kinds) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_fixedpoint_set_predicate_representation"))
+    ( c : Z3_context
+    , d : Z3_fixedpoint
+    , f : Z3_func_decl
+    , Vector.length relation_kinds : int
+    , relation_kinds : Z3_symbol vector) : ()
 
 (* undefined symbols? *)
 (*
@@ -111,12 +118,14 @@ in
     Dyn.dlsym(libz3, "Z3_fixedpoint_get_param_descrs")
     : _import (Z3_context, Z3_fixedpoint) -> Z3_param_descrs
 
-  val Z3_fixedpoint_to_string =
-    Ptr.importString o
-    ( Dyn.dlsym(libz3, "Z3_fixedpoint_to_string")
-    : _import (Z3_context, Z3_fixedpoint, word, Z3_ast array) -> char ptr)
+  fun Z3_fixedpoint_to_string (c, f, queries) =
+    Ptr.importString(
+      _ffiapply (Dyn.dlsym(libz3, "Z3_fixedpoint_to_string"))
+      ( c : Z3_context
+      , f : Z3_fixedpoint
+      , Array.length queries : int
+      , queries : Z3_ast array) : char ptr)
 
-    (*
   val Z3_fixedpoint_from_string =
     Dyn.dlsym(libz3, "Z3_fixedpoint_from_string")
     : _import (Z3_context, Z3_fixedpoint, Z3_string) -> Z3_ast_vector
@@ -124,7 +133,6 @@ in
   val Z3_fixedpoint_from_file =
     Dyn.dlsym(libz3, "Z3_fixedpoint_from_file")
     : _import (Z3_context, Z3_fixedpoint, Z3_string) -> Z3_ast_vector
-    *)
 
   val Z3_fixedpoint_push =
     Dyn.dlsym(libz3, "Z3_fixedpoint_push")
