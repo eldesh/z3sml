@@ -1931,18 +1931,18 @@ struct
       : Z3_context -> Z3_string
 
     val Z3_read_interpolation_problem
-      : Z3_context * word ref * Z3_ast ref vector
-                 * word ref vector * Z3_string
-                 * Z3_string ref * word ref * Z3_ast ref vector -> int
+      : Z3_context * word ref * Z3_ast ref ptr
+                   * word ref ptr * Z3_string
+                   * Z3_string ref * word ref * Z3_ast ref ptr -> int
 
     val Z3_check_interpolant
-      : Z3_context * word * Z3_ast vector
-                 * word vector * Z3_ast vector * Z3_string ref
-                 * word * Z3_ast vector -> int
+      : Z3_context * Z3_ast array
+                   * word array * Z3_ast array * Z3_string ref
+                   * Z3_ast array -> int
 
     val Z3_write_interpolation_problem
-      : Z3_context * word * Z3_ast vector
-                 * word vector * Z3_string * word * Z3_ast vector -> unit
+      : Z3_context * Z3_ast array
+                 * word array * Z3_string * Z3_ast array -> unit
   end (* Interpolation *)
 
   val Z3_polynomial_subresultants

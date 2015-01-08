@@ -37,22 +37,33 @@ in
     (Dyn.dlsym(libz3, "Z3_interpolation_profile")
     : _import Z3_context -> char ptr)
 
-  val Z3_read_interpolation_problem =
+  val Z3_read_interpolation_problem  =
     Dyn.dlsym(libz3, "Z3_read_interpolation_problem")
-    : _import (Z3_context, word ref, Z3_ast ref vector
-              , word ref vector, Z3_string
-              , Z3_string ref, word ref, Z3_ast ref vector) -> int
+    : _import (Z3_context * word ref * Z3_ast ref ptr
+               * word ref ptr * Z3_string
+               * Z3_string ref * word ref * Z3_ast ref ptr) -> int
 
-  val Z3_check_interpolant =
-    Dyn.dlsym(libz3, "Z3_check_interpolant")
-    : _import (Z3_context, word, Z3_ast vector
-              , word vector, Z3_ast vector, Z3_string ref
-              , word, Z3_ast vector) -> int
+  fun Z3_check_interpolant (ctx, cnsts, parents, interps, error, theory) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_check_interpolant"))
+    ( ctx : Z3_context
+    , Array.length parents : int
+    , cnsts : Z3_ast array
+    , parents : word array
+    , interps : Z3_ast array
+    , error : Z3_string ref
+    , Array.length theory : int
+    , theory : Z3_ast array) : int
               
-  val Z3_write_interpolation_problem =
-    Dyn.dlsym(libz3, "Z3_write_interpolation_problem")
-    : _import (Z3_context, word, Z3_ast vector
-              , word vector, Z3_string, word, Z3_ast vector) -> ()
+  fun Z3_write_interpolation_problem (ctx, cnsts, parents, filename, theory) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_write_interpolation_problem"))
+    ( ctx : Z3_context
+    , Array.length cnsts : int
+    , cnsts : Z3_ast array
+    , parents : word array
+    , filename : Z3_string
+    , Array.length theory : int
+    , theory : Z3_ast array) : ()
+
 end (* local *)
 end
 
