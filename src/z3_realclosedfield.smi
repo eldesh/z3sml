@@ -28,7 +28,7 @@ struct
     : Z3_context -> Z3_rcf_num
 
   val Z3_rcf_mk_roots
-    : Z3_context * word * Z3_rcf_num vector * Z3_rcf_num array -> word
+    : Z3_context * Z3_rcf_num vector * Z3_rcf_num array -> word
 
   val Z3_rcf_add
     : Z3_context * Z3_rcf_num * Z3_rcf_num -> Z3_rcf_num

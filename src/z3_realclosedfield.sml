@@ -35,9 +35,12 @@ in
     Dyn.dlsym(libz3, "Z3_rcf_mk_infinitesimal")
     : _import Z3_context -> Z3_rcf_num
 
-  val Z3_rcf_mk_roots =
-    Dyn.dlsym(libz3, "Z3_rcf_mk_roots")
-    : _import (Z3_context, word, Z3_rcf_num vector, Z3_rcf_num array) -> word
+  fun Z3_rcf_mk_roots (c, a, roots) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_rcf_mk_roots"))
+    ( c : Z3_context
+    , Vector.length a : int
+    , a : Z3_rcf_num vector
+    , roots : Z3_rcf_num array) : word
 
   val Z3_rcf_add =
     Dyn.dlsym(libz3, "Z3_rcf_add")

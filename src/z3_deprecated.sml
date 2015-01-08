@@ -25,9 +25,13 @@ in
   (*
    * Deprecated Injective functions API
    *)
-  val Z3_mk_injective_function =
-    Dyn.dlsym (libz3, "Z3_mk_injective_function")
-    : _import (Z3_context, Z3_symbol, word, Z3_sort vector, Z3_sort) -> Z3_func_decl
+  fun Z3_mk_injective_function (c, s, domain, range) =
+    _ffiapply (Dyn.dlsym (libz3, "Z3_mk_injective_function"))
+    ( c : Z3_context
+    , s : Z3_symbol
+    , Vector.length domain : int
+    , domain : Z3_sort vector
+    , range : Z3_sort) : Z3_func_decl
 
   (*
    * Deprecated Constraints API
@@ -64,15 +68,23 @@ in
     Dyn.dlsym (libz3, "Z3_check")
     : _import Z3_context -> Z3_lbool
 
-  val Z3_check_assumptions =
-    Dyn.dlsym (libz3, "Z3_check_assumptions")
-    : _import (Z3_context, word, Z3_ast vector, Z3_model ref
-              , Z3_ast ref, word ref, Z3_ast array) -> Z3_lbool
+  fun Z3_check_assumptions (c, assumptions, m, proof, core_size, core) =
+    _ffiapply (Dyn.dlsym (libz3, "Z3_check_assumptions"))
+    ( c : Z3_context
+    , Vector.length assumptions : int
+    , assumptions : Z3_ast vector
+    , m : Z3_model ref
+    , proof : Z3_ast ref
+    , core_size : word ref
+    , core : Z3_ast array) : Z3_lbool
 
-  val Z3_get_implied_equalities =
-    Dyn.dlsym (libz3, "Z3_get_implied_equalities")
-    : _import (Z3_context, Z3_solver, word
-              , Z3_ast vector, word array) -> Z3_lbool
+  fun Z3_get_implied_equalities (c, s, terms, class_ids) =
+    _ffiapply (Dyn.dlsym (libz3, "Z3_get_implied_equalities"))
+    ( c : Z3_context
+    , s : Z3_solver
+    , Vector.length terms : int
+    , terms : Z3_ast vector
+    , class_ids : word array) : Z3_lbool
 
   val Z3_del_model =
     Dyn.dlsym (libz3, "Z3_del_model")
@@ -188,10 +200,14 @@ in
     Dyn.dlsym (libz3, "Z3_eval")
     : _import (Z3_context, Z3_model, Z3_ast, Z3_ast ref) -> Z3_bool
 
-  val Z3_eval_decl =
-    Dyn.dlsym (libz3, "Z3_eval_decl")
-    : _import (Z3_context, Z3_model, Z3_func_decl
-              , word, Z3_ast vector, Z3_ast ref) -> Z3_bool
+  fun Z3_eval_decl (c, m, d, args, v) =
+    _ffiapply (Dyn.dlsym (libz3, "Z3_eval_decl"))
+    ( c : Z3_context
+    , m : Z3_model
+    , d : Z3_func_decl
+    , Vector.length args : int
+    , args : Z3_ast vector
+    , v : Z3_ast ref) : Z3_bool
 
   (*
    * Deprecated String conversion API

@@ -1972,7 +1972,7 @@ struct
       : Z3_context -> Z3_rcf_num
 
     val Z3_rcf_mk_roots
-      : Z3_context * word * Z3_rcf_num vector * Z3_rcf_num array -> word
+      : Z3_context * Z3_rcf_num vector * Z3_rcf_num array -> word
 
     val Z3_rcf_add
       : Z3_context * Z3_rcf_num * Z3_rcf_num -> Z3_rcf_num
@@ -2042,7 +2042,7 @@ struct
      * Deprecated Injective functions API
      *)
     val Z3_mk_injective_function
-      : Z3_context * Z3_symbol * word * Z3_sort vector * Z3_sort -> Z3_func_decl
+      : Z3_context * Z3_symbol * Z3_sort vector * Z3_sort -> Z3_func_decl
 
     (*
      * Deprecated Constraints API
@@ -2072,11 +2072,11 @@ struct
       : Z3_context -> Z3_lbool
 
     val Z3_check_assumptions
-      : Z3_context * word * Z3_ast vector * Z3_model ref
+      : Z3_context * Z3_ast vector * Z3_model ref
         * Z3_ast ref * word ref * Z3_ast array -> Z3_lbool
 
     val Z3_get_implied_equalities
-      : Z3_context * Z3_solver * word
+      : Z3_context * Z3_solver
         * Z3_ast vector * word array -> Z3_lbool
 
     val Z3_del_model
@@ -2169,7 +2169,7 @@ struct
 
     val Z3_eval_decl
       : Z3_context * Z3_model * Z3_func_decl
-         * word * Z3_ast vector * Z3_ast ref -> Z3_bool
+         * Z3_ast vector * Z3_ast ref -> Z3_bool
 
     (*
      * Deprecated String conversion API
