@@ -57,7 +57,9 @@ struct
 
   val Z3_mk_constructor
     : Z3_context * Z3_symbol * Z3_symbol
-                 * Z3_symbol vector * Z3_sort_opt vector * word array
+                 * Z3_symbol vector
+				 * Z3_sort_opt vector
+				 * word vector
                 -> Z3_constructor
 
   val Z3_del_constructor

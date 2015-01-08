@@ -34,8 +34,8 @@ struct
 
   val Z3_benchmark_to_smtlib_string
      : Z3_context * Z3_string * Z3_string
-                * Z3_string * Z3_string
-                * word * Z3_ast array * Z3_ast
-                -> Z3_string
+                  * Z3_string * Z3_string
+                  * Z3_ast vector * Z3_ast
+                  -> Z3_string
 end
 

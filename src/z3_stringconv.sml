@@ -44,13 +44,18 @@ in
     (Dyn.dlsym(libz3, "Z3_model_to_string")
      : _import (Z3_context, Z3_model) -> char ptr)
 
-  val Z3_benchmark_to_smtlib_string =
-    Ptr.importString o
-    (Dyn.dlsym(libz3, "Z3_benchmark_to_smtlib_string")
-     : _import (Z3_context, Z3_string, Z3_string
-                , Z3_string, Z3_string
-                , word, Z3_ast array, Z3_ast
-                ) -> char ptr)
+  fun Z3_benchmark_to_smtlib_string (c, name, logic, status
+                                    , attributes, assumptions, formula) =
+    Ptr.importString (
+      _ffiapply (Dyn.dlsym(libz3, "Z3_benchmark_to_smtlib_string"))
+      ( c : Z3_context
+      , name : Z3_string
+      , logic : Z3_string
+      , status : Z3_string
+      , attributes : Z3_string
+      , Vector.length assumptions : int
+      , assumptions : Z3_ast vector
+      , formula : Z3_ast) : char ptr)
 
 end (* local *)
 end

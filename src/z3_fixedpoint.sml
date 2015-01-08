@@ -34,9 +34,13 @@ in
     Dyn.dlsym(libz3, "Z3_fixedpoint_add_rule")
     : _import (Z3_context, Z3_fixedpoint, Z3_ast, Z3_symbol) -> ()
 
-  val Z3_fixedpoint_add_fact =
-    Dyn.dlsym(libz3, "Z3_fixedpoint_add_fact")
-    : _import (Z3_context, Z3_fixedpoint, Z3_func_decl, word, word array) -> ()
+  fun Z3_fixedpoint_add_fact (c, d, r, args) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_fixedpoint_add_fact"))
+    ( c : Z3_context
+    , d : Z3_fixedpoint
+    , r : Z3_func_decl
+    , Vector.length args : int
+    , args : word vector) : ()
 
   val Z3_fixedpoint_assert =
     Dyn.dlsym(libz3, "Z3_fixedpoint_assert")

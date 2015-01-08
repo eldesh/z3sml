@@ -331,7 +331,9 @@ struct
 
     val Z3_mk_constructor
       : Z3_context * Z3_symbol * Z3_symbol
-                   * Z3_symbol vector * Z3_sort_opt vector * word array
+                   * Z3_symbol vector
+				   * Z3_sort_opt vector
+				   * word vector
                   -> Z3_constructor
 
     val Z3_del_constructor
@@ -1185,9 +1187,10 @@ struct
 
     val Z3_benchmark_to_smtlib_string
        : Z3_context * Z3_string * Z3_string
-                  * Z3_string * Z3_string
-                  * word * Z3_ast array * Z3_ast
-                  -> Z3_string
+                    * Z3_string * Z3_string
+                    * Z3_ast vector * Z3_ast
+                    -> Z3_string
+
   end (* Stringconv *)
 
   structure Parser = (* Z3_Parser *)
@@ -1425,7 +1428,7 @@ struct
       : Z3_context * Z3_fixedpoint * Z3_ast * Z3_symbol -> unit
 
     val Z3_fixedpoint_add_fact
-      : Z3_context * Z3_fixedpoint * Z3_func_decl * word * word array -> unit
+      : Z3_context * Z3_fixedpoint * Z3_func_decl * word vector -> unit
 
     val Z3_fixedpoint_assert
       : Z3_context * Z3_fixedpoint * Z3_ast -> unit

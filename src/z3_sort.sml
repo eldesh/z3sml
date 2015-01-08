@@ -83,7 +83,7 @@ in
     , Vector.length field_names : int
     , field_names : Z3_symbol vector
     , sorts : Z3_sort_opt vector
-    , sort_refs : word array
+    , sort_refs : word vector
     ) : Z3_constructor
 
   val Z3_del_constructor =

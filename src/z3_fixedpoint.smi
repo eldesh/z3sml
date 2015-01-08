@@ -30,7 +30,7 @@ struct
     : Z3_context * Z3_fixedpoint * Z3_ast * Z3_symbol -> unit
 
   val Z3_fixedpoint_add_fact 
-    : Z3_context * Z3_fixedpoint * Z3_func_decl * word * word array -> unit
+    : Z3_context * Z3_fixedpoint * Z3_func_decl * word vector -> unit
 
   val Z3_fixedpoint_assert 
     : Z3_context * Z3_fixedpoint * Z3_ast -> unit
