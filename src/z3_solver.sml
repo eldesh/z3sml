@@ -88,9 +88,12 @@ in
     Dyn.dlsym(libz3, "Z3_solver_check")
     : _import (Z3_context, Z3_solver) -> Z3_lbool
      
-  val Z3_solver_check_assumptions =
-    Dyn.dlsym(libz3, "Z3_solver_check_assumptions")
-    : _import (Z3_context, Z3_solver, word, Z3_ast vector) -> Z3_lbool
+  fun Z3_solver_check_assumptions (c, s, assumptions) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_solver_check_assumptions"))
+    ( c : Z3_context
+    , s : Z3_solver
+    , Vector.length assumptions : int
+    , assumptions : Z3_ast vector) : Z3_lbool
      
   val Z3_solver_get_model =
     Dyn.dlsym(libz3, "Z3_solver_get_model")

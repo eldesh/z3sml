@@ -70,7 +70,7 @@ struct
     : Z3_context * Z3_solver -> Z3_lbool
      
   val Z3_solver_check_assumptions
-    : Z3_context * Z3_solver * word * Z3_ast vector -> Z3_lbool
+    : Z3_context * Z3_solver * Z3_ast vector -> Z3_lbool
      
   val Z3_solver_get_model
     : Z3_context * Z3_solver -> Z3_model
