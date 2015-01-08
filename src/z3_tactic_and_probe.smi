@@ -39,7 +39,7 @@ struct
     : Z3_context * Z3_tactic * Z3_tactic -> Z3_tactic
      
   val Z3_tactic_par_or
-    : Z3_context * word * Z3_tactic vector -> Z3_tactic
+    : Z3_context * Z3_tactic vector -> Z3_tactic
      
   val Z3_tactic_par_and_then
     : Z3_context * Z3_tactic * Z3_tactic -> Z3_tactic

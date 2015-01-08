@@ -48,9 +48,11 @@ in
     Dyn.dlsym(libz3, "Z3_tactic_or_else")
     : _import (Z3_context, Z3_tactic, Z3_tactic) -> Z3_tactic
      
-  val Z3_tactic_par_or =
-    Dyn.dlsym(libz3, "Z3_tactic_par_or")
-    : _import (Z3_context, word, Z3_tactic vector) -> Z3_tactic
+  fun Z3_tactic_par_or (c, ts) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_tactic_par_or"))
+    ( c : Z3_context
+    , Vector.length ts : int
+    , ts : Z3_tactic vector) : Z3_tactic
      
   val Z3_tactic_par_and_then =
     Dyn.dlsym(libz3, "Z3_tactic_par_and_then")
