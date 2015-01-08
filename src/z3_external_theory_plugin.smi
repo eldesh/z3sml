@@ -31,7 +31,7 @@ struct
     : Z3_context * Z3_theory * Z3_symbol * Z3_sort -> Z3_ast
 
   val Z3_theory_mk_func_decl
-    : Z3_context * Z3_theory * Z3_symbol * word * Z3_sort vector * Z3_sort -> Z3_func_decl
+    : Z3_context * Z3_theory * Z3_symbol * Z3_sort vector * Z3_sort -> Z3_func_decl
 
   val Z3_theory_get_context
     : Z3_theory -> Z3_context

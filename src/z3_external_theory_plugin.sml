@@ -37,9 +37,14 @@ in
     Dyn.dlsym(libz3, "Z3_theory_mk_constant")
     : _import (Z3_context, Z3_theory, Z3_symbol, Z3_sort) -> Z3_ast
 
-  val Z3_theory_mk_func_decl =
-    Dyn.dlsym(libz3, "Z3_theory_mk_func_decl")
-    : _import (Z3_context, Z3_theory, Z3_symbol, word, Z3_sort vector, Z3_sort) -> Z3_func_decl
+  fun Z3_theory_mk_func_decl (c, t, n, domain, range) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_theory_mk_func_decl"))
+    ( c : Z3_context
+    , t : Z3_theory
+    , n : Z3_symbol
+    , Vector.length domain : int
+    , domain : Z3_sort vector
+    , range : Z3_sort) : Z3_func_decl
 
   val Z3_theory_get_context =
     Dyn.dlsym(libz3, "Z3_theory_get_context")
