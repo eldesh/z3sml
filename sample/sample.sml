@@ -6,6 +6,14 @@ struct
   structure Prop = Z3.Propositional
   structure E = Z3.Enum
 
+  fun using get release f =
+    let
+      val resource = get ()
+      val r = f resource handle exn => (release resource; raise exn)
+      val () = release resource
+    in r
+    end
+
   fun for v inv next f =
     if inv v
     then (f v; for (next v) inv next f)
@@ -62,20 +70,17 @@ struct
       r
     end
 
+  (* = mk_context_custom *)
   fun with_context f =
-    let
-      val ctx = with_config
-                  (fn cfg =>
-                    (Z3.Config.Z3_set_param_value (cfg, "model", "true");
-                     let val ctx = Z3.Context.Z3_mk_context cfg in
-                       Z3.Error.Z3_set_error_handler(ctx, fn _ => print "error\n");
-                       ctx
-                     end))
-      val r   = f ctx
-      val ()  = Z3.Context.Z3_del_context ctx
-    in
-      r
-    end
+    using (fn()=> with_config
+                    (fn cfg =>
+                      (Z3.Config.Z3_set_param_value (cfg, "model", "true");
+                       let val ctx = Z3.Context.Z3_mk_context cfg in
+                         Z3.Error.Z3_set_error_handler(ctx, fn _ => print "error\n");
+                         ctx
+                       end)))
+          Z3.Context.Z3_del_context 
+          f
 
   fun lbool_to_string x =
          if x = E.Z3_L_FALSE then "L_FALSE"
@@ -245,14 +250,6 @@ struct
       val args = Vector.fromList [x]
     in
       Z3.Z3_mk_app (ctx, f, args)
-    end
-
-  fun using get release f =
-    let
-      val resource = get ()
-      val r = f resource handle exn => (release resource; raise exn)
-      val () = release resource
-    in r
     end
 
   fun local_ctx ctx f =
@@ -690,6 +687,49 @@ struct
        end
      end))
 
+  local
+    open Z3.Array Z3.Propositional
+  in
+  fun array_example1 () =
+    (print "\narray_example1\n";
+     with_context (fn ctx =>
+     let
+       val int_sort   = Z3.Sort.Z3_mk_int_sort ctx
+       val array_sort = Z3.Sort.Z3_mk_array_sort (ctx, int_sort, int_sort)
+
+       val a1   = mk_var ctx "a1" array_sort
+       val a2   = mk_var ctx "a2" array_sort
+       val i1   = mk_var ctx "i1" int_sort
+       val i2   = mk_var ctx "i2" int_sort
+       val i3   = mk_var ctx "i3" int_sort
+       val v1   = mk_var ctx "v1" int_sort
+       val v2   = mk_var ctx "v2" int_sort
+
+       val st1  = Z3_mk_store (ctx, a1, i1, v1)
+       val st2  = Z3_mk_store (ctx, a2, i2, v1)
+
+       val sel1 = Z3_mk_select (ctx, a1, i3)
+       val sel2 = Z3_mk_select (ctx, a2, i3)
+
+       (* create antecedent *)
+       val antecedent = Z3_mk_eq (ctx, st1, st2)
+
+       (* create consequent: i1 = i3 or  i2 = i3 or select(a1, i3) = select(a2, i3) *)
+       val consequent = Z3_mk_or (ctx, Vector.fromList [
+                                         Z3_mk_eq (ctx, i1, i3),
+                                         Z3_mk_eq (ctx, i2, i3),
+                                         Z3_mk_eq (ctx, sel1, sel2)
+                                       ])
+
+       (* prove store(a1, i1, v1) = store(a2, i2, v2) implies (i1 = i3 or i2 = i3 or select(a1, i3) = select(a2, i3)) *)
+       val thm = Z3_mk_implies (ctx, antecedent, consequent)
+     in
+       print "prove: store(a1, i1, v1) = store(a2, i2, v2) implies (i1 = i3 or i2 = i3 or select(a1, i3) = select(a2, i3))\n";
+       print(concat[Z3.Stringconv.Z3_ast_to_string (ctx, thm), "\n"]);
+       prove ctx thm Z3.Z3_TRUE
+     end))
+  end
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -700,6 +740,8 @@ struct
      prove_example2();
      push_pop_example1();
      quantifier_example1();
+     array_example1();
+
      tutorial_sample();
      OS.Process.success
     )
