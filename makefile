@@ -55,9 +55,9 @@ all: $(TARGET) sample
 
 .PHONY: sample
 sample: $(SAMPLE)
-	./sample/sample
+	./$(SAMPLE)
 
-$(SAMPLE): sample/sample.smi $(OBJS)
+$(SAMPLE): %: %.smi $(OBJS)
 	@$(SML) $(SMLFLAGS) -o $@ $<
 
 $(OBJS): %.o: %.sml
