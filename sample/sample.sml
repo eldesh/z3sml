@@ -6,6 +6,8 @@ struct
   structure Prop = Z3.Propositional
   structure E = Z3.Enum
 
+  fun println s = print(s^"\n")
+
   fun using get release f =
     let
       val resource = get ()
@@ -728,7 +730,32 @@ struct
        print(concat[Z3.Stringconv.Z3_ast_to_string (ctx, thm), "\n"]);
        prove ctx thm Z3.Z3_TRUE
      end))
-  end
+
+  fun array_example2 () =
+    (print "\narray_example2\n";
+     with_context (fn ctx =>
+     let
+       fun succ n = n + 0w1
+     in
+       for 0w2 (fn n=> n<=0w5) succ (fn n=>
+       with_context (fn ctx =>
+       let
+         val () = print(concat["n = ", Word.toString n, "\n"])
+         val bool_sort = Z3.Sort.Z3_mk_bool_sort ctx
+         val array_sort = Z3.Sort.Z3_mk_array_sort (ctx, bool_sort, bool_sort)
+         val a = Vector.tabulate(Word.toInt n, fn i=>
+                    Z3.Z3_mk_const (ctx, Z3.Z3_mk_int_symbol (ctx, i), array_sort))
+         (* assert distinct(a[0], ..., a[n]) *)
+         val d = Z3_mk_distinct(ctx, a)
+       in
+         println (Z3.Stringconv.Z3_ast_to_string(ctx, d));
+         D.Z3_assert_cnstr (ctx, d);
+         (* context is satisfiable if n < 5 *)
+         check2 ctx (if n < 0w5 then E.Z3_L_TRUE else E.Z3_L_FALSE)
+       end))
+     end))
+
+  end (* local *)
 
   fun main (name, args) =
     (display_version();
@@ -741,6 +768,7 @@ struct
      push_pop_example1();
      quantifier_example1();
      array_example1();
+     array_example2();
 
      tutorial_sample();
      OS.Process.success
