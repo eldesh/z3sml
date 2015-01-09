@@ -755,6 +755,31 @@ struct
        end))
      end))
 
+  fun array_example3 () =
+    (print "\narray_example3\n";
+     with_context (fn ctx =>
+     let
+       val bool_sort  = Z3.Sort.Z3_mk_bool_sort ctx
+       val int_sort   = Z3.Sort.Z3_mk_int_sort ctx
+       val array_sort = Z3.Sort.Z3_mk_array_sort (ctx, int_sort, bool_sort)
+       val () = if Z3.Accessor.Z3_get_sort_kind (ctx, array_sort)
+                    <> E.Z3_ARRAY_SORT
+                then raise Fail "type must be an array type"
+                else ()
+       (* 'domain -> 'range *)
+       val domain = Z3.Accessor.Z3_get_array_sort_domain (ctx, array_sort)
+       val range  = Z3.Accessor.Z3_get_array_sort_range  (ctx, array_sort)
+     in
+       print "domain: ";
+       Display.sort ctx TextIO.stdOut domain;
+       print "\n";
+       print "range:  ";
+       Display.sort ctx TextIO.stdOut range;
+       print "\n";
+       if int_sort <> domain orelse bool_sort <> range
+       then raise Fail "invalid array type" else ()
+     end))
+
   end (* local *)
 
   fun main (name, args) =
@@ -769,6 +794,7 @@ struct
      quantifier_example1();
      array_example1();
      array_example2();
+     array_example3();
 
      tutorial_sample();
      OS.Process.success
