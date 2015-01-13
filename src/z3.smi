@@ -41,7 +41,7 @@ struct
   type Z3_symbol       (= ptr)
   type Z3_ast          (= ptr)
   eqtype Z3_sort       (= ptr)
-  type Z3_func_decl    (= ptr)
+  type Z3_func_decl     = unit ptr
   type Z3_app          (= ptr)
   type Z3_pattern      (= ptr)
   type Z3_params       (= ptr)

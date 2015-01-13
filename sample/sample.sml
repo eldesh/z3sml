@@ -782,6 +782,133 @@ struct
 
   end (* local *)
 
+  fun mk_real_var ctx name =
+    mk_var ctx name (Z3.Sort.Z3_mk_real_sort ctx)
+
+  fun mk_binary_app ctx f x y =
+    Z3.Z3_mk_app (ctx, f, Vector.fromList[x,y])
+
+
+  exception TypeMismatch of {exp:E.Z3_sort_kind, act:E.Z3_sort_kind}
+
+  fun check_type (exp:E.Z3_sort_kind) act =
+    if exp <> act
+    then raise TypeMismatch {exp=exp, act=act}
+    else ()
+
+  fun mk_tuple_update c t i new_val =
+    let
+      val ty = Z3.Accessor.Z3_get_sort (c, t)
+      val () = check_type E.Z3_DATATYPE_SORT (Z3.Accessor.Z3_get_sort_kind (c, ty))
+      val num_fields = Z3.Accessor.Z3_get_tuple_sort_num_fields (c, ty)
+      val () = if i >= num_fields
+               then raise Fail "invalid tuple update, index is too big"
+               else ()
+      val new_fields = Vector.tabulate (Word.toInt num_fields, fn j=>
+            if i = Word.fromInt j
+            then
+              new_val (* use new_val at positio i *)
+            else
+              (* use field j of t *)
+              let val proj_decl = Z3.Accessor.Z3_get_tuple_sort_field_decl (c, ty, Word.fromInt j)
+              in
+                mk_unary_app c proj_decl t
+              end)
+      val mk_tuple_decl = Z3.Accessor.Z3_get_tuple_sort_mk_decl (c, ty)
+    in
+      Z3.Z3_mk_app (c, mk_tuple_decl, new_fields)
+    end
+
+  fun tuple_example1 () =
+    with_context (fn ctx =>
+    let
+      val () = print "\ntuple_example1\n"
+      val real_sort = Z3.Sort.Z3_mk_real_sort ctx
+      (* create pair (tuple) type *)
+      val mk_tuple_name = Z3.Z3_mk_string_symbol (ctx, "mk_pair")
+      val proj_names = Vector.fromList [
+                         Z3.Z3_mk_string_symbol (ctx, "get_x"),
+                         Z3.Z3_mk_string_symbol (ctx, "get_y")
+                       ]
+      val proj_sorts = Vector.fromList [ real_sort, real_sort ]
+      (* Z3_mk_tule_sort will set mk_tuple_decl and proj_decls *)
+      val mk_tuple_decl : Z3.Z3_func_decl ref = ref (Ptr.NULL())
+      val proj_decls : Z3.Z3_func_decl array = Array.fromList [Ptr.NULL(), Ptr.NULL()]
+      val pair_sort = Z3.Sort.Z3_mk_tuple_sort (ctx, mk_tuple_name, proj_names
+                                                , proj_sorts, mk_tuple_decl, proj_decls)
+      (* function that extracts the first element of a tuple. *)
+      val get_x_decl = Array.sub (proj_decls, 0)
+      (* function that extracts the second element of a tuple. *)
+      val get_y_decl = Array.sub (proj_decls, 1)
+      val () = print "tuple_sort: "
+      val () = Display.sort ctx TextIO.stdOut pair_sort
+      val () = print "\n"
+    in
+      (* prove that get_x(mk_pair(x,y)) == 1 implies x = 1 *)
+      let
+        val x    = mk_real_var ctx "x"
+        val y    = mk_real_var ctx "y"
+        val app1 = mk_binary_app ctx (!mk_tuple_decl) x y
+        val app2 = mk_unary_app ctx get_x_decl app1
+        val one  = Z3.Numerals.Z3_mk_numeral (ctx, "1", real_sort)
+        val eq1  = Prop.Z3_mk_eq (ctx, app2, one)
+        val eq2  = Prop.Z3_mk_eq (ctx,    x, one)
+        val thm  = Prop.Z3_mk_implies(ctx, eq1, eq2)
+        val () = print "prove: get_x(mk_pair(x, y)) = 1 implies x = 1\n"
+        val () = prove ctx thm Z3.Z3_TRUE
+        (* disprove that get_x(mk_pair(x,y)) == 1 implies y = 1 *)
+        val eq3 = Prop.Z3_mk_eq (ctx, y, one)
+        val thm = Prop.Z3_mk_implies (ctx, eq1, eq3)
+        val () = print "disprove: get_x(mk_pair(x, y)) = 1 implies y = 1\n"
+        val () = prove ctx thm Z3.Z3_FALSE
+      in () end;
+      let
+        val p1 = mk_var ctx "p1" pair_sort
+        val p2 = mk_var ctx "p2" pair_sort
+        val x1 = mk_unary_app ctx get_x_decl p1
+        val y1 = mk_unary_app ctx get_y_decl p1
+        val x2 = mk_unary_app ctx get_x_decl p2
+        val y2 = mk_unary_app ctx get_y_decl p2
+        val antecedents = Vector.fromList [
+                            Prop.Z3_mk_eq (ctx, x1, x2),
+                            Prop.Z3_mk_eq (ctx, y1, y2)
+                          ]
+        val antecedent = Prop.Z3_mk_and (ctx, antecedents)
+        val consequent = Prop.Z3_mk_eq (ctx, p1, p2)
+        val thm = Prop.Z3_mk_implies (ctx, antecedent, consequent)
+        val () = print "prove: get_x(p1) = get_x(p2) and get_y(p1) = get_y(p2) implies p1 = p2\n"
+        val () = prove ctx thm Z3.Z3_TRUE
+        (* disprove that get_x(p1) = get_x(p2) implies p1 = p2 *)
+        val thm = Prop.Z3_mk_implies (ctx, Vector.sub(antecedents,0), consequent)
+        val () = print "disprove: get_x(p1) = get_x(p2) implies p1 = p2\n"
+        val () = prove ctx thm Z3.Z3_FALSE
+      in () end;
+      (* demonstrate how to use the mk_tuple_update function *)
+      (* prove that p2 = update(p1, 0, 10) implies get_x(p2) = 10 *)
+      let
+        val p1 = mk_var ctx "p1" pair_sort
+        val p2 = mk_var ctx "p2" pair_sort
+        val one = Z3.Numerals.Z3_mk_numeral (ctx, "1" , real_sort)
+        val ten = Z3.Numerals.Z3_mk_numeral (ctx, "10", real_sort)
+        val updt = mk_tuple_update ctx p1 0w0 ten
+        val antecedent = Prop.Z3_mk_eq (ctx, p2, updt)
+        val x = mk_unary_app ctx get_x_decl p2
+        val consequent = Prop.Z3_mk_eq (ctx, x, ten)
+        val thm = Prop.Z3_mk_implies (ctx, antecedent, consequent)
+        val () = print "prove: p2 = update (p1, 0, 10) implies get_x(p2) = 10\n"
+        val () = prove ctx thm Z3.Z3_TRUE
+        (* disprove that p2 = update(p1, 0, 10) implies get_y(p2) = 10 *)
+        val y = mk_unary_app ctx get_y_decl p2
+        val consequent = Prop.Z3_mk_eq (ctx, y, ten)
+        val thm = Prop.Z3_mk_implies (ctx, antecedent, consequent)
+
+        val () = print "disprove: p2 = update(p1, 0, 10) implies get_y(p2) = 10\n"
+        val () = prove ctx thm Z3.Z3_FALSE
+      in
+        ()
+      end
+    end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -795,6 +922,7 @@ struct
      array_example1();
      array_example2();
      array_example3();
+     tuple_example1();
 
      tutorial_sample();
      OS.Process.success
