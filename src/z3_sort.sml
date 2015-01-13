@@ -49,7 +49,7 @@ in
                         , mk_tuple_decl, proj_decl) =
     _ffiapply (Dyn.dlsym (libz3, "Z3_mk_tuple_sort"))
     ( c : Z3_context
-    , mk_tuple_name : Z3_sort
+    , mk_tuple_name : Z3_symbol
     , Vector.length field_names : int
     , field_names : Z3_symbol vector
     , field_sorts : Z3_sort vector

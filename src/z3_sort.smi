@@ -37,7 +37,7 @@ struct
     : Z3_context * Z3_sort * Z3_sort -> Z3_sort
 
   val Z3_mk_tuple_sort
-    : Z3_context * Z3_sort
+    : Z3_context * Z3_symbol
                  * Z3_symbol vector * Z3_sort vector
                  * Z3_func_decl ref * Z3_func_decl array
                 -> Z3_sort
