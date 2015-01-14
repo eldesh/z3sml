@@ -954,6 +954,41 @@ struct
 
   end (* local *)
 
+  fun eval_example1 () =
+    with_context (fn ctx =>
+    let
+      val () = print "\neval_example1\n"
+      val x = mk_int_var ctx "x"
+      val y = mk_int_var ctx "y"
+      val two = mk_int ctx 2
+      (* assert x < y *)
+      val c1 = Z3.Arithmetic.Z3_mk_lt (ctx, x, y)
+      val () = D.Z3_assert_cnstr(ctx, c1)
+      (* assert x > 2 *)
+      val c2 = Z3.Arithmetic.Z3_mk_gt(ctx, x, two)
+      val () = D.Z3_assert_cnstr(ctx, c2)
+      val m : Z3.Z3_model ref = ref (Ptr.NULL())
+    in
+      (* find model for the constraints above *)
+      if D.Z3_check_and_get_model (ctx, m) = E.Z3_L_TRUE
+      then
+        (print(concat["MODEL:", Z3.Stringconv.Z3_model_to_string(ctx, !m)]);
+         let val x_plus_y = Z3.Arithmetic.Z3_mk_add (ctx, Vector.fromList[x,y]) in
+         print "\nevaluating x+y\n";
+         let val v = ref (Ptr.NULL()) in
+         if D.Z3_eval(ctx, !m, x_plus_y, v) = Z3.Z3_TRUE
+         then
+           (print "result = ";
+            Display.ast ctx TextIO.stdOut (!v);
+            print "\n"
+           )
+         else
+           raise Fail "failed to evaluate: x+y"
+         end end)
+      else
+        raise Fail "the constraints are satisfiable"
+    end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -970,6 +1005,7 @@ struct
      tuple_example1();
      bitvector_example1();
      bitvector_example2();
+     eval_example1();
 
      tutorial_sample();
      OS.Process.success
