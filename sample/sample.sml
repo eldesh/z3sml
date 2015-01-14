@@ -930,7 +930,29 @@ struct
       print "disprove: x - 10 <= 0 IFF x <= 10 for (32-bit) machine integers\n";
       prove ctx thm Z3.Z3_FALSE
     end)
-  end
+
+  (* Find x and y such that: x ^ y - 103 == x * y *)
+  fun bitvector_example2 () =
+    with_context (fn ctx =>
+    let
+      val () = print "\nbitvector_example2\n"
+      val () = print "find values of x and y, such that x ^ y - 103 == x * y\n"
+      val bv_sort = Z3.Sort.Z3_mk_bv_sort (ctx, 0w32)
+      val x       = mk_var ctx "x" bv_sort
+      val y       = mk_var ctx "y" bv_sort
+      val x_xor_y = Z3_mk_bvxor(ctx, x, y)
+      val c103    = Z3.Numerals.Z3_mk_numeral(ctx, "103", bv_sort)
+      val lhs     = Z3_mk_bvsub (ctx, x_xor_y, c103)
+      val rhs     = Z3_mk_bvmul (ctx, x, y)
+      val ctr     = Prop.Z3_mk_eq (ctx, lhs, rhs)
+    in
+      (* add the constraint x ^ y - 103 == x * y to the logical context *)
+      D.Z3_assert_cnstr(ctx, ctr);
+      (* find a model (i.e., values for x an y that satisfy the constraint *)
+      check ctx E.Z3_L_TRUE
+    end)
+
+  end (* local *)
 
   fun main (name, args) =
     (display_version();
@@ -947,6 +969,7 @@ struct
      array_example3();
      tuple_example1();
      bitvector_example1();
+     bitvector_example2();
 
      tutorial_sample();
      OS.Process.success
