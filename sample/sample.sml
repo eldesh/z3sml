@@ -863,6 +863,7 @@ struct
         val () = prove ctx thm Z3.Z3_FALSE
       in () end;
       let
+        (* prove that get_x(p1) = get_x(p2) and get_y(p1) = get_y(p2) implies p1 = p2 *)
         val p1 = mk_var ctx "p1" pair_sort
         val p2 = mk_var ctx "p2" pair_sort
         val x1 = mk_unary_app ctx get_x_decl p1
@@ -909,6 +910,28 @@ struct
       end
     end)
 
+  local
+    open Z3.BitVector
+  in
+  fun bitvector_example1 () =
+    with_context (fn ctx =>
+    let
+      val () = print "\nbitvector_example1\n"
+      val bv_sort = Z3.Sort.Z3_mk_bv_sort (ctx, 0w32)
+      val x    = mk_var ctx "x" bv_sort
+      val zero = Z3.Numerals.Z3_mk_numeral (ctx,  "0", bv_sort)
+      val ten  = Z3.Numerals.Z3_mk_numeral (ctx, "10", bv_sort)
+      val x_minus_ten = Z3_mk_bvsub (ctx, x, ten)
+      (* bvsle is signed less than or equal to *)
+      val c1 = Z3_mk_bvsle(ctx, x, ten)
+      val c2 = Z3_mk_bvsle(ctx, x_minus_ten, zero)
+      val thm = Prop.Z3_mk_iff (ctx, c1, c2)
+    in
+      print "disprove: x - 10 <= 0 IFF x <= 10 for (32-bit) machine integers\n";
+      prove ctx thm Z3.Z3_FALSE
+    end)
+  end
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -923,6 +946,7 @@ struct
      array_example2();
      array_example3();
      tuple_example1();
+     bitvector_example1();
 
      tutorial_sample();
      OS.Process.success
