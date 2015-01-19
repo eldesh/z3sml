@@ -993,6 +993,40 @@ struct
       Z3.Context.Z3_del_context ctx2
     end
 
+  fun check_cond cond msg =
+    if cond()
+    then
+      case msg
+        of SOME msg => raise Fail msg
+         | NONE     => raise Fail "unexpected result"
+    else ()
+
+  fun error_code_example1 () =
+    let
+      open Z3 Z3.Accessor
+      val () = print "\nerror_code_example1\n"
+      val ctx = with_config (fn cfg => mk_context_custom cfg NONE)
+      val x      = bool_var ctx "x"
+      val x_decl = Z3_get_app_decl(ctx, Z3_to_app(ctx, x))
+      val () = D.Z3_assert_cnstr (ctx, x)
+      val m : Z3.Z3_model ref = ref (Ptr.NULL())
+      val v : Z3.Z3_ast ref = ref (Ptr.NULL())
+    in
+      check_cond (fn()=> D.Z3_check_and_get_model(ctx, m) <> E.Z3_L_TRUE)
+                 NONE;
+      check_cond (fn()=> D.Z3_eval_func_decl(ctx, !m, x_decl, v) = Z3_FALSE)
+                 (SOME "did not obtain value for declaration.\n");
+      if Error.Z3_get_error_code ctx = E.Z3_OK
+      then print "last call succeeded.\n" else ();
+      let val str = Z3_get_numeral_string(ctx, !v) in
+        (* The following call will fail since the value of x is a boolean *)
+        if Error.Z3_get_error_code ctx <> E.Z3_OK
+        then print "last call failed.\n" else ()
+      end;
+      D.Z3_del_model (ctx, !m);
+      Z3.Context.Z3_del_context ctx
+    end
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1011,6 +1045,7 @@ struct
      bitvector_example2();
      eval_example1();
      two_contexts_example1();
+     error_code_example1();
 
      tutorial_sample();
      OS.Process.success
