@@ -72,15 +72,19 @@ struct
       r
     end
 
+  fun mk_context () =
+    with_config (fn cfg =>
+      let
+        val () = Z3.Config.Z3_set_param_value (cfg, "model", "true")
+        val ctx = Z3.Context.Z3_mk_context cfg
+      in
+        Z3.Error.Z3_set_error_handler(ctx, fn _ => print "error\n");
+        ctx
+      end)
+
   (* = mk_context_custom *)
   fun with_context f =
-    using (fn()=> with_config
-                    (fn cfg =>
-                      (Z3.Config.Z3_set_param_value (cfg, "model", "true");
-                       let val ctx = Z3.Context.Z3_mk_context cfg in
-                         Z3.Error.Z3_set_error_handler(ctx, fn _ => print "error\n");
-                         ctx
-                       end)))
+    using mk_context
           Z3.Context.Z3_del_context 
           f
 
@@ -989,6 +993,21 @@ struct
         raise Fail "the constraints are satisfiable"
     end)
 
+  fun two_contexts_example1 () =
+    let
+      open Z3 Z3.Sort
+      val () = print "\ntwo_contexts_example1\n"
+      val ctx1 = mk_context ()
+      val ctx2 = mk_context ()
+      val x1 = Z3_mk_const (ctx1, Z3_mk_int_symbol(ctx1, 0), Z3_mk_bool_sort ctx1)
+      val x2 = Z3_mk_const (ctx2, Z3_mk_int_symbol(ctx2, 0), Z3_mk_bool_sort ctx2)
+    in
+      Z3.Context.Z3_del_context ctx1;
+      (* ctx2 can still be used. *)
+      print(concat[Stringconv.Z3_ast_to_string(ctx2, x2), "\n"]);
+      Z3.Context.Z3_del_context ctx2
+    end
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1006,6 +1025,7 @@ struct
      bitvector_example1();
      bitvector_example2();
      eval_example1();
+     two_contexts_example1();
 
      tutorial_sample();
      OS.Process.success
