@@ -1056,6 +1056,28 @@ struct
     handle (ErrorCode c) =>
       print(concat["Z3 error: ", D.Z3_get_error_msg c, ".\n"])
 
+  fun parser_example1 () =
+    with_context (fn ctx =>
+    let
+      val () = print "\nparser_example1\n"
+      val () = Z3.Parser.Z3_parse_smtlib_string(
+                 ctx,
+                 "(benchmark tst :extrafuns ((x Int) (y Int)) :formula (> x y) :formula (> x 0))",
+                 Vector.fromList[], Vector.fromList[],
+                 Vector.fromList[], Vector.fromList[])
+      val num_formulas = Z3.Parser.Z3_get_smtlib_num_formulas ctx
+    in
+      for 0w0 (fn i=> i<num_formulas) (fn i=>i+0w1) (fn i=>
+        let val f = Z3.Parser.Z3_get_smtlib_formula(ctx, i) in
+          print(concat["formula "
+                      , Word.toString i, ": "
+                      , Z3.Stringconv.Z3_ast_to_string(ctx, f)
+                      , "\n"]);
+          D.Z3_assert_cnstr(ctx, f)
+        end);
+      check ctx E.Z3_L_TRUE
+    end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1076,6 +1098,7 @@ struct
      two_contexts_example1();
      error_code_example1();
      error_code_example2();
+     parser_example1();
 
      tutorial_sample();
      OS.Process.success
