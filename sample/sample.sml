@@ -82,10 +82,18 @@ struct
         ctx
       end)
 
-  (* = mk_context_custom *)
+  fun mk_context_custom cfg error_handler =
+    let
+      val ()  = Z3.Config.Z3_set_param_value (cfg, "model", "true")
+      val ctx = Z3.Context.Z3_mk_context cfg
+      val ()  = Z3.Error.Z3_set_error_handler(ctx, error_handler)
+    in
+      ctx
+    end
+
   fun with_context f =
     using mk_context
-          Z3.Context.Z3_del_context 
+          Z3.Context.Z3_del_context
           f
 
   fun lbool_to_string x =
@@ -176,20 +184,6 @@ struct
       print "model for: x < y + 1, x > 2, not(x = y)\n";
       check ctx E.Z3_L_TRUE;
       Z3.Context.Z3_del_context ctx
-    end
-
-  fun mk_context () =
-    let
-      val cfg = Z3.Config.Z3_mk_config ()
-      val () = Z3.Config.Z3_set_param_value (cfg, "MODEL", "true");
-    in
-      let
-        val ctx = Z3.Context.Z3_mk_context cfg
-      in
-        Z3.Error.Z3_set_error_handler (ctx, fn _=> print "error\n");
-        Z3.Config.Z3_del_config cfg;
-        ctx
-      end
     end
 
   fun display_version () =
@@ -582,15 +576,6 @@ struct
       else ()
     end
 
-  fun mk_context_custom cfg error_handler =
-    let
-      val ()  = Z3.Config.Z3_set_param_value (cfg, "model", "true")
-      val ctx = Z3.Context.Z3_mk_context cfg
-      val ()  = Z3.Error.Z3_set_error_handler(ctx, error_handler)
-    in
-      ctx
-    end
-
   fun assert_inj_axiom ctx f i =
     let
       val sz = Z3.Accessor.Z3_get_domain_size (ctx, f)
@@ -635,7 +620,7 @@ struct
        (* assert that f is injective in the second argument. *)
        val () = assert_inj_axiom ctx f 0w1
      in
-       ()
+       Z3.Context.Z3_del_context ctx
      end)
 
   fun push_pop_example1 () =
