@@ -1078,6 +1078,36 @@ struct
       check ctx E.Z3_L_TRUE
     end)
 
+  fun parser_example2 () =
+    with_context (fn ctx =>
+    let
+      open Z3.Accessor
+      val () = print "\nparser_example2\n"
+      val x = int_var ctx "x"
+      val y = int_var ctx "y"
+      val decls = Vector.fromList[
+                    Z3_get_app_decl(ctx, Z3_to_app(ctx, x)),
+                    Z3_get_app_decl(ctx, Z3_to_app(ctx, y))
+                  ]
+      val names = Vector.fromList[
+                    Z3.Z3_mk_string_symbol (ctx, "a"),
+                    Z3.Z3_mk_string_symbol (ctx, "b")
+                  ]
+      val () = Z3.Parser.Z3_parse_smtlib_string(
+                 ctx,
+                 "(benchmark tst :formula (> a b))",
+                 Vector.fromList[],
+                 Vector.fromList[],
+                 names, decls)
+      val f  = Z3.Parser.Z3_get_smtlib_formula(ctx, 0w0)
+    in
+      print(concat["formula:"
+                  , Z3.Stringconv.Z3_ast_to_string(ctx, f)
+                  , "\n"]);
+      D.Z3_assert_cnstr(ctx, f);
+      check ctx E.Z3_L_TRUE
+    end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1099,6 +1129,7 @@ struct
      error_code_example1();
      error_code_example2();
      parser_example1();
+     parser_example2();
 
      tutorial_sample();
      OS.Process.success
