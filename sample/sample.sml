@@ -78,7 +78,7 @@ struct
         val () = Z3.Config.Z3_set_param_value (cfg, "model", "true")
         val ctx = Z3.Context.Z3_mk_context cfg
       in
-        Z3.Error.Z3_set_error_handler(ctx, fn _ => print "error\n");
+        Z3.Error.Z3_set_error_handler(ctx, SOME (fn _ => print "error\n"));
         ctx
       end)
 
@@ -624,7 +624,7 @@ struct
      let
        val ctx = with_config (fn cfg =>
                   (Z3.Global.Z3_global_param_set("smt.mbqi.max_iterations", "10");
-                   mk_context_custom cfg (fn _ => print "error\n")
+                   mk_context_custom cfg (SOME(fn _ => print "error\n"))
                   ))
        (* declare function f *)
        val int_sort = Z3.Sort.Z3_mk_int_sort ctx

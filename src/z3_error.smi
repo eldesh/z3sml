@@ -14,7 +14,7 @@ struct
     : Z3_context -> Z3_error_code
 
   val Z3_set_error_handler
-    : Z3_context * Z3_error_handler -> unit
+    : Z3_context * Z3_error_handler option -> unit
 
   val Z3_set_error
     : Z3_context * Z3_error_code -> unit
