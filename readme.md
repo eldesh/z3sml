@@ -1,22 +1,28 @@
 
-Z3 - SML binding
+Z3 - StandardML binding
 ================================================
 
 
 This library provides Z3 library binding for StandardML implementations.
 
 
-Support
+Supported SML System
 --------------------------------
 
 Currently, SML# 2.0.0 is only supported.
 This library use Z3 functions of libz3.so throught C API.
 
 
+Supported Version
+--------------------------------
+
+Z3 *v4.3.2* is supported.
+
+
 Build
 --------------------------------
 
-Just type `make` in this directory.
+Just type `make` in the top directory of z3sml project.
 
 
 How to Use
@@ -25,10 +31,10 @@ How to Use
 + add *\_require "z3.smi"* to your .smi file
   of your project which using this library.
 
-    (* foo.smi *)
+    (* foo.smi \*)
     \_require "z3.smi"
     
-    (* foo.sml *)
+    (* foo.sml \*)
     open Z3
     fun bar () = ...
 
@@ -38,10 +44,13 @@ How to Use
     $ smlsharp -I/path/to/z3sml -o foo foo.sml
 
 
-Supported Version
+Sample
 --------------------------------
 
-*v4.3.2* is supported.
+For running sample program:
+
+    $ make sample
+
 
 
 Link
