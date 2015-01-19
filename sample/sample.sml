@@ -1027,6 +1027,35 @@ struct
       Z3.Context.Z3_del_context ctx
     end
 
+  exception ErrorCode of E.Z3_error_code
+
+  fun with_ctx_error_handler h f =
+    using (fn()=> let val ctx = mk_context () in
+                    Z3.Error.Z3_set_error_handler(ctx, h);
+                    ctx
+                  end)
+          Z3.Context.Z3_del_context
+          f
+
+  fun unreachable () : unit =
+    raise Fail "unreachable code was reached"
+
+  fun error_code_example2 () =
+    with_ctx_error_handler (SOME(fn(_, err)=> raise ErrorCode err))
+    (fn ctx =>
+    let
+      val () = print "\nerror_code_example2\n"
+      val x   = int_var ctx "x"
+      val y   = int_var ctx "y"
+      val ()  = print "before Z3_mk_iff\n"
+      (* the next call will produce an error *)
+      val app = Prop.Z3_mk_iff(ctx, x, y)
+    in
+      unreachable ()
+    end)
+    handle (ErrorCode c) =>
+      print(concat["Z3 error: ", D.Z3_get_error_msg c, ".\n"])
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1046,6 +1075,7 @@ struct
      eval_example1();
      two_contexts_example1();
      error_code_example1();
+     error_code_example2();
 
      tutorial_sample();
      OS.Process.success
