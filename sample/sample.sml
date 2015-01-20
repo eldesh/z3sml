@@ -1248,6 +1248,20 @@ struct
       prove ctx (Prop.Z3_mk_not(ctx, Prop.Z3_mk_eq(ctx, n1, n2))) Z3.Z3_TRUE
     end end)
 
+  fun ite_example () =
+    with_context (fn ctx =>
+    let
+      val () = print "\nite_example\n"
+      val f    = Prop.Z3_mk_false ctx
+      val one  = mk_int ctx 1
+      val zero = mk_int ctx 0
+      val ite  = Prop.Z3_mk_ite(ctx, f, one, zero)
+    in
+      print(concat["term: "
+                  , Z3.Stringconv.Z3_ast_to_string(ctx, ite)
+                  , "\n"])
+    end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1274,6 +1288,7 @@ struct
      parser_example4();
      parser_example5();
      numeral_example();
+     ite_example();
 
      tutorial_sample();
      OS.Process.success
