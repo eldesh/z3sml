@@ -1168,6 +1168,44 @@ struct
       end
     end)
 
+  fun parser_example4 () =
+    with_context (fn ctx =>
+    let
+      open Z3.Parser
+      val () = print "\nparser_example4\n"
+      val vec = Vector.fromList
+      val () = Z3_parse_smtlib_string(
+                 ctx,
+                 "(benchmark tst :extrafuns ((x Int) (y Int)) :assumption (= x 20) :formula (> x y) :formula (> x 0))",
+                 vec[], vec[],
+                 vec[], vec[])
+      fun for' n = for 0w0 (fn i=> i<n) (fn i=>i+0w1)
+    in
+      for' (Z3_get_smtlib_num_decls ctx) (fn i=>
+        let val d = Z3_get_smtlib_decl(ctx, i) in
+          print(concat["declaration "
+                      , Word.toString i
+                      , ": "
+                      , Z3.Stringconv.Z3_func_decl_to_string(ctx, d), "\n"])
+        end);
+
+      for' (Z3_get_smtlib_num_assumptions ctx) (fn i=>
+        let val a = Z3_get_smtlib_assumption(ctx, i) in
+          print(concat["assumption "
+                      , Word.toString i
+                      , ": "
+                      , Z3.Stringconv.Z3_ast_to_string(ctx, a), "\n"])
+        end);
+
+      for' (Z3_get_smtlib_num_formulas ctx) (fn i=>
+        let val f = Z3_get_smtlib_formula(ctx, i) in
+          print(concat["formula "
+                      , Word.toString i
+                      , ": "
+                      , Z3.Stringconv.Z3_ast_to_string(ctx, f), "\n"])
+        end)
+    end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1191,6 +1229,7 @@ struct
      parser_example1();
      parser_example2();
      parser_example3();
+     parser_example4();
 
      tutorial_sample();
      OS.Process.success
