@@ -1227,6 +1227,27 @@ struct
                               ,"Error message: '"
                               , Z3.Parser.Z3_get_smtlib_error ctx, "'.\n"])))
 
+  fun numeral_example () =
+    with_context (fn ctx =>
+    let
+      open Z3.Numerals
+      val () = print "\nnumeral_example\n"
+      val real_ty = Z3.Sort.Z3_mk_real_sort ctx
+      val n1 = Z3_mk_numeral(ctx, "1/2", real_ty)
+      val n2 = Z3_mk_numeral(ctx, "0.5", real_ty)
+    in
+      print(concat["Numerals n1:", Z3.Stringconv.Z3_ast_to_string(ctx, n1)
+                  ," n2:", Z3.Stringconv.Z3_ast_to_string(ctx, n2), "\n"]);
+      prove ctx (Prop.Z3_mk_eq(ctx, n1, n2)) Z3.Z3_TRUE;
+    let
+      val n1 = Z3_mk_numeral(ctx, "-1/3", real_ty)
+      val n2 = Z3_mk_numeral(ctx, "-0.33333333333333333333333333333333333333333333333333", real_ty)
+    in
+      print(concat["Numerals n1:", Z3.Stringconv.Z3_ast_to_string(ctx, n1)
+                  ," n2:", Z3.Stringconv.Z3_ast_to_string(ctx, n2), "\n"]);
+      prove ctx (Prop.Z3_mk_not(ctx, Prop.Z3_mk_eq(ctx, n1, n2))) Z3.Z3_TRUE
+    end end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1252,6 +1273,7 @@ struct
      parser_example3();
      parser_example4();
      parser_example5();
+     numeral_example();
 
      tutorial_sample();
      OS.Process.success
