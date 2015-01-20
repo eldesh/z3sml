@@ -1262,6 +1262,81 @@ struct
                   , "\n"])
     end)
 
+  fun list_example () =
+    with_context (fn ctx =>
+    let
+      val () = print "\nlist_example\n"
+      val int_ty = Z3.Sort.Z3_mk_int_sort ctx
+      val nil_decl     = ref (Ptr.NULL())
+      val is_nil_decl  = ref (Ptr.NULL())
+      val cons_decl    = ref (Ptr.NULL())
+      val is_cons_decl = ref (Ptr.NULL())
+      val head_decl    = ref (Ptr.NULL())
+      val tail_decl    = ref (Ptr.NULL())
+      val int_list = Z3.Sort.Z3_mk_list_sort(ctx
+                                            , Z3.Z3_mk_string_symbol(ctx, "int_list")
+                                            , int_ty
+                                            , nil_decl
+                                            , is_nil_decl
+                                            , cons_decl
+                                            , is_cons_decl
+                                            , head_decl
+                                            , tail_decl)
+      fun Cons x xs =
+        mk_binary_app ctx (!cons_decl) x xs
+
+      val Nil = Z3.Z3_mk_app(ctx, !nil_decl, Vector.fromList[])
+      val l1  = Cons (mk_int ctx 1) Nil
+      val l2  = Cons (mk_int ctx 2) Nil
+      fun == ctx (x,y) = Prop.Z3_mk_eq(ctx, x, y)
+      infixr ==>
+      fun p ==> q = fn c => Prop.Z3_mk_implies(c, p, q)
+    in
+      (* nil <> cons(1, nil) *)
+      prove ctx (Prop.Z3_mk_not(ctx, == ctx (l1, l2))) Z3.Z3_TRUE;
+      (* cons(2,nil) <> cons(1, nil) *)
+      prove ctx (Prop.Z3_mk_not(ctx, == ctx (l1, l2))) Z3.Z3_TRUE;
+    let
+      (* cons(x,nil) = cons(y,nil) => x = y *)
+      val x = mk_var ctx "x" int_ty
+      val y = mk_var ctx "y" int_ty
+      val l1 = Cons x Nil
+	  val l2 = Cons y Nil
+    in
+      prove ctx ((== ctx (l1,l2) ==> == ctx (x,y)) ctx)
+                Z3.Z3_TRUE;
+    let
+      (* cons(x,u) = cons(x,v) => u = v *)
+      val u = mk_var ctx "u" int_list
+      val v = mk_var ctx "v" int_list
+      val l1 = Cons x u
+	  val l2 = Cons y v
+    in
+      prove ctx ((== ctx (l1,l2) ==> == ctx (u, v)) ctx) Z3.Z3_TRUE;
+      prove ctx ((== ctx (l1,l2) ==> == ctx (x, y)) ctx) Z3.Z3_TRUE;
+    let
+      val ors = Vector.fromList[
+                  Z3.Z3_mk_app(ctx, !is_nil_decl, Vector.fromList[u]),
+                  Z3.Z3_mk_app(ctx, !is_cons_decl, Vector.fromList[u])
+                ]
+    in
+      (* is_nil(u) or is_cons(u) *)
+      prove ctx (Prop.Z3_mk_or(ctx, ors)) Z3.Z3_TRUE;
+      (* occurs check u <> cons(x,u) *)
+      prove ctx (Prop.Z3_mk_not(ctx, == ctx (u, l1))) Z3.Z3_TRUE;
+    let
+      fun Head xs = mk_unary_app ctx (!head_decl) xs
+      fun Tail xs = mk_unary_app ctx (!tail_decl) xs
+      (* destructors: is_cons(u) => u = cons(head(u),tail(u)) *)
+      val fml1 = == ctx (u, (Cons (Head u) (Tail u)))
+      val fml  = (Z3.Z3_mk_app(ctx, !is_cons_decl, Vector.fromList[u])
+                  ==> fml1) ctx
+    in
+      print(concat["Formula ", Z3.Stringconv.Z3_ast_to_string(ctx, fml), "\n"]);
+      prove ctx fml Z3.Z3_TRUE;
+      prove ctx fml1 Z3.Z3_FALSE
+    end end end end end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1289,6 +1364,7 @@ struct
      parser_example5();
      numeral_example();
      ite_example();
+     list_example();
 
      tutorial_sample();
      OS.Process.success
