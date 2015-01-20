@@ -1108,6 +1108,66 @@ struct
       check ctx E.Z3_L_TRUE
     end)
 
+  fun assert_comm_axiom ctx f =
+    let
+      open Z3.Accessor
+      val t = Z3_get_range (ctx, f)
+    in
+      check_cond (fn()=>
+                    Z3_get_domain_size(ctx, f) <> 0w2 orelse
+                    Z3_get_domain(ctx, f, 0w0) <> t orelse
+                    Z3_get_domain(ctx, f, 0w1) <> t)
+        (SOME "function must be binary, and argument types must be equal to return type");
+      let
+        (* Inside the parser, function f will be referenced using the symbol 'f'. *)
+        val f_name = Z3.Z3_mk_string_symbol(ctx, "f")
+        (* Inside the parser, type t will be referenced using the symbol 'T'. *)
+        val t_name = Z3.Z3_mk_string_symbol(ctx, "T")
+        fun ` x = Vector.fromList [x]
+      in
+        Z3.Parser.Z3_parse_smtlib_string(
+                    ctx,
+                    "(benchmark comm :formula (forall (x T) (y T) (= (f x y) (f y x))))",
+                    `t_name, `t,
+                    `f_name, `f);
+      let
+        val q = Z3.Parser.Z3_get_smtlib_formula(ctx, 0w0)
+      in
+        print(concat["assert axiom:\n"
+                    , Z3.Stringconv.Z3_ast_to_string(ctx, q), "\n"]);
+        D.Z3_assert_cnstr(ctx, q)
+      end end
+    end
+
+  fun parser_example3 () =
+    with_context (fn ctx =>
+    let
+      open Z3.Sort
+      val () = print "\nparser_example3\n"
+      val int_sort = Z3_mk_int_sort ctx
+      val g_name   = Z3.Z3_mk_string_symbol(ctx, "g")
+      val g_domain = Vector.fromList[int_sort, int_sort]
+      val g        = Z3.Z3_mk_func_decl(
+                       ctx,
+                       g_name,
+                       g_domain,
+                       int_sort)
+      val ` = Vector.fromList
+    in
+      assert_comm_axiom ctx g;
+      (* forall x y, x=y => (g x 0) = (g 0 y) *)
+      Z3.Parser.Z3_parse_smtlib_string(
+        ctx,
+        "(benchmark tst :formula (forall (x Int) (y Int) (implies (= x y) (= (g x 0) (g 0 y)))))",
+        `[], `[],
+        `[g_name], `[g]);
+      let val thm = Z3.Parser.Z3_get_smtlib_formula(ctx, 0w0) in
+        print(concat["formula: ",
+                     Z3.Stringconv.Z3_ast_to_string(ctx, thm), "\n"]);
+        prove ctx thm Z3.Z3_TRUE
+      end
+    end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1130,6 +1190,7 @@ struct
      error_code_example2();
      parser_example1();
      parser_example2();
+     parser_example3();
 
      tutorial_sample();
      OS.Process.success
