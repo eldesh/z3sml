@@ -201,6 +201,7 @@ struct
   fun tutorial_sample () =
     with_context (fn ctx =>
     let
+      val () = print "\ntutorial_sample\n"
       open Z3.Arithmetic
       val solver = Z3.Solver.Z3_mk_solver ctx
       val x = int_var ctx "x"
@@ -1222,7 +1223,9 @@ struct
       unreachable()
     end handle ErrorCode err =>
                  (print(concat["Z3 erorr: "
-                              , Z3.Error.Z3_get_error_msg_ex(ctx, err), ".\n"])))
+                              , Z3.Error.Z3_get_error_msg_ex(ctx, err), ".\n"
+                              ,"Error message: '"
+                              , Z3.Parser.Z3_get_smtlib_error ctx, "'.\n"])))
 
   fun main (name, args) =
     (display_version();
