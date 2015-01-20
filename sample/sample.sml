@@ -1206,6 +1206,24 @@ struct
         end)
     end)
 
+  fun parser_example5 () =
+    with_ctx_error_handler (SOME(fn(_, err)=> raise ErrorCode err))
+    (fn ctx=>
+    let
+      val () = print "\nparser_example5\n"
+      val vec = Vector.fromList
+    in
+      (* the following string has a parsing error: missing parenthesis *)
+      Z3.Parser.Z3_parse_smtlib_string(
+                 ctx,
+                 "(benchmark tst :extrafuns ((x Int (y Int)) :formula (> x y) :formula (> x 0))",
+                 vec[], vec[],
+                 vec[], vec[]);
+      unreachable()
+    end handle ErrorCode err =>
+                 (print(concat["Z3 erorr: "
+                              , Z3.Error.Z3_get_error_msg_ex(ctx, err), ".\n"])))
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1230,6 +1248,7 @@ struct
      parser_example2();
      parser_example3();
      parser_example4();
+     parser_example5();
 
      tutorial_sample();
      OS.Process.success
