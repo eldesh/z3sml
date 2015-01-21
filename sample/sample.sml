@@ -1611,6 +1611,65 @@ struct
                     , mk_int ctx 0)) Z3.Z3_TRUE
     end end end)
 
+  (**
+   * Create an enumeration data type
+   *)
+  fun enum_example () =
+    with_context (fn ctx =>
+    let
+      val () = print "\nenum_example\n"
+
+      open Z3.Sort Z3.Stringconv Z3.Propositional
+
+      infix  ==  !=
+      infixr ==>
+      fun p ==> q = Z3_mk_implies(ctx, p, q)
+      fun p ==  q = Z3_mk_eq(ctx, p, q)
+      fun p !=  q = Z3_mk_not(ctx, Z3_mk_eq(ctx, p, q))
+
+      fun Sym sym = Z3.Z3_mk_string_symbol(ctx, sym)
+      fun ptr_ref () = ref (Ptr.NULL())
+      val vec = Vector.fromList
+      fun empty () = vec[]
+    in
+      (* sample begin *)
+    let
+      val enum_consts  = Array.fromList[Ptr.NULL(), Ptr.NULL(), Ptr.NULL()]
+      val enum_testers = Array.fromList[Ptr.NULL(), Ptr.NULL(), Ptr.NULL()]
+      val fruit = Z3_mk_enumeration_sort(ctx
+                                        , Sym "fruit"
+                                        , vec (map Sym ["apple", "banana", "orange"])
+                                        , enum_consts
+                                        , enum_testers)
+    in
+      Array.app (fn e=> print(concat[Z3_func_decl_to_string(ctx, e), "\n"])) enum_consts;
+      Array.app (fn e=> print(concat[Z3_func_decl_to_string(ctx, e), "\n"])) enum_testers;
+
+    let
+      val apple  = Z3.Z3_mk_app (ctx, Array.sub(enum_consts,0), empty())
+      val banana = Z3.Z3_mk_app (ctx, Array.sub(enum_consts,1), empty())
+      val orange = Z3.Z3_mk_app (ctx, Array.sub(enum_consts,2), empty())
+    in
+      (* Apples are differenct from oranges *)
+      prove ctx (apple != orange) Z3.Z3_TRUE;
+      (* Apples pass the apple test *)
+      prove ctx (Z3.Z3_mk_app(ctx, Array.sub(enum_testers,0), vec[apple])) Z3.Z3_TRUE;
+      (* Oranges fail the apple test *)
+      prove ctx (Z3.Z3_mk_app(ctx, Array.sub(enum_testers,0), vec[orange])) Z3.Z3_FALSE;
+      prove ctx (Z3_mk_not(ctx
+                  , Z3.Z3_mk_app(ctx
+                    , Array.sub(enum_testers,0), vec[orange]))) Z3.Z3_TRUE;
+
+    let
+      val fruity = mk_var ctx "fruity" fruit
+      (* If something is fruity, then it is an apple, banana, or orange *)
+      val ors = vec[fruity == apple
+                   ,fruity == banana
+                   ,fruity == orange]
+    in
+      prove ctx (Z3_mk_or(ctx, ors)) Z3.Z3_TRUE
+    end end end end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1642,6 +1701,7 @@ struct
      tree_example();
      forest_example();
      binary_tree_example();
+     enum_example();
 
      tutorial_sample();
      OS.Process.success
