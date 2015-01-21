@@ -36,7 +36,7 @@ in
   type Z3_goal         = unit ptr
 
   type Z3_context          = unit ptr
-  type Z3_sort_opt         = unit ptr
+  type Z3_sort_opt         = Z3_sort option
   type Z3_constructor      = unit ptr
   type Z3_constructor_list = unit ptr
   type Z3_string           = string

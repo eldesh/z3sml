@@ -11,7 +11,7 @@ in
   type Z3_sort             = unit ptr
   type Z3_symbol           = unit ptr
   type Z3_func_decl        = unit ptr
-  type Z3_sort_opt         = unit ptr
+  type Z3_sort_opt         = Z3_sort option
   type Z3_constructor      = unit ptr
   type Z3_constructor_list = unit ptr
  
@@ -75,16 +75,23 @@ in
                 , Z3_func_decl ref, Z3_func_decl ref
                 ) -> Z3_sort
 
-  fun Z3_mk_constructor (c, name, recognizer, field_names, sorts, sort_refs) =
+  fun Z3_mk_constructor_raw (c, name, recognizer, field_names, sorts, sort_refs) =
     _ffiapply (Dyn.dlsym (libz3, "Z3_mk_constructor"))
     ( c : Z3_context
     , name : Z3_symbol
     , recognizer : Z3_symbol
     , Vector.length field_names : int
     , field_names : Z3_symbol vector
-    , sorts : Z3_sort_opt vector
+    , sorts : Z3_sort vector (* Z3_sort_opt: nullable ptr vector *)
     , sort_refs : word vector
     ) : Z3_constructor
+
+  fun Z3_mk_constructor (c, name, recognizer, field_names, sorts, sort_refs) =
+    let
+      val sorts = Vector.map (fn x=> getOpt(x, Ptr.NULL())) sorts
+    in
+      Z3_mk_constructor_raw (c, name, recognizer, field_names, sorts, sort_refs)
+    end
 
   val Z3_del_constructor =
     Dyn.dlsym (libz3, "Z3_del_constructor")
