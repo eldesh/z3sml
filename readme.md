@@ -47,7 +47,12 @@ How to Use
 Sample
 --------------------------------
 
-For running sample program:
+Sample program using z3/sml# binding is provided as sample/sample.sml .
+This sample code is written as much like the C example as possible.
+Where the C example code is provided within z3 official distribution.
+
+
+For building & running sample program:
 
     $ make sample
 
