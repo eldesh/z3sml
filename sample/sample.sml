@@ -1419,6 +1419,198 @@ struct
       prove ctx fml1 Z3.Z3_FALSE
     end end end end)
 
+  (** 
+   * Create a forest of trees.
+   *
+   * forest ::= nil | cons(tree, forest)
+   * tree   ::= nil | cons(forest, forest)
+   *)
+  fun forest_example () =
+    with_context (fn ctx =>
+    let
+      val () = print "\nforest_example\n"
+
+      open Z3.Sort Z3.Propositional
+      infix  ==  !=
+      infixr ==>
+      fun p ==> q = Prop.Z3_mk_implies(ctx, p, q)
+      fun p ==  q = Prop.Z3_mk_eq(ctx, p, q)
+      fun p !=  q = Prop.Z3_mk_not(ctx, Prop.Z3_mk_eq(ctx, p, q))
+
+      val vec = Vector.fromList
+      fun empty () = vec[]
+      fun Sym sym = Z3.Z3_mk_string_symbol(ctx, sym)
+      fun ptr_ref () = ref (Ptr.NULL())
+    in
+    let
+      val head_tail = vec[Sym "car", Sym "cdr"]
+      (* build a forest *)
+      val nil1_con  = Z3_mk_constructor(ctx
+                                      , Sym "nil1", Sym "is_nil1"
+                                      , empty(), empty(), empty())
+      val cons1_con = Z3_mk_constructor(ctx
+                                      , Sym "cons1", Sym "is_cons1"
+                                      , head_tail
+                                      , vec[NONE, NONE]
+                                      , vec[0w1, 0w0])
+      val constructors1 = vec[nil1_con, cons1_con]
+
+      (* build a tree *)
+      val nil2_con  = Z3_mk_constructor(ctx
+                                      , Sym "nil2", Sym "is_nil2"
+                                      , empty(), empty(), empty())
+      val cons2_con = Z3_mk_constructor(ctx
+                                      , Sym "cons1", Sym "is_cons1"
+                                      , head_tail
+                                      , vec[NONE, NONE]
+                             (* both branches of a tree are forests *)
+                                      , vec[0w0, 0w0])
+      val constructors2 = vec[nil2_con, cons2_con]
+      val clists = Array.fromList[
+                     Z3_mk_constructor_list(ctx, constructors1)
+                    ,Z3_mk_constructor_list(ctx, constructors2)
+                   ]
+      (* HACK: construct bool sort as dummy *)
+      val sorts = Array.fromList[ Z3_mk_bool_sort ctx
+                                , Z3_mk_bool_sort ctx ]
+      val () = Z3_mk_datatypes(ctx
+                              , vec[Sym "forest", Sym "tree"]
+                              , sorts
+                              , clists)
+      val forest = Array.sub (sorts, 0)
+      val tree   = Array.sub (sorts, 1)
+
+      val ( nil1_decl,  is_nil1_decl) = (ptr_ref(), ptr_ref())
+      val (cons1_decl, is_cons1_decl) = (ptr_ref(), ptr_ref())
+      val cons_accessors = Array.fromList[Ptr.NULL(), Ptr.NULL()]
+      val () = Z3_query_constructor(ctx
+                                   , nil1_con, nil1_decl, is_nil1_decl, Array.fromList[])
+      val () = Z3_query_constructor(ctx
+                                   , cons1_con, cons1_decl, is_cons1_decl, cons_accessors)
+      val ( nil2_decl,  is_nil2_decl) = (ptr_ref(), ptr_ref())
+      val (cons2_decl, is_cons2_decl) = (ptr_ref(), ptr_ref())
+      val () = Z3_query_constructor(ctx
+                                   , nil2_con, nil2_decl, is_nil2_decl, Array.fromList[])
+      val () = Z3_query_constructor(ctx
+                                   , cons2_con, cons2_decl, is_cons2_decl, cons_accessors)
+      val () = app (fn ctor => Z3_del_constructor(ctx, ctor))
+                   [nil1_con, cons1_con, nil2_con, cons2_con]
+
+      val nil1 = Z3.Z3_mk_app(ctx, !nil1_decl, vec[])
+      val nil2 = Z3.Z3_mk_app(ctx, !nil2_decl, vec[])
+      fun Cons1 x xs = mk_binary_app ctx (!cons1_decl) x xs
+      fun Cons2 x xs = mk_binary_app ctx (!cons2_decl) x xs
+      val f1 = Cons1 nil2 nil1
+      val t1 = Cons2 nil1 nil1
+      val t2 = Cons2   f1 nil1
+      val t3 = Cons2   f1   f1
+      val t4 = Cons2 nil1   f1
+      val f2 = Cons1   t1 nil1
+      val f3 = Cons1   t1   f1
+    in
+      (* nil != cons(nil,nil) *)
+      prove ctx (nil1 != f1) Z3.Z3_TRUE;
+      prove ctx (nil2 != t1) Z3.Z3_TRUE;
+    let
+      (* cons(x,u) = cons(x,v) => u = v *)
+      val u = mk_var ctx "u" forest
+      val v = mk_var ctx "v" forest
+      val x = mk_var ctx "x" tree
+      val y = mk_var ctx "y" tree
+      val l1 = Cons1 x u
+      val l2 = Cons1 y v
+    in
+      prove ctx ((l1 == l2) ==> (u == v)) Z3.Z3_TRUE;
+      prove ctx ((l1 == l2) ==> (x == y)) Z3.Z3_TRUE;
+    let
+      (* is_nil(u) or is_cons(u) *)
+      val ors = vec[
+                  Z3.Z3_mk_app(ctx,  !is_nil1_decl, vec[u]),
+                  Z3.Z3_mk_app(ctx, !is_cons1_decl, vec[u])
+                ]
+    in
+      prove ctx (Z3_mk_or(ctx, ors)) Z3.Z3_TRUE;
+      (* occurs check u != cons(x,u) *)
+      prove ctx (u != l1) Z3.Z3_TRUE
+    end end end end)
+
+   (**
+    * Create a binary tree datatype of the form
+    *  BinTree ::=   nil 
+    *              | node(value : Int, left : BinTree, right : BinTree)
+    *)
+  fun binary_tree_example () =
+    with_context (fn ctx =>
+    let
+      val () = print "\nbinary_tree_example\n"
+      open Z3.Sort Z3.Propositional
+      infix  ==  !=
+      infixr ==>
+      fun p ==> q = Prop.Z3_mk_implies(ctx, p, q)
+      fun p ==  q = Prop.Z3_mk_eq(ctx, p, q)
+      fun p !=  q = Prop.Z3_mk_not(ctx, Prop.Z3_mk_eq(ctx, p, q))
+
+      fun Sym sym = Z3.Z3_mk_string_symbol(ctx, sym)
+      val vec = Vector.fromList
+      fun empty () = vec[]
+      fun ptr_ref () = ref (Ptr.NULL())
+    in
+    let
+      val node_accessor_names     = vec[Sym "value", Sym "left", Sym "right"]
+      val node_accessor_sorts     = vec[SOME(Z3_mk_int_sort ctx), NONE, NONE]
+      val node_accessor_sort_refs = vec[0w0, 0w0, 0w0]
+      (* nil_con and node_con are auxiliary datastructures used to create the new recursive datatype BinTree *)
+      val nil_con  = Z3_mk_constructor(ctx
+                                      , Sym "nil", Sym "is-nil"
+                                      , empty(), empty(), empty())
+      val node_con = Z3_mk_constructor(ctx
+                                      , Sym "node", Sym "is-cons"
+                                      , node_accessor_names
+                                      , node_accessor_sorts
+                                      , node_accessor_sort_refs)
+      val constructors = Array.fromList[nil_con, node_con]
+      (* create the new recursive datatype *)
+      val cell = Z3_mk_datatype(ctx, Sym "BinTree", constructors)
+
+      val ( nil_decl,  is_nil_decl) = (ptr_ref(), ptr_ref())
+      val () = Z3_query_constructor(ctx
+                                   , nil_con, nil_decl, is_nil_decl, Array.fromList[])
+      val (node_decl, is_node_decl) = (ptr_ref(), ptr_ref())
+      val node_accessors = Array.fromList[Ptr.NULL(), Ptr.NULL(), Ptr.NULL()]
+      val () = Z3_query_constructor(ctx
+                                   , node_con, node_decl, is_node_decl, node_accessors)
+      val value_decl = Array.sub(node_accessors, 0)
+      val left_decl  = Array.sub(node_accessors, 1)
+      val right_decl = Array.sub(node_accessors, 2)
+      (* delete auxiliary/helper structures *)
+      val () = app (fn x=> Z3_del_constructor(ctx, x)) [nil_con, node_con]
+    in
+      (* small example using the recursive datatype BinTree *)
+    let
+      (* create nil *)
+      val Nil = Z3.Z3_mk_app(ctx, !nil_decl, empty())
+      fun Node v l r = Z3.Z3_mk_app(ctx, !node_decl, vec[v, l, r])
+      val node1 = Node (mk_int ctx 10)   Nil   Nil
+      val node2 = Node (mk_int ctx 30) node1   Nil
+      val node3 = Node (mk_int ctx 20) node2 node1
+      fun Left  u = mk_unary_app ctx left_decl  u
+      fun Right u = mk_unary_app ctx right_decl u
+    in
+      (* prove that nil != node1 *)
+      prove ctx (Nil != node1) Z3.Z3_TRUE;
+      (* prove that nil = left(node1) *)
+      prove ctx (Nil == Left node1) Z3.Z3_TRUE;
+      (* prove that node1 = right(node3) *)
+      prove ctx (node1 == Right node3) Z3.Z3_TRUE;
+      (* prove that !is-nil(node2) *)
+      prove ctx (Prop.Z3_mk_not(ctx
+                    , mk_unary_app ctx (!is_nil_decl) node2)) Z3.Z3_TRUE;
+      (* prove that value(node2) >= 0 *)
+      prove ctx (Z3.Arithmetic.Z3_mk_ge(ctx
+                    , mk_unary_app ctx value_decl node2
+                    , mk_int ctx 0)) Z3.Z3_TRUE
+    end end end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1448,6 +1640,8 @@ struct
      ite_example();
      list_example();
      tree_example();
+     forest_example();
+     binary_tree_example();
 
      tutorial_sample();
      OS.Process.success
