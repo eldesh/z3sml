@@ -91,6 +91,24 @@ struct
       ctx
     end
 
+  exception ErrorCode of E.Z3_error_code
+
+  fun with_ctx_error_handler h f =
+    using (fn()=> let val ctx = mk_context () in
+                    Z3.Error.Z3_set_error_handler(ctx, h);
+                    ctx
+                  end)
+          Z3.Context.Z3_del_context
+          f
+
+  fun mk_proof_context () =
+    with_config (fn cfg =>
+    let
+      val () = Z3.Config.Z3_set_param_value(cfg, "proof", "true")
+    in
+      mk_context_custom cfg (SOME(fn(_, err)=> raise ErrorCode err))
+    end)
+
   fun with_context f =
     using mk_context
           Z3.Context.Z3_del_context
@@ -337,6 +355,9 @@ struct
 
   fun mk_int_var ctx name =
     mk_var ctx name (Z3.Sort.Z3_mk_int_sort ctx)
+
+  fun mk_bool_var ctx name =
+    mk_var ctx name (Z3.Sort.Z3_mk_bool_sort ctx)
 
   fun mk_int ctx n =
     Z3.Numerals.Z3_mk_int (ctx, n, Z3.Sort.Z3_mk_int_sort ctx)
@@ -1028,16 +1049,6 @@ struct
       Z3.Context.Z3_del_context ctx
     end
 
-  exception ErrorCode of E.Z3_error_code
-
-  fun with_ctx_error_handler h f =
-    using (fn()=> let val ctx = mk_context () in
-                    Z3.Error.Z3_set_error_handler(ctx, h);
-                    ctx
-                  end)
-          Z3.Context.Z3_del_context
-          f
-
   fun unreachable () : unit =
     raise Fail "unreachable code was reached"
 
@@ -1670,6 +1681,71 @@ struct
       prove ctx (Z3_mk_or(ctx, ors)) Z3.Z3_TRUE
     end end end end)
 
+  fun unsat_core_and_proof_example () =
+    using mk_proof_context
+          Z3.Context.Z3_del_context
+          (fn ctx =>
+    let
+      val () = print "\nunsat_core_and_proof_example\n"
+      open Z3.Sort
+      fun <&> ps = Prop.Z3_mk_and(ctx, ps)
+      fun <|> ps = Prop.Z3_mk_or (ctx, ps)
+      fun Not p  = Prop.Z3_mk_not(ctx, p)
+
+      val vec = Vector.fromList
+      fun Bool id = mk_bool_var ctx id
+
+      val (pa,pb,pc,pd) = (Bool "PredA", Bool "PredB", Bool "PredC", Bool "PredD")
+      val (p1,p2,p3,p4) = (Bool "P1", Bool "P2", Bool "P3", Bool "P4")
+
+      val f1 = <&> (vec[pa, pb, pc])
+      val f2 = <&> (vec[pa, Not pb, pc])
+      val f3 = <|> (vec[Not pa, Not pc])
+      val f4 = <&> (vec[pd])
+    in
+      D.Z3_assert_cnstr(ctx, <|> (vec[f1, p1])); (* g1 *)
+      D.Z3_assert_cnstr(ctx, <|> (vec[f2, p2])); (* g2 *)
+      D.Z3_assert_cnstr(ctx, <|> (vec[f3, p3])); (* g3 *)
+      D.Z3_assert_cnstr(ctx, <|> (vec[f4, p4])); (* g4 *)
+
+    let
+      open Z3.Stringconv
+      val assumptions = vec[Not p1, Not p2, Not p3, Not p4]
+      val m : Z3.Z3_model ref = ref (Ptr.NULL())
+      val proof : Z3.Z3_ast ref = ref (Ptr.NULL())
+      val core_size = ref 0w0
+      val core = Array.tabulate(Vector.length assumptions, fn _=> Ptr.NULL())
+      val result = D.Z3_check_assumptions(ctx
+                                         , assumptions
+                                         , m
+                                         , proof
+                                         , core_size
+                                         , core)
+    in
+      if result = E.Z3_L_FALSE then (
+        print(concat
+             ["unsat\n"
+             ,"proof: ", Z3_ast_to_string(ctx, !proof), "\n"]);
+        print "\ncore:\n";
+        for 0 (fn i=> (Word.fromInt i) < !core_size) (fn i=>i+1) (fn i=>
+          print (Z3_ast_to_string(ctx, Array.sub(core,i))^"\n")
+        );
+        print "\n"
+      ) else if result = E.Z3_L_UNDEF then (
+        print(concat[
+              "unknown\n"
+             ,"potential model:\n"]);
+        Display.model ctx TextIO.stdOut (!m)
+      ) else if result = E.Z3_L_TRUE then (
+        print "sat\n";
+        Display.model ctx TextIO.stdOut (!m)
+      ) else ();
+      if Ptr.NULL() = !m then (
+        D.Z3_del_model (ctx, !m);
+        m := Ptr.NULL()
+      ) else ()
+    end end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1702,6 +1778,7 @@ struct
      forest_example();
      binary_tree_example();
      enum_example();
+     unsat_core_and_proof_example();
 
      tutorial_sample();
      OS.Process.success
