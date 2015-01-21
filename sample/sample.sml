@@ -1337,6 +1337,90 @@ struct
       prove ctx fml1 Z3.Z3_FALSE
     end end end end end)
 
+  fun tree_example () =
+    with_context (fn ctx =>
+    let
+      open Z3.Sort Z3.Propositional
+      infix  ==  !=
+      infixr ==>
+      fun p ==> q = Prop.Z3_mk_implies(ctx, p, q)
+      fun p ==  q = Prop.Z3_mk_eq(ctx, p, q)
+      fun p !=  q = Prop.Z3_mk_not(ctx, Prop.Z3_mk_eq(ctx, p, q))
+
+      val () = print "\ntree_example\n"
+      fun Sym sym = Z3.Z3_mk_string_symbol(ctx, sym)
+      fun ptr_ref () = ref (Ptr.NULL())
+
+      val vec = Vector.fromList
+      val head_tail = vec[Sym "car", Sym "cdr"]
+      fun empty () = vec[]
+
+      (* nil *)
+      val nil_con = Z3_mk_constructor(ctx
+                                     , Sym "nil", Sym "is_nil"
+                                     , empty(), empty(), empty())
+      (* cons of T0 * T0 *)
+      val cons_con = Z3_mk_constructor(ctx
+                                     , Sym "cons"
+                                     , Sym "is_cons"
+                                     , head_tail
+                                     , vec[NONE, NONE]
+                                     , vec[0w0, 0w0])
+      val constructors = Array.fromList[nil_con, cons_con]
+      val cell = Z3_mk_datatype(ctx, Sym "cell", constructors)
+
+      val ( nil_decl,  is_nil_decl) = (ptr_ref(), ptr_ref())
+      val (cons_decl, is_cons_decl) = (ptr_ref(), ptr_ref())
+      val cons_accessors = Array.fromList[Ptr.NULL(), Ptr.NULL()]
+      val () = Z3_query_constructor(ctx,  nil_con,  nil_decl,  is_nil_decl, Array.fromList[])
+      val () = Z3_query_constructor(ctx, cons_con, cons_decl, is_cons_decl, cons_accessors)
+      val car_decl = Array.sub(cons_accessors, 0)
+      val cdr_decl = Array.sub(cons_accessors, 1)
+      val () = Z3_del_constructor(ctx, nil_con)
+      val () = Z3_del_constructor(ctx, cons_con)
+
+      fun Cons x xs = mk_binary_app ctx (!cons_decl) x xs
+      val Nil = Z3.Z3_mk_app (ctx, !nil_decl, empty())
+      fun Car t = mk_unary_app ctx car_decl t
+      fun Cdr t = mk_unary_app ctx cdr_decl t
+      val l1  = Cons Nil Nil
+      val l2  = Cons l1  Nil
+    in
+      (* nil <> cons(nil, nil) *)
+      prove ctx (Nil != l1) Z3.Z3_TRUE;
+    let
+      val u = mk_var ctx "u" cell
+      val v = mk_var ctx "v" cell
+      val x = mk_var ctx "x" cell
+      val y = mk_var ctx "y" cell
+      val l1 = Cons x u
+      val l2 = Cons y v
+    in
+      prove ctx ((l1 == l2) ==> (u == v)) Z3.Z3_TRUE;
+      prove ctx ((l1 == l2) ==> (x == y)) Z3.Z3_TRUE;
+    let
+      (* is_nil(u) or is_cons(u) *)
+      val ors = vec[
+                  Z3.Z3_mk_app(ctx,  !is_nil_decl, vec[u]),
+                  Z3.Z3_mk_app(ctx, !is_cons_decl, vec[u])
+                ]
+    in
+      prove ctx (Prop.Z3_mk_or(ctx, ors)) Z3.Z3_TRUE;
+      (* occurs check u <> cons(x,u) *)
+      prove ctx (u != l1) Z3.Z3_TRUE;
+    let
+      (* desctructors: is_cons(u) => u = cons(car(u),cdr(u)) *)
+      val fml1 = u == Cons (Car u) (Cdr u)
+      val fml  = Z3.Z3_mk_app(ctx, !is_cons_decl, vec[u])
+                 ==> fml1
+    in
+      print(concat["Formula "
+                  , Z3.Stringconv.Z3_ast_to_string(ctx, fml)
+                  , "\n"]);
+      prove ctx fml Z3.Z3_TRUE;
+      prove ctx fml1 Z3.Z3_FALSE
+    end end end end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1365,6 +1449,7 @@ struct
      numeral_example();
      ite_example();
      list_example();
+     tree_example();
 
      tutorial_sample();
      OS.Process.success
