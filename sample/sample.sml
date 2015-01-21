@@ -1393,11 +1393,9 @@ struct
       val v = mk_var ctx "v" cell
       val x = mk_var ctx "x" cell
       val y = mk_var ctx "y" cell
-      val l1 = Cons x u
-      val l2 = Cons y v
     in
-      prove ctx ((l1 == l2) ==> (u == v)) Z3.Z3_TRUE;
-      prove ctx ((l1 == l2) ==> (x == y)) Z3.Z3_TRUE;
+      prove ctx ((Cons x u == Cons y v) ==> (u == v)) Z3.Z3_TRUE;
+      prove ctx ((Cons x u == Cons y v) ==> (x == y)) Z3.Z3_TRUE;
     let
       (* is_nil(u) or is_cons(u) *)
       val ors = vec[
@@ -1407,7 +1405,7 @@ struct
     in
       prove ctx (Prop.Z3_mk_or(ctx, ors)) Z3.Z3_TRUE;
       (* occurs check u <> cons(x,u) *)
-      prove ctx (u != l1) Z3.Z3_TRUE;
+      prove ctx (u != Cons x u) Z3.Z3_TRUE;
     let
       (* desctructors: is_cons(u) => u = cons(car(u),cdr(u)) *)
       val fml1 = u == Cons (Car u) (Cdr u)
