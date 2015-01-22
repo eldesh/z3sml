@@ -1991,6 +1991,36 @@ struct
     end
     end)
 
+  fun substitute_vars_example () =
+    with_context (fn ctx =>
+    let
+      val () = print "\nsubstitute_vars_example\n"
+
+      open Z3 Z3.Sort
+      val vec = Vector.fromList
+      fun Sym sym = Z3_mk_string_symbol(ctx, sym)
+      val int_ty = Z3_mk_int_sort ctx
+      val x0 = Z3.Quantifier.Z3_mk_bound (ctx, 0w0, int_ty)
+      val x1 = Z3.Quantifier.Z3_mk_bound (ctx, 0w1, int_ty)
+      val f = Z3_mk_func_decl(ctx
+                            , Sym "f"
+                            , vec[int_ty, int_ty], int_ty)
+      val g = Z3_mk_func_decl( ctx
+                            , Sym "g"
+                            , vec[int_ty], int_ty)
+      (* f x0 x1 *)
+      val f01   = Z3_mk_app(ctx, f, vec[x0, x1])
+      (* f (f x0 x1) x0 *)
+      val ff010 = Z3_mk_app(ctx, f, vec[f01, x0])
+      val a = mk_int_var ctx "a"
+      val b = mk_int_var ctx "b"
+      val gb = Z3_mk_app(ctx, g, vec[b])
+      val r = Z3_substitute_vars(ctx, ff010, vec[a, gb])
+    in
+      print(concat["substituteion result: "
+                  , Stringconv.Z3_ast_to_string(ctx, r), "\n"])
+    end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -2028,6 +2058,7 @@ struct
      reference_counter_example();
      smt2parser_example();
      substitute_example();
+     substitute_vars_example();
 
      tutorial_sample();
      OS.Process.success
