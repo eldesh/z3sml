@@ -1955,6 +1955,42 @@ struct
                   , Z3.Stringconv.Z3_ast_to_string(ctx, fs), "\n"])
     end)
 
+  fun substitute_example () =
+    with_context (fn ctx =>
+    let
+      val () = print "\nsubstitute_example\n"
+
+      open Z3 Z3.Sort
+      val vec = Vector.fromList
+      val int_ty = Z3_mk_int_sort ctx
+      val a = mk_int_var ctx "a"
+      val b = mk_int_var ctx "b"
+      fun Sym sym = Z3_mk_string_symbol(ctx, sym)
+      val f = Z3_mk_func_decl(ctx
+                , Sym "f"
+                , vec[int_ty, int_ty], int_ty)
+      val g = Z3_mk_func_decl(ctx
+                , Sym "g"
+                , vec[int_ty], int_ty)
+      val fab = Z3_mk_app(ctx, f, vec[a,b])
+      val ga  = Z3_mk_app(ctx, g, vec[a])
+      val ffabga = Z3_mk_app(ctx, f, vec[fab, ga])
+    in
+      (* Replace b -> 0, g(a) -> 1 in f(f(a, b), g(a)) *)
+    let
+      open Z3.Numerals
+      val zero = Z3_mk_numeral(ctx, "0", int_ty)
+      val one  = Z3_mk_numeral(ctx, "1", int_ty)
+      val from = vec[b, ga]
+      val to   = vec[zero, one]
+      val r    = Z3_substitute(ctx, ffabga, from, to)
+    in
+      (* Display r *)
+      print(concat["substitution result: "
+                    , Stringconv.Z3_ast_to_string(ctx, r), "\n"])
+    end
+    end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1991,6 +2027,7 @@ struct
      incremental_example1();
      reference_counter_example();
      smt2parser_example();
+     substitute_example();
 
      tutorial_sample();
      OS.Process.success
