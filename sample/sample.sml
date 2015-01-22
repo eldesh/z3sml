@@ -1926,7 +1926,7 @@ struct
       Z3.Context.Z3_dec_ref(ctx, y);
       D.Z3_assert_cnstr(ctx, x_xor_y);
       (* x_xor_y is not needed anymore. *)
-      Z3.Context.Z3_inc_ref(ctx, x_xor_y);
+      Z3.Context.Z3_dec_ref(ctx, x_xor_y);
 
       print "model for: x xor y\n";
       check ctx E.Z3_L_TRUE;
