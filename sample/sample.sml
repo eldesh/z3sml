@@ -1900,6 +1900,44 @@ struct
     end)
   end (* local *)
 
+  fun reference_counter_example () =
+    with_context (fn ctx =>
+    let
+      open Z3.Accessor
+      val () = print "\nreference_counter_example\n"
+      val ty = Z3.Sort.Z3_mk_bool_sort ctx
+      val () = Z3.Context.Z3_inc_ref(ctx, Z3_sort_to_ast(ctx, ty))
+      fun Sym sym = Z3.Z3_mk_string_symbol (ctx, sym)
+      val sx = Sym "x"
+      val x  = Z3.Z3_mk_const (ctx, sx, ty)
+    in
+      Z3.Context.Z3_inc_ref(ctx, x);
+    let
+      val sy = Sym "y"
+      val y  = Z3.Z3_mk_const (ctx, sy, ty)
+    in
+      Z3.Context.Z3_inc_ref(ctx, y);
+      (* ty is not needed anymore *)
+      Z3.Context.Z3_dec_ref(ctx, Z3_sort_to_ast(ctx, ty));
+    let
+      val x_xor_y = Prop.Z3_mk_xor(ctx, x, y)
+    in
+      Z3.Context.Z3_inc_ref(ctx, x_xor_y);
+      (* x and y are not needed anymore. *)
+      Z3.Context.Z3_dec_ref(ctx, x);
+      Z3.Context.Z3_dec_ref(ctx, y);
+      D.Z3_assert_cnstr(ctx, x_xor_y);
+      (* x_xor_y is not needed anymore. *)
+      Z3.Context.Z3_inc_ref(ctx, x_xor_y);
+
+      print "model for: x xor y\n";
+      check ctx E.Z3_L_TRUE;
+
+      (* Test push & pop *)
+      D.Z3_push ctx;
+      D.Z3_pop(ctx, 0w1)
+    end end end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1934,6 +1972,7 @@ struct
      enum_example();
      unsat_core_and_proof_example();
      incremental_example1();
+     reference_counter_example();
 
      tutorial_sample();
      OS.Process.success
