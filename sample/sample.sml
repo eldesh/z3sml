@@ -1908,13 +1908,11 @@ struct
       val ty = Z3.Sort.Z3_mk_bool_sort ctx
       val () = Z3.Context.Z3_inc_ref(ctx, Z3_sort_to_ast(ctx, ty))
       fun Sym sym = Z3.Z3_mk_string_symbol (ctx, sym)
-      val sx = Sym "x"
-      val x  = Z3.Z3_mk_const (ctx, sx, ty)
+      val x  = Z3.Z3_mk_const (ctx, Sym "x", ty)
     in
       Z3.Context.Z3_inc_ref(ctx, x);
     let
-      val sy = Sym "y"
-      val y  = Z3.Z3_mk_const (ctx, sy, ty)
+      val y  = Z3.Z3_mk_const (ctx, Sym "y", ty)
     in
       Z3.Context.Z3_inc_ref(ctx, y);
       (* ty is not needed anymore *)
