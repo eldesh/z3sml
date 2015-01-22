@@ -1936,6 +1936,25 @@ struct
       D.Z3_pop(ctx, 0w1)
     end end end)
 
+  fun smt2parser_example () =
+    with_context (fn ctx =>
+    let
+      val () = print "\nsmt2parser_example\n"
+      fun empty () = Vector.fromList[]
+      val fs = Z3.Parser.Z3_parse_smtlib2_string(
+                   ctx
+                 , concat[
+                     "(declare-fun a () (_ BitVec 8))",
+                     "(assert (bvuge a #x10))",
+                     "(assert (bvule a #xf0))"
+                   ]
+                 , empty(), empty()
+                 , empty(), empty())
+    in
+      print(concat["formulas: "
+                  , Z3.Stringconv.Z3_ast_to_string(ctx, fs), "\n"])
+    end)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1971,6 +1990,7 @@ struct
      unsat_core_and_proof_example();
      incremental_example1();
      reference_counter_example();
+     smt2parser_example();
 
      tutorial_sample();
      OS.Process.success
