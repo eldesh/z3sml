@@ -1746,6 +1746,160 @@ struct
       ) else ()
     end end)
 
+  structure Z3_ext_context =
+  struct
+    val MAX_RETRACTABLE_ASSERTIONS = ref 1024
+    type t =
+      { context             : Z3.Z3_context
+      , answer_literals     : Z3.Z3_ast array
+      , retracted           : Z3.Z3_bool array
+      , num_answer_literals : word ref
+      }
+
+    fun mk () : t =
+      { context             = mk_context ()
+      , answer_literals     = Array.array(!MAX_RETRACTABLE_ASSERTIONS, Ptr.NULL())
+      , retracted           = Array.array(!MAX_RETRACTABLE_ASSERTIONS, Z3.Z3_FALSE)
+      , num_answer_literals = ref 0w0
+      }
+
+    fun delete ({context,...}:t) =
+      Z3.Context.Z3_del_context context
+
+    fun assert_retractable_cnstr {context
+                                 ,answer_literals
+                                 ,num_answer_literals
+                                 ,retracted} c =
+    let
+      open Z3.Sort
+      val ty      = Z3_mk_bool_sort context
+      val ans_lit = Z3.Z3_mk_fresh_const (context, "k", ty)
+      val result  = !num_answer_literals
+    in
+      Array.update(answer_literals, Word.toInt result, ans_lit);
+      Array.update(retracted, Word.toInt result, Z3.Z3_FALSE);
+      num_answer_literals := (!num_answer_literals) + 0w1;
+      D.Z3_assert_cnstr(context
+                       , Prop.Z3_mk_or(context
+                       , Vector.fromList[c, Prop.Z3_mk_not(context, ans_lit)]));
+      result
+    end
+
+    fun check ({ context
+               , answer_literals
+               , num_answer_literals
+               , retracted }:t) =
+    let
+      val assumptions = Array.array(Word.toInt (!num_answer_literals), Ptr.NULL())
+      val num_assumptions = ref 0
+    in
+      for 0 (fn i=> i < Word.toInt (!num_answer_literals)) (fn i=>i+1) (fn i=>
+        if Array.sub(retracted, i) = Z3.Z3_FALSE
+        then (
+          Array.update(assumptions, !num_assumptions, Array.sub(answer_literals,i));
+          num_assumptions := (!num_assumptions) + 1
+        ) else ());
+      let
+        fun ptr_ref () = ref (Ptr.NULL())
+        val core_size = ref 0w0
+        val core = Array.tabulate(Array.length assumptions, fn _=> Ptr.NULL())
+        val assumptions' = Vector.tabulate(!num_assumptions, fn i=>
+                             Array.sub(assumptions, i))
+        val result = D.Z3_check_assumptions( context
+                                           , assumptions'
+                                           , ptr_ref()
+                                           , ptr_ref()
+                                           , core_size
+                                           , core )
+        fun for' n = for 0w0 (fn i=> i<n) (fn i=>i+0w1)
+        val sub = Array.sub
+      in
+        if result = E.Z3_L_FALSE
+        then (
+          print "unsat core: ";
+          for' (!core_size) (fn i=>
+            (let val j = ref 0
+                 exception Break
+             in
+              (while !j < Word.toInt (!num_answer_literals) do (
+                 if sub(core, Word.toInt i) = sub(answer_literals, (!j))
+                 then (print(concat[Int.toString (!j), " "]);
+                       raise Break)
+                 else ();
+                 j := (!j) + 1
+               )
+              ) handle Break => ();
+              check_cond (fn()=> !j = Word.toInt (!num_answer_literals))
+                (SOME "bug in Z3, the core contains something that is not an assumption.")
+             end));
+          print "\n"
+        ) else ();
+        result
+      end
+    end
+
+  end (* Z3_ext_context *)
+
+  fun retract_cnstr ctx id =
+    (check_cond (fn()=> id >= !(#num_answer_literals ctx))
+                (SOME "invalid constraint id.");
+     Array.update(#retracted ctx, Word.toInt id, Z3.Z3_TRUE))
+
+  fun reassert_cnstr ctx id =
+    (check_cond (fn()=> id >= !(#num_answer_literals ctx))
+                (SOME "invalid constraint id.");
+     Array.update(#retracted ctx, Word.toInt id, Z3.Z3_FALSE))
+
+  local structure Ext = Z3_ext_context in
+  fun incremental_example1 () =
+    using Z3_ext_context.mk
+          Z3_ext_context.delete
+    (fn ext_ctx =>
+    let
+      val () = print "\nincremental_example\n"
+
+      open Z3.Sort Z3.Propositional Z3.Arithmetic
+
+      val ctx = #context ext_ctx
+      val x = mk_int_var ctx "x"
+      val y = mk_int_var ctx "y"
+      val z = mk_int_var ctx "z"
+      val two = mk_int ctx 2
+      val one = mk_int ctx 1
+
+      (* assert x < y *)
+      val c1 = Ext.assert_retractable_cnstr ext_ctx (Z3_mk_lt(ctx, x, y))
+      (* assert x = z *)
+      val c2 = Ext.assert_retractable_cnstr ext_ctx (Z3_mk_eq(ctx, x, z))
+      (* assert x > 2 *)
+      val c3 = Ext.assert_retractable_cnstr ext_ctx (Z3_mk_gt(ctx, x, two))
+      (* assert y < 1 *)
+      val c4 = Ext.assert_retractable_cnstr ext_ctx (Z3_mk_lt(ctx, y, one))
+
+      fun check_bug f = check_cond f (SOME "bug in Z3")
+
+    in
+      check_bug (fn()=> Ext.check ext_ctx <> E.Z3_L_FALSE);
+      print "unsat\n";
+
+      retract_cnstr ext_ctx c4;
+      check_bug (fn()=> Ext.check ext_ctx <> E.Z3_L_TRUE );
+      print "sat\n";
+
+      reassert_cnstr ext_ctx c4;
+      check_bug (fn()=> Ext.check ext_ctx <> E.Z3_L_FALSE);
+      print "unsat\n";
+
+      retract_cnstr ext_ctx c2;
+      check_bug (fn()=> Ext.check ext_ctx <> E.Z3_L_FALSE);
+      print "unsat\n";
+
+      retract_cnstr ext_ctx c3;
+      check_bug (fn()=> Ext.check ext_ctx <> E.Z3_L_TRUE );
+      print "sat\n"
+    end)
+  end (* local *)
+
   fun main (name, args) =
     (display_version();
      simple_example();
@@ -1779,6 +1933,7 @@ struct
      binary_tree_example();
      enum_example();
      unsat_core_and_proof_example();
+     incremental_example1();
 
      tutorial_sample();
      OS.Process.success
