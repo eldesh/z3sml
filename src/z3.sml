@@ -317,7 +317,7 @@ in
   structure RealClosedField = Z3_RealClosedField
 
   (**
-   * Deprecxated API
+   * Deprecated API
    *)
   structure Deprecated = Z3_Deprecated
 
