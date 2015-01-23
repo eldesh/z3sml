@@ -126,7 +126,6 @@ struct
   fun simple_example () =
     with_context (fn ctx =>
     let val x = D.Z3_check ctx in
-      print (concat["check:", lbool_to_string x, "\n"]);
       print (concat["CONTEXT:\n"
                    , D.Z3_context_to_string ctx
                    , "END OF CONTEXT\n"])
@@ -171,13 +170,13 @@ struct
       val x_xor_y = Prop.Z3_mk_xor (ctx, x, y)
       val () = D.Z3_assert_cnstr (ctx, x_xor_y)
     in
+      print "model for: x xor y\n";
       check ctx E.Z3_L_TRUE
     end)
 
   fun find_model_example2 () =
     let
       open Z3.Arithmetic
-      val () = print "find_model_example2\n"
       val cfg = Z3.Config.Z3_mk_config ()
       val ctx = Z3.Context.Z3_mk_context cfg
 
@@ -266,11 +265,10 @@ struct
     end)
 
   fun mk_unary_app ctx f x =
-    let
-      val args = Vector.fromList [x]
-    in
-      Z3.Z3_mk_app (ctx, f, args)
-    end
+    Z3.Z3_mk_app (ctx, f, Vector.fromList [x])
+
+  fun mk_binary_app ctx f x y =
+    Z3.Z3_mk_app (ctx, f, Vector.fromList[x,y])
 
   fun local_ctx ctx f =
     using (fn () => (D.Z3_push ctx; ctx))
@@ -548,7 +546,7 @@ struct
           if num_entries > 0w0 then TextIO.output(out, ", ") else ();
           TextIO.output(out, "(else|->");
           ast c out (D.Z3_get_model_func_else(c, m, i));
-          TextIO.output(out, ")]\n")
+          TextIO.output(out, ")}\n")
         end)
       end
 
@@ -628,6 +626,24 @@ struct
       D.Z3_assert_cnstr(ctx, q)
     end
 
+  fun search_failure_string sf =
+    let
+      val db =
+        [ (E.Z3_NO_FAILURE      , "Z3_NO_FAILURE"      )
+        , (E.Z3_UNKNOWN         , "Z3_UNKNOWN"         )
+        , (E.Z3_TIMEOUT         , "Z3_TIMEOUT"         )
+        , (E.Z3_MEMOUT_WATERMARK, "Z3_MEMOUT_WATERMARK")
+        , (E.Z3_CANCELED        , "Z3_CANCELED"        )
+        , (E.Z3_NUM_CONFLICTS   , "Z3_NUM_CONFLICTS"   )
+        , (E.Z3_THEORY          , "Z3_THEORY"          )
+        , (E.Z3_QUANTIFIERS     , "Z3_QUANTIFIERS"     )
+        ]
+    in
+      case List.find (fn (e,_)=> sf=e) db
+        of SOME (_,s) => s
+         | NONE => raise Fail "search_failure_string"
+    end
+
   fun quantifier_example1() =
     let
       val ctx = with_config (fn cfg =>
@@ -639,11 +655,46 @@ struct
       val f_name   = Z3.Z3_mk_string_symbol (ctx, "f")
       val f_domain = Vector.fromList [int_sort, int_sort]
       val f        = Z3.Z3_mk_func_decl(ctx, f_name, f_domain, int_sort)
-
-      (* assert that f is injective in the second argument. *)
-      val () = assert_inj_axiom ctx f 0w1
     in
-      Z3.Context.Z3_del_context ctx
+      (* assert that f is injective in the second argument. *)
+      assert_inj_axiom ctx f 0w1;
+    let
+      (* create x, y, v, w, fxy, fwv *)
+      val x = mk_int_var ctx "x"
+      val y = mk_int_var ctx "y"
+      val v = mk_int_var ctx "v"
+      val w = mk_int_var ctx "w"
+      val fxy = mk_binary_app ctx f x y
+      val fwv = mk_binary_app ctx f w v
+
+      (* assert f(x, y) = f(w, v) *)
+      val p1 = Prop.Z3_mk_eq (ctx, fxy, fwv)
+    in
+      D.Z3_assert_cnstr(ctx, p1);
+    let
+      (* prove f(x, y) = f(w, v) implies y = v *)
+      val p2 = Prop.Z3_mk_eq (ctx, y, v)
+    in
+      print "prove: f(x, y) = f(w, v) implies y = v\n";
+      prove ctx p2 Z3.Z3_TRUE;
+    let
+      (* disprove f(x, y) = f(w, v) implies x = w *)
+      (* using check2 instead of prove *)
+      val p3     = Prop.Z3_mk_eq (ctx, x, w)
+      val not_p3 = Prop.Z3_mk_not(ctx, p3)
+    in
+      D.Z3_assert_cnstr(ctx, not_p3);
+      print "disprove: f(x, y) = f(w, v) implies x = w\n";
+      print "that is: not(f(x, y) = f(w, v) implies x = w) is satisfiable\n";
+      check2 ctx E.Z3_L_UNDEF;
+      print(concat["reason for last failure: "
+                  , search_failure_string (D.Z3_get_search_failure ctx)
+                  , " (7 = quantifiers)\n"]);
+      if D.Z3_get_search_failure ctx <> E.Z3_QUANTIFIERS
+      then raise Fail "unexpected result" else ()
+    end end end;
+      Z3.Context.Z3_del_context ctx;
+      Z3.Global.Z3_global_param_reset_all()
     end
 
   fun push_pop_example1 () =
@@ -661,7 +712,7 @@ struct
       (* assert x >= "big number" *)
       val c1         = Z3.Arithmetic.Z3_mk_ge (ctx, x, big_number)
       val ()         = print "assert: x >= 'big number'\n"
-      val ()         = D.Z3_assert_cnstr (ctx, c1)
+      val ()         = D.Z3_assert_cnstr(ctx, c1)
       (* create a backtracking point *)
       val ()         = print "push\n"
     in
@@ -718,7 +769,7 @@ struct
       val v2   = mk_var ctx "v2" int_sort
 
       val st1  = Z3_mk_store (ctx, a1, i1, v1)
-      val st2  = Z3_mk_store (ctx, a2, i2, v1)
+      val st2  = Z3_mk_store (ctx, a2, i2, v2)
 
       val sel1 = Z3_mk_select (ctx, a1, i3)
       val sel2 = Z3_mk_select (ctx, a2, i3)
@@ -792,10 +843,6 @@ struct
 
   fun mk_real_var ctx name =
     mk_var ctx name (Z3.Sort.Z3_mk_real_sort ctx)
-
-  fun mk_binary_app ctx f x y =
-    Z3.Z3_mk_app (ctx, f, Vector.fromList[x,y])
-
 
   exception TypeMismatch of {exp:E.Z3_sort_kind, act:E.Z3_sort_kind}
 
@@ -903,17 +950,15 @@ struct
         val x = mk_unary_app ctx get_x_decl p2
         val consequent = Prop.Z3_mk_eq (ctx, x, ten)
         val thm = Prop.Z3_mk_implies (ctx, antecedent, consequent)
-        val () = print "prove: p2 = update (p1, 0, 10) implies get_x(p2) = 10\n"
+        val () = print "prove: p2 = update(p1, 0, 10) implies get_x(p2) = 10\n"
         val () = prove ctx thm Z3.Z3_TRUE
         (* disprove that p2 = update(p1, 0, 10) implies get_y(p2) = 10 *)
         val y = mk_unary_app ctx get_y_decl p2
         val consequent = Prop.Z3_mk_eq (ctx, y, ten)
         val thm = Prop.Z3_mk_implies (ctx, antecedent, consequent)
-
-        val () = print "disprove: p2 = update(p1, 0, 10) implies get_y(p2) = 10\n"
-        val () = prove ctx thm Z3.Z3_FALSE
       in
-        ()
+        print "disprove: p2 = update(p1, 0, 10) implies get_y(p2) = 10\n";
+        prove ctx thm Z3.Z3_FALSE
       end
     end)
 
@@ -976,7 +1021,7 @@ struct
       (* find model for the constraints above *)
       if D.Z3_check_and_get_model (ctx, m) = E.Z3_L_TRUE
       then
-        (print(concat["MODEL:", Z3.Stringconv.Z3_model_to_string(ctx, !m)]);
+        (print(concat["MODEL:\n", Z3.Stringconv.Z3_model_to_string(ctx, !m)]);
          let val x_plus_y = Z3.Arithmetic.Z3_mk_add (ctx, Vector.fromList[x,y]) in
          print "\nevaluating x+y\n";
          let val v = ref (Ptr.NULL()) in
@@ -1098,7 +1143,7 @@ struct
                  names, decls)
       val f  = Z3.Parser.Z3_get_smtlib_formula(ctx, 0w0)
     in
-      print(concat["formula:"
+      print(concat["formula: "
                   , Z3.Stringconv.Z3_ast_to_string(ctx, f)
                   , "\n"]);
       D.Z3_assert_cnstr(ctx, f);
@@ -1215,7 +1260,7 @@ struct
                  vec[], vec[]);
       unreachable "parser_example5"
     end handle ErrorCode err =>
-                 (print(concat["Z3 erorr: "
+                 (print(concat["Z3 error: "
                               , Z3.Error.Z3_get_error_msg_ex(ctx, err), ".\n"
                               ,"Error message: '"
                               , Z3.Parser.Z3_get_smtlib_error ctx, "'.\n"])))
@@ -1980,14 +2025,14 @@ struct
       val gb = Z3_mk_app(ctx, g, vec[b])
       val r = Z3_substitute_vars(ctx, ff010, vec[a, gb])
     in
-      print(concat["substituteion result: "
+      print(concat["substitution result: "
                   , Stringconv.Z3_ast_to_string(ctx, r), "\n"])
     end)
 
   val sample_cases =
      [ (display_version, "display_version")
      , (simple_example, "simple_example")
-     , (demorgan, "demorgan")
+     , (demorgan, "DeMorgan")
      , (find_model_example1, "find_model_example1")
      , (find_model_example2, "find_model_example2")
      , (prove_example1, "prove_example1")
