@@ -6,6 +6,15 @@ Z3 - StandardML binding
 This library provides Z3 library binding for StandardML implementations.
 
 
+Status
+--------------------------------
+
+
+- **Almost every C API** functions/variables are exported as SML functions/variables !
+- Deprecated API is also exported. But using these API is not recommended.
+- Only very thin SML wrapper is provided. So, you should use Z3 on very low layer like C.
+
+
 Supported SML System
 --------------------------------
 
@@ -28,6 +37,8 @@ Just type `make` in the top directory of z3sml project.
 How to Use
 --------------------------------
 
++ install z3(libz3.so) to your system
+
 + add *\_require "z3.smi"* to your .smi file
   of your project which using this library.
 
@@ -49,10 +60,10 @@ Sample
 
 Sample program using z3/sml# binding is provided as sample/sample.sml .
 This sample code is written as much like the C example as possible.
-Where the C example code is provided within z3 official distribution.
+Where the **C example** code is provided within z3 official distribution.
 
 
-For building & running sample program:
+For building and running sample program:
 
     $ make sample
 
