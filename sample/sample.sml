@@ -64,13 +64,9 @@ struct
     end
 
   fun with_config f =
-    let
-      val cfg = Z3.Config.Z3_mk_config ()
-      val r = f cfg
-      val () = Z3.Config.Z3_del_config cfg
-    in
-      r
-    end
+    using Z3.Config.Z3_mk_config
+          Z3.Config.Z3_del_config
+          f
 
   fun mk_context () =
     with_config (fn cfg =>
@@ -91,6 +87,11 @@ struct
       ctx
     end
 
+  fun with_context f =
+    using mk_context
+          Z3.Context.Z3_del_context
+          f
+
   exception ErrorCode of E.Z3_error_code
 
   fun with_ctx_error_handler h f =
@@ -108,11 +109,6 @@ struct
     in
       mk_context_custom cfg (SOME(fn(_, err)=> raise ErrorCode err))
     end)
-
-  fun with_context f =
-    using mk_context
-          Z3.Context.Z3_del_context
-          f
 
   fun lbool_to_string x =
          if x = E.Z3_L_FALSE then "L_FALSE"
@@ -279,6 +275,10 @@ struct
   exception Unexpected of string
   exception Unreachable of string
 
+  fun unreachable locate : unit =
+    raise Unreachable (concat["@", locate
+                             , " unreachable code was reached"])
+
   fun prove ctx f is_valid =
     local_ctx ctx (fn ctx =>
     let
@@ -344,10 +344,9 @@ struct
        val ggx = mk_unary_app ctx g gx
        (* disprove g(g(x)) = g(y) *)
        val f   = Prop.Z3_mk_eq (ctx, ggx, gy)
-       val ()  = print "disprove: x = y implies g(g(x)) = g(y)\n"
-       val ()  = prove ctx f Z3.Z3_FALSE
      in
-       ()
+       print "disprove: x = y implies g(g(x)) = g(y)\n";
+       prove ctx f Z3.Z3_FALSE
      end))
 
   fun mk_var ctx name ty =
@@ -428,7 +427,7 @@ struct
         then
           TextIO.output (out, Z3.Accessor.Z3_get_symbol_string(c, s))
         else
-          raise Unreachable "Display.symbol"
+          unreachable "Display.symbol"
       end
 
     fun sort c out ty =
@@ -1049,9 +1048,6 @@ struct
       Z3.Context.Z3_del_context ctx
     end
 
-  fun unreachable () : unit =
-    raise Fail "unreachable code was reached"
-
   fun error_code_example2 () =
     with_ctx_error_handler (SOME(fn(_, err)=> raise ErrorCode err))
     (fn ctx =>
@@ -1063,7 +1059,7 @@ struct
       (* the next call will produce an error *)
       val app = Prop.Z3_mk_iff(ctx, x, y)
     in
-      unreachable ()
+      unreachable "error_code_example2"
     end)
     handle (ErrorCode c) =>
       print(concat["Z3 error: ", D.Z3_get_error_msg c, ".\n"])
@@ -1231,7 +1227,7 @@ struct
                  "(benchmark tst :extrafuns ((x Int (y Int)) :formula (> x y) :formula (> x 0))",
                  vec[], vec[],
                  vec[], vec[]);
-      unreachable()
+      unreachable "parser_example5"
     end handle ErrorCode err =>
                  (print(concat["Z3 erorr: "
                               , Z3.Error.Z3_get_error_msg_ex(ctx, err), ".\n"
