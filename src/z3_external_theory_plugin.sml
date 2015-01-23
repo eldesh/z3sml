@@ -5,6 +5,10 @@ local
   structure Ptr = Pointer
   structure Dyn = DynamicLink
   val libz3 = Library.libz3
+
+  fun importVector p n =
+    Vector.tabulate(n, fn i=>
+      SMLSharp_Builtin.Pointer.deref (Pointer.advance(p, i)))
 in
   type Z3_context     = unit ptr
   type Z3_theory      = unit ptr
@@ -67,10 +71,6 @@ in
     Dyn.dlsym(libz3, "Z3_set_reduce_app_callback")
     : _import (Z3_theory
                 , (Z3_theory, Z3_func_decl, word, Z3_ast ptr, Z3_ast ptr) -> Z3_bool) -> ()
-
-  fun importVector p n =
-    Vector.tabulate(n, fn i=>
-      SMLSharp_Builtin.Pointer.deref (Pointer.advance(p, i)))
 
   fun Z3_set_reduce_app_callback (t, f) =
     let

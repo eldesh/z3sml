@@ -1500,10 +1500,10 @@ struct
     val Z3_fixedpoint_to_string
       : Z3_context * Z3_fixedpoint * Z3_ast array -> Z3_string
 
-    val Z3_fixedpoint_from_string 
+    val Z3_fixedpoint_from_string
 	  : Z3_context * Z3_fixedpoint * Z3_string -> Z3_ast_vector
 
-	val Z3_fixedpoint_from_file 
+	val Z3_fixedpoint_from_file
 	  : Z3_context * Z3_fixedpoint * Z3_string -> Z3_ast_vector
 
     val Z3_fixedpoint_push
