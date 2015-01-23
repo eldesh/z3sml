@@ -52,6 +52,15 @@ in
   val Z3_TRUE  : Z3_bool   = 1
   val Z3_FALSE : Z3_bool   = 0
 
+  type Z3_reduce_app_callback_fptr =
+         (Z3_theory * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> Z3_bool
+
+  type Z3_reduce_eq_callback_fptr =
+         (Z3_theory * Z3_ast * Z3_ast * Z3_ast ref) -> Z3_bool
+
+  type Z3_reduce_distinct_callback_fptr =
+         (Z3_theory * Z3_ast vector * Z3_ast ref ) -> Z3_bool
+
   (**
    * Z3 enum constants
    *)

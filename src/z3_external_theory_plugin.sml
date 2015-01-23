@@ -17,6 +17,15 @@ in
   type Z3_string = String.string
   type Z3_bool   = int
 
+  type Z3_reduce_app_callback_fptr =
+         (Z3_theory * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> Z3_bool
+
+  type Z3_reduce_eq_callback_fptr =
+         (Z3_theory * Z3_ast * Z3_ast * Z3_ast ref) -> Z3_bool
+
+  type Z3_reduce_distinct_callback_fptr =
+         (Z3_theory * Z3_ast vector * Z3_ast ref ) -> Z3_bool
+
   val Z3_mk_theory =
     Dyn.dlsym(libz3, "Z3_mk_theory")
     : _import (Z3_context, Z3_string, Z3_theory_data) -> Z3_theory
@@ -54,23 +63,54 @@ in
     Dyn.dlsym(libz3, "Z3_set_delete_callback")
     : _import (Z3_theory, Z3_theory->()) -> ()
 
-(*
-  val Z3_set_reduce_app_callback =
+  val Z3_set_reduce_app_callback_raw =
     Dyn.dlsym(libz3, "Z3_set_reduce_app_callback")
-    : _import (Z3_theory, (Z3_theory, Z3_func_decl, word, Z3_ast vector, Z3_ast ref) -> Z3_bool) -> ()
-    *)
+    : _import (Z3_theory
+                , (Z3_theory, Z3_func_decl, word, Z3_ast ptr, Z3_ast ptr) -> Z3_bool) -> ()
 
-(*
-  val Z3_set_reduce_eq_callback =
-    Dyn.dlsym(libz3, "Z3_set_reduce_eq_callback")
-    : _import (Z3_theory, (Z3_theory, Z3_ast, Z3_ast, Z3_ast ref) -> Z3_bool) -> ()
-    *)
+  fun importVector p n =
+    Vector.tabulate(n, fn i=>
+      SMLSharp_Builtin.Pointer.deref (Pointer.advance(p, i)))
 
-(*
-  val Z3_set_reduce_distinct_callback =
+  fun Z3_set_reduce_app_callback (t, f) =
+    let
+      fun f' (t, d, n, args, r) =
+        let
+          val args = importVector args (Word.toInt n)
+          val r'   = ref (SMLSharp_Builtin.Pointer.deref r)
+        in
+          f (t, d, args, r')
+        end
+    in Z3_set_reduce_app_callback_raw (t, f')
+    end
+
+  val Z3_set_reduce_distinct_callback_raw =
     Dyn.dlsym(libz3, "Z3_set_reduce_distinct_callback")
-    : _import (Z3_theory, (Z3_theory, word, Z3_ast vector, Z3_ast ref)->Z3_bool) -> ()
-    *)
+    : _import (Z3_theory, (Z3_theory, word, Z3_ast ptr, Z3_ast ptr)->Z3_bool) -> ()
+
+  fun Z3_set_reduce_distinct_callback (t, f) =
+    let
+      fun f' (t, n, args, r) =
+        let
+          val args = importVector args (Word.toInt n)
+          val r' = ref (SMLSharp_Builtin.Pointer.deref r)
+        in f (t, args, r')
+        end
+    in Z3_set_reduce_distinct_callback_raw (t, f')
+    end
+
+  val Z3_set_reduce_eq_callback_raw =
+    Dyn.dlsym(libz3, "Z3_set_reduce_eq_callback")
+    : _import (Z3_theory, (Z3_theory, Z3_ast, Z3_ast, Z3_ast ptr) -> Z3_bool) -> ()
+
+  fun Z3_set_reduce_eq_callback (t, f) =
+    let
+      fun f' (t, s_1, s_2, r) =
+        let val r' = ref (SMLSharp_Builtin.Pointer.deref r)
+        in f (t, s_1, s_2, r')
+        end
+    in Z3_set_reduce_eq_callback_raw (t, f')
+    end
 
   val Z3_set_new_app_callback =
     Dyn.dlsym(libz3, "Z3_set_new_app_callback")

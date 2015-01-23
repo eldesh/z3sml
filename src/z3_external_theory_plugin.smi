@@ -15,6 +15,15 @@ struct
   type Z3_string = String.string
   type Z3_bool   = int
 
+  type Z3_reduce_app_callback_fptr =
+         (Z3_theory * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> Z3_bool
+
+  type Z3_reduce_eq_callback_fptr =
+         (Z3_theory * Z3_ast * Z3_ast * Z3_ast ref) -> Z3_bool
+
+  type Z3_reduce_distinct_callback_fptr =
+         (Z3_theory * Z3_ast vector * Z3_ast ref ) -> Z3_bool
+
   val Z3_mk_theory
     : Z3_context * Z3_string * Z3_theory_data -> Z3_theory
 
@@ -39,20 +48,14 @@ struct
   val Z3_set_delete_callback
     : Z3_theory * (Z3_theory -> unit) -> unit
 
-(*
   val Z3_set_reduce_app_callback
-    : Z3_theory * (Z3_theory * Z3_func_decl * word * Z3_ast vector * Z3_ast ref -> Z3_bool) -> unit
-    *)
+    : Z3_theory * Z3_reduce_app_callback_fptr -> unit
 
-(*
   val Z3_set_reduce_eq_callback
-    : Z3_theory * (Z3_theory * Z3_ast * Z3_ast * Z3_ast ref -> Z3_bool) -> unit
-    *)
+    : Z3_theory * Z3_reduce_eq_callback_fptr -> unit
 
-(*
   val Z3_set_reduce_distinct_callback
-    : Z3_theory * (Z3_theory * word * Z3_ast vector * Z3_ast ref->Z3_bool) -> unit
-    *)
+    : Z3_theory * Z3_reduce_distinct_callback_fptr -> unit
 
   val Z3_set_new_app_callback
     : Z3_theory * (Z3_theory * Z3_ast -> unit) -> unit
