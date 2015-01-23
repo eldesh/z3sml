@@ -84,7 +84,13 @@ struct
          (Z3_theory * Z3_ast * Z3_ast * Z3_ast ref) -> Z3_bool
 
   type Z3_reduce_distinct_callback_fptr =
-         (Z3_theory * Z3_ast vector * Z3_ast ref ) -> Z3_bool
+         (Z3_theory * Z3_ast vector * Z3_ast ref) -> Z3_bool
+
+  type Z3_fixedpoint_reduce_assign_callback_fptr =
+         (unit ptr * Z3_func_decl * Z3_ast vector * Z3_ast vector) -> unit
+
+  type Z3_fixedpoint_reduce_app_callback_fptr =
+         (unit ptr * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> unit
 
   structure Enum = Z3_enum
 
@@ -1437,6 +1443,9 @@ struct
     type Z3_stats        = Z3_stats
     type Z3_lbool        = Enum.Z3_lbool
 
+    type Z3_fixedpoint_reduce_assign_callback_fptr = Z3_fixedpoint_reduce_assign_callback_fptr
+    type Z3_fixedpoint_reduce_app_callback_fptr    = Z3_fixedpoint_reduce_app_callback_fptr
+
     val Z3_mk_fixedpoint
       : Z3_context -> Z3_fixedpoint
 
@@ -1488,6 +1497,12 @@ struct
     val Z3_fixedpoint_set_predicate_representation
       : Z3_context * Z3_fixedpoint * Z3_func_decl * Z3_symbol vector -> unit
 
+    val Z3_fixedpoint_get_rules
+      : Z3_context * Z3_fixedpoint -> Z3_ast_vector
+
+    val Z3_fixedpoint_get_assertions
+      : Z3_context * Z3_fixedpoint -> Z3_ast_vector
+
     val Z3_fixedpoint_set_params
       : Z3_context * Z3_fixedpoint * Z3_params -> unit
 
@@ -1498,7 +1513,7 @@ struct
       : Z3_context * Z3_fixedpoint -> Z3_param_descrs
 
     val Z3_fixedpoint_to_string
-      : Z3_context * Z3_fixedpoint * Z3_ast array -> Z3_string
+      : Z3_context * Z3_fixedpoint * Z3_ast vector -> Z3_string
 
     val Z3_fixedpoint_from_string
 	  : Z3_context * Z3_fixedpoint * Z3_string -> Z3_ast_vector
@@ -1514,6 +1529,12 @@ struct
 
     val Z3_fixedpoint_init
       : Z3_context * Z3_fixedpoint * unit ptr -> unit
+
+    val Z3_fixedpoint_set_reduce_assign_callback
+      : Z3_context * Z3_fixedpoint * Z3_fixedpoint_reduce_assign_callback_fptr -> unit
+
+    val Z3_fixedpoint_set_reduce_app_callback
+      : Z3_context * Z3_fixedpoint * Z3_fixedpoint_reduce_app_callback_fptr -> unit
 
   end (* Fixedpoint *)
 

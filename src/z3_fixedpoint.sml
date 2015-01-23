@@ -5,6 +5,10 @@ local
   structure Ptr = Pointer
   structure Dyn = DynamicLink
   val libz3 = Library.libz3
+
+  fun importVector p n =
+    Vector.tabulate(n, fn i=>
+      SMLSharp_Builtin.Pointer.deref (Pointer.advance(p, i)))
 in
   type Z3_fixedpoint   = unit ptr
   type Z3_context      = unit ptr
@@ -17,6 +21,12 @@ in
   type Z3_string       = string
   type Z3_stats        = unit ptr
   type Z3_lbool        = Z3_enum.Z3_lbool
+
+  type Z3_fixedpoint_reduce_assign_callback_fptr =
+         (unit ptr * Z3_func_decl * Z3_ast vector * Z3_ast vector) -> unit
+
+  type Z3_fixedpoint_reduce_app_callback_fptr =
+         (unit ptr * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> unit
 
   val Z3_mk_fixedpoint =
     Dyn.dlsym(libz3, "Z3_mk_fixedpoint")
@@ -98,8 +108,6 @@ in
     , Vector.length relation_kinds : int
     , relation_kinds : Z3_symbol vector) : ()
 
-(* undefined symbols? *)
-(*
   val Z3_fixedpoint_get_rules =
     Dyn.dlsym(libz3, "Z3_fixedpoint_get_rules")
     : _import (Z3_context, Z3_fixedpoint) -> Z3_ast_vector
@@ -107,7 +115,6 @@ in
   val Z3_fixedpoint_get_assertions =
     Dyn.dlsym(libz3, "Z3_fixedpoint_get_assertions")
     : _import (Z3_context, Z3_fixedpoint) -> Z3_ast_vector
-    *)
 
   val Z3_fixedpoint_set_params =
     Dyn.dlsym(libz3, "Z3_fixedpoint_set_params")
@@ -127,8 +134,8 @@ in
       _ffiapply (Dyn.dlsym(libz3, "Z3_fixedpoint_to_string"))
       ( c : Z3_context
       , f : Z3_fixedpoint
-      , Array.length queries : int
-      , queries : Z3_ast array) : char ptr)
+      , Vector.length queries : int
+      , queries : Z3_ast vector) : char ptr)
 
   val Z3_fixedpoint_from_string =
     Dyn.dlsym(libz3, "Z3_fixedpoint_from_string")
@@ -150,17 +157,38 @@ in
     Dyn.dlsym(libz3, "Z3_fixedpoint_init")
     : _import (Z3_context, Z3_fixedpoint, unit ptr) -> ()
 
-(*
-  val Z3_fixedpoint_set_reduce_assign_callback =
+  val Z3_fixedpoint_set_reduce_assign_callback_raw =
     Dyn.dlsym(libz3, "Z3_fixedpoint_set_reduce_assign_callback")
-    : _import (Z3_context, Z3_fixedpoint, (unit ptr, Z3_func_decl, word, Z3_ast vector, word, Z3_ast vector) -> ()) -> ()
-    *)
+    : _import (Z3_context, Z3_fixedpoint
+                , (unit ptr, Z3_func_decl, word, Z3_ast ptr, word, Z3_ast ptr) -> ()) -> ()
 
-(*
-  val Z3_fixedpoint_set_reduce_app_callback =
+  fun Z3_fixedpoint_set_reduce_assign_callback (c, d, cb) =
+    let
+      fun cb' (state, f, num_args, args, num_out, outs) =
+        let
+          val args' = importVector args (Word.toInt num_args)
+          val outs' = importVector outs (Word.toInt num_out)
+        in
+          cb (state, f, args', outs')
+        end
+    in Z3_fixedpoint_set_reduce_assign_callback_raw (c, d, cb')
+    end
+
+  val Z3_fixedpoint_set_reduce_app_callback_raw =
     Dyn.dlsym(libz3, "Z3_fixedpoint_set_reduce_app_callback")
-    : _import (Z3_context, Z3_fixedpoint, (unit ptr, Z3_func_decl, word, Z3_ast vector, Z3_ast ref)->()) -> ()
-    *)
+    : _import (Z3_context, Z3_fixedpoint, (unit ptr, Z3_func_decl, word, Z3_ast ptr, Z3_ast ptr)->()) -> ()
+
+  fun Z3_fixedpoint_set_reduce_app_callback (c, d, cb) =
+    let
+      fun cb' (state, f, num_args, args, r) =
+        let
+          val args = importVector args (Word.toInt num_args)
+          val r'   = ref (SMLSharp_Builtin.Pointer.deref r)
+        in
+          cb (state, f, args, r')
+        end
+    in Z3_fixedpoint_set_reduce_app_callback_raw (c, d, cb')
+    end
 
 end (* local *)
 end
