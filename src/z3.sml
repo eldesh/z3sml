@@ -59,7 +59,7 @@ in
          (Z3_theory * Z3_ast * Z3_ast * Z3_ast ref) -> Z3_bool
 
   type Z3_reduce_distinct_callback_fptr =
-         (Z3_theory * Z3_ast vector * Z3_ast ref ) -> Z3_bool
+         (Z3_theory * Z3_ast vector * Z3_ast ref) -> Z3_bool
 
   type Z3_fixedpoint_reduce_assign_callback_fptr =
          (unit ptr * Z3_func_decl * Z3_ast vector * Z3_ast vector) -> unit
