@@ -6,6 +6,13 @@ struct
   structure Prop = Z3.Propositional
   structure E = Z3.Enum
 
+  val LOG_Z3_CALLS = ref false
+
+  fun LOG_MSG msg =
+    if !LOG_Z3_CALLS
+    then Z3.Log.Z3_append_log msg
+    else ()
+
   fun println s = print(s^"\n")
 
   fun using get release f =
@@ -1840,7 +1847,6 @@ struct
       val c4 = Ext.assert_retractable_cnstr ext_ctx (Z3_mk_lt(ctx, y, one))
 
       fun check_bug f = check_cond f (SOME "bug in Z3")
-
     in
       check_bug (fn()=> Ext.check ext_ctx <> E.Z3_L_FALSE);
       print "unsat\n";
@@ -1962,7 +1968,7 @@ struct
       val f = Z3_mk_func_decl(ctx
                             , Sym "f"
                             , vec[int_ty, int_ty], int_ty)
-      val g = Z3_mk_func_decl( ctx
+      val g = Z3_mk_func_decl(ctx
                             , Sym "g"
                             , vec[int_ty], int_ty)
       (* f x0 x1 *)
@@ -2019,15 +2025,25 @@ struct
      ]
 
   fun call_case (f, name) =
-    f () before print(concat["\n", name, "\n"])
+    (print(concat["\n", name, "\n"]);
+     LOG_MSG name;
+     f())
+
+  fun open_log file =
+    if Z3.Log.Z3_open_log file = Z3.Z3_FALSE
+    then raise Fail (concat["Z3_open_log: ", file])
+    else ()
 
   fun main (name, args) =
-    (app call_case sample_cases;
+    (case args
+       of "-l"::_ => (LOG_Z3_CALLS := true; open_log "z3.log")
+        | _       => ();
+     app call_case sample_cases;
      call_case (tutorial_sample, "tutorial_sample");
      OS.Process.success
     )
     handle exn => (print(concat["main:uncaught exception[", exnMessage exn, "]\n"]);
                    OS.Process.failure)
 end
-val _ =  Main.main (CommandLine.name(), CommandLine.arguments())
+val _ = Main.main (CommandLine.name(), CommandLine.arguments())
 
