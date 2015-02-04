@@ -1,5 +1,5 @@
 
-structure Z3_enum =
+structure Z3_enum :> Z3_ENUM =
 struct
   type Z3_lbool = int
   val Z3_L_FALSE = ~1

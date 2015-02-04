@@ -4,7 +4,7 @@
  * 
  * ref. http://research.microsoft.com/en-us/um/redmond/projects/z3/code/group__capi.html
  *)
-structure Z3 =
+structure Z3 :> Z3 =
 struct
 local
   structure Ptr = Pointer
@@ -46,11 +46,16 @@ in
   type Z3_theory           = unit ptr
   type Z3_theory_data      = unit ptr
 
-  type Z3_error_handler = Z3_context * Z3_enum.Z3_error_code -> unit
-
   type Z3_bool             = int
   val Z3_TRUE  : Z3_bool   = 1
   val Z3_FALSE : Z3_bool   = 0
+
+  (**
+   * Z3 enum constants
+   *)
+  structure Enum = Z3_enum
+
+  type Z3_error_handler = Z3_context * Enum.Z3_error_code -> unit
 
   type Z3_reduce_app_callback_fptr =
          (Z3_theory * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> Z3_bool
@@ -66,11 +71,6 @@ in
 
   type Z3_fixedpoint_reduce_app_callback_fptr =
          (unit ptr * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> unit
-
-  (**
-   * Z3 enum constants
-   *)
-  structure Enum = Z3_enum
 
   (**
    * Algebraic Numbers

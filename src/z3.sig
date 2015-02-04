@@ -1,79 +1,42 @@
-_require "basis.smi"
-_require "ffi.smi"
-_require "./libh.smi"
-_require "./z3_algebraic.smi"
-_require "./z3_global.smi"
-_require "./z3_enum.sig"
-_require "./z3_enum.smi"
-_require "./z3_fixedpoint.smi"
-_require "./z3_ast_vector.smi"
-_require "./z3_ast_map.smi"
-_require "./z3_goal.smi"
-_require "./z3_tactic_and_probe.smi"
-_require "./z3_solver.smi"
-_require "./z3_statistics.smi"
-_require "./z3_external_theory_plugin.smi"
-_require "./z3_parser.smi"
-_require "./z3_model.smi"
-_require "./z3_accessor.smi"
-_require "./z3_quantifier.smi"
-_require "./z3_set.smi"
-_require "./z3_array.smi"
-_require "./z3_bitvector.smi"
-_require "./z3_arithmetic.smi"
-_require "./z3_propositional.smi"
-_require "./z3_config.smi"
-_require "./z3_context.smi"
-_require "./z3_parameter.smi"
-_require "./z3_sort.smi"
-_require "./z3_parameter_desc.smi"
-_require "./z3_realclosedfield.smi"
-_require "./z3_interpolation.smi"
-_require "./z3_deprecated.smi"
-_require "./z3_log.smi"
-_require "./z3_numerals.smi"
-_require "./z3_stringconv.smi"
-_require "./z3_error.smi"
-_require "./z3.sig"
 
-structure Z3 =
-struct
-  type Z3_config       (= ptr)
+signature Z3 =
+sig
+  type Z3_config
 
-  type Z3_symbol       (= ptr)
+  type Z3_symbol
   type Z3_ast           = unit ptr
-  eqtype Z3_sort       (= ptr)
+  eqtype Z3_sort
   type Z3_func_decl     = unit ptr
-  type Z3_app          (= ptr)
-  type Z3_pattern      (= ptr)
-  type Z3_params       (= ptr)
+  type Z3_app
+  type Z3_pattern
+  type Z3_params
   type Z3_model         = unit ptr
-  type Z3_func_interp  (= ptr)
-  type Z3_func_entry   (= ptr)
-  type Z3_fixedpoint   (= ptr)
-  type Z3_ast_vector   (= ptr)
-  type Z3_ast_map      (= ptr)
-  type Z3_tactic       (= ptr)
-  type Z3_probe        (= ptr)
-  type Z3_apply_result (= ptr)
-  type Z3_solver       (= ptr)
-  type Z3_stats        (= ptr)
-  type Z3_rcf_num      (= ptr)
-  type Z3_literals     (= ptr)
-  type Z3_goal         (= ptr)
+  type Z3_func_interp  
+  type Z3_func_entry   
+  type Z3_fixedpoint   
+  type Z3_ast_vector   
+  type Z3_ast_map      
+  type Z3_tactic       
+  type Z3_probe        
+  type Z3_apply_result 
+  type Z3_solver       
+  type Z3_stats        
+  type Z3_rcf_num      
+  type Z3_literals     
+  type Z3_goal         
 
-  type Z3_context          (= ptr)
+  type Z3_context          
   type Z3_sort_opt          = Z3_sort option
-  type Z3_constructor      (= ptr)
-  type Z3_constructor_list (= ptr)
+  type Z3_constructor      
+  type Z3_constructor_list 
   type Z3_string            = String.string
   type Z3_string_ptr        = Z3_string ref
-  type Z3_param_descrs     (= ptr)
-  type Z3_contextarget     (= ptr)
-  type Z3_theory           (= ptr)
-  type Z3_theory_data      (= ptr)
+  type Z3_param_descrs     
+  type Z3_contextarget     
+  type Z3_theory           
+  type Z3_theory_data      
 
-  eqtype Z3_bool           (= int)
+  eqtype Z3_bool           
   val Z3_TRUE  : Z3_bool
   val Z3_FALSE : Z3_bool
 
@@ -95,262 +58,25 @@ struct
          (unit ptr * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> unit
 
 
-  structure Enum = (* Z3_enum *)
-  struct
-    type Z3_lbool = Z3_enum.Z3_lbool
-    val Z3_L_FALSE : Z3_lbool
-    val Z3_L_UNDEF : Z3_lbool
-    val Z3_L_TRUE  : Z3_lbool
+  structure Enum
+    : Z3_ENUM
+      where type Z3_lbool          = Z3_enum.Z3_lbool
+        and type Z3_symbol_kind    = Z3_enum.Z3_symbol_kind
+        and type Z3_parameter_kind = Z3_enum.Z3_parameter_kind
+        and type Z3_sort_kind      = Z3_enum.Z3_sort_kind
+        and type Z3_ast_kind       = Z3_enum.Z3_ast_kind
+        and type Z3_decl_kind      = Z3_enum.Z3_decl_kind
+        and type Z3_param_kind     = Z3_enum.Z3_param_kind
+        and type Z3_search_failure = Z3_enum.Z3_search_failure
+        and type Z3_ast_print_mode = Z3_enum.Z3_ast_print_mode
+        and type Z3_error_code     = Z3_enum.Z3_error_code
+        and type Z3_goal_prec      = Z3_enum.Z3_goal_prec
 
-    type Z3_symbol_kind = Z3_enum.Z3_symbol_kind
-    val Z3_INT_SYMBOL    : Z3_symbol_kind
-    val Z3_STRING_SYMBOL : Z3_symbol_kind
-
-    type Z3_parameter_kind = Z3_enum.Z3_parameter_kind
-    val Z3_PARAMETER_INT       : Z3_parameter_kind
-    val Z3_PARAMETER_DOUBLE    : Z3_parameter_kind
-    val Z3_PARAMETER_RATIONAL  : Z3_parameter_kind
-    val Z3_PARAMETER_SYMBOL    : Z3_parameter_kind
-    val Z3_PARAMETER_SORT      : Z3_parameter_kind
-    val Z3_PARAMETER_AST       : Z3_parameter_kind
-    val Z3_PARAMETER_FUNC_DECL : Z3_parameter_kind
-
-    type Z3_sort_kind = Z3_enum.Z3_sort_kind
-    val Z3_UNINTERPRETED_SORT : Z3_sort_kind
-    val Z3_BOOL_SORT          : Z3_sort_kind
-    val Z3_INT_SORT           : Z3_sort_kind
-    val Z3_REAL_SORT          : Z3_sort_kind
-    val Z3_BV_SORT            : Z3_sort_kind
-    val Z3_ARRAY_SORT         : Z3_sort_kind
-    val Z3_DATATYPE_SORT      : Z3_sort_kind
-    val Z3_RELATION_SORT      : Z3_sort_kind
-    val Z3_FINITE_DOMAIN_SORT : Z3_sort_kind
-    val Z3_UNKNOWN_SORT       : Z3_sort_kind
-
-    type Z3_ast_kind = Z3_enum.Z3_ast_kind
-    val Z3_NUMERAL_AST    : Z3_ast_kind
-    val Z3_APP_AST        : Z3_ast_kind
-    val Z3_VAR_AST        : Z3_ast_kind
-    val Z3_QUANTIFIER_AST : Z3_ast_kind
-    val Z3_SORT_AST       : Z3_ast_kind
-    val Z3_FUNC_DECL_AST  : Z3_ast_kind
-    val Z3_UNKNOWN_AST    : Z3_ast_kind
-
-    type Z3_decl_kind = Z3_enum.Z3_decl_kind
-    (* Basic *)
-    val Z3_OP_TRUE     : Z3_decl_kind
-    val Z3_OP_FALSE    : Z3_decl_kind
-    val Z3_OP_EQ       : Z3_decl_kind
-    val Z3_OP_DISTINCT : Z3_decl_kind
-    val Z3_OP_ITE      : Z3_decl_kind
-    val Z3_OP_AND      : Z3_decl_kind
-    val Z3_OP_OR       : Z3_decl_kind
-    val Z3_OP_IFF      : Z3_decl_kind
-    val Z3_OP_XOR      : Z3_decl_kind
-    val Z3_OP_NOT      : Z3_decl_kind
-    val Z3_OP_IMPLIES  : Z3_decl_kind
-    val Z3_OP_OEQ      : Z3_decl_kind
-    (* Arithmetic *)
-    val Z3_OP_ANUM    : Z3_decl_kind
-    val Z3_OP_AGNUM   : Z3_decl_kind
-    val Z3_OP_LE      : Z3_decl_kind
-    val Z3_OP_GE      : Z3_decl_kind
-    val Z3_OP_LT      : Z3_decl_kind
-    val Z3_OP_GT      : Z3_decl_kind
-    val Z3_OP_ADD     : Z3_decl_kind
-    val Z3_OP_SUB     : Z3_decl_kind
-    val Z3_OP_UMINUS  : Z3_decl_kind
-    val Z3_OP_MUL     : Z3_decl_kind
-    val Z3_OP_DIV     : Z3_decl_kind
-    val Z3_OP_IDIV    : Z3_decl_kind
-    val Z3_OP_REM     : Z3_decl_kind
-    val Z3_OP_MOD     : Z3_decl_kind
-    val Z3_OP_TO_REAL : Z3_decl_kind
-    val Z3_OP_TO_INT  : Z3_decl_kind
-    val Z3_OP_IS_INT  : Z3_decl_kind
-    val Z3_OP_POWER   : Z3_decl_kind
-    (* Arrays & Sets *)
-    val Z3_OP_STORE          : Z3_decl_kind
-    val Z3_OP_SELECT         : Z3_decl_kind
-    val Z3_OP_CONST_ARRAY    : Z3_decl_kind
-    val Z3_OP_ARRAY_MAP      : Z3_decl_kind
-    val Z3_OP_ARRAY_DEFAULT  : Z3_decl_kind
-    val Z3_OP_SET_UNION      : Z3_decl_kind
-    val Z3_OP_SET_INTERSECT  : Z3_decl_kind
-    val Z3_OP_SET_DIFFERENCE : Z3_decl_kind
-    val Z3_OP_SET_COMPLEMENT : Z3_decl_kind
-    val Z3_OP_SET_SUBSET     : Z3_decl_kind
-    val Z3_OP_AS_ARRAY       : Z3_decl_kind
-    (* Bit-vectors *)
-    val Z3_OP_BNUM           : Z3_decl_kind
-    val Z3_OP_BIT1           : Z3_decl_kind
-    val Z3_OP_BIT0           : Z3_decl_kind
-    val Z3_OP_BNEG           : Z3_decl_kind
-    val Z3_OP_BADD           : Z3_decl_kind
-    val Z3_OP_BSUB           : Z3_decl_kind
-    val Z3_OP_BMUL           : Z3_decl_kind
-    val Z3_OP_BSDIV          : Z3_decl_kind
-    val Z3_OP_BUDIV          : Z3_decl_kind
-    val Z3_OP_BSREM          : Z3_decl_kind
-    val Z3_OP_BUREM          : Z3_decl_kind
-    val Z3_OP_BSMOD          : Z3_decl_kind
-    (*
-     * special functions to record the division by 0 cases
-     * these are internal functions
-     *)
-    val Z3_OP_BSDIV0           : Z3_decl_kind
-    val Z3_OP_BUDIV0           : Z3_decl_kind
-    val Z3_OP_BSREM0           : Z3_decl_kind
-    val Z3_OP_BUREM0           : Z3_decl_kind
-    val Z3_OP_BSMOD0           : Z3_decl_kind
-    val Z3_OP_ULEQ             : Z3_decl_kind
-    val Z3_OP_SLEQ             : Z3_decl_kind
-    val Z3_OP_UGEQ             : Z3_decl_kind
-    val Z3_OP_SGEQ             : Z3_decl_kind
-    val Z3_OP_ULT              : Z3_decl_kind
-    val Z3_OP_SLT              : Z3_decl_kind
-    val Z3_OP_UGT              : Z3_decl_kind
-    val Z3_OP_SGT              : Z3_decl_kind
-    val Z3_OP_BAND             : Z3_decl_kind
-    val Z3_OP_BOR              : Z3_decl_kind
-    val Z3_OP_BNOT             : Z3_decl_kind
-    val Z3_OP_BXOR             : Z3_decl_kind
-    val Z3_OP_BNAND            : Z3_decl_kind
-    val Z3_OP_BNOR             : Z3_decl_kind
-    val Z3_OP_BXNOR            : Z3_decl_kind
-    val Z3_OP_CONCAT           : Z3_decl_kind
-    val Z3_OP_SIGN_EXT         : Z3_decl_kind
-    val Z3_OP_ZERO_EXT         : Z3_decl_kind
-    val Z3_OP_EXTRACT          : Z3_decl_kind
-    val Z3_OP_REPEAT           : Z3_decl_kind
-    val Z3_OP_BREDOR           : Z3_decl_kind
-    val Z3_OP_BREDAND          : Z3_decl_kind
-    val Z3_OP_BCOMP            : Z3_decl_kind
-    val Z3_OP_BSHL             : Z3_decl_kind
-    val Z3_OP_BLSHR            : Z3_decl_kind
-    val Z3_OP_BASHR            : Z3_decl_kind
-    val Z3_OP_ROTATE_LEFT      : Z3_decl_kind
-    val Z3_OP_ROTATE_RIGHT     : Z3_decl_kind
-    val Z3_OP_EXT_ROTATE_LEFT  : Z3_decl_kind
-    val Z3_OP_EXT_ROTATE_RIGHT : Z3_decl_kind
-    val Z3_OP_INT2BV           : Z3_decl_kind
-    val Z3_OP_BV2INT           : Z3_decl_kind
-    val Z3_OP_CARRY            : Z3_decl_kind
-    val Z3_OP_XOR3             : Z3_decl_kind
-    (* Proofs *)
-    val Z3_OP_PR_UNDEF             : Z3_decl_kind
-    val Z3_OP_PR_TRUE              : Z3_decl_kind
-    val Z3_OP_PR_ASSERTED          : Z3_decl_kind
-    val Z3_OP_PR_GOAL              : Z3_decl_kind
-    val Z3_OP_PR_MODUS_PONENS      : Z3_decl_kind
-    val Z3_OP_PR_REFLEXIVITY       : Z3_decl_kind
-    val Z3_OP_PR_SYMMETRY          : Z3_decl_kind
-    val Z3_OP_PR_TRANSITIVITY      : Z3_decl_kind
-    val Z3_OP_PR_TRANSITIVITY_STAR : Z3_decl_kind
-    val Z3_OP_PR_MONOTONICITY      : Z3_decl_kind
-    val Z3_OP_PR_QUANT_INTRO       : Z3_decl_kind
-    val Z3_OP_PR_DISTRIBUTIVITY    : Z3_decl_kind
-    val Z3_OP_PR_AND_ELIM          : Z3_decl_kind
-    val Z3_OP_PR_NOT_OR_ELIM       : Z3_decl_kind
-    val Z3_OP_PR_REWRITE           : Z3_decl_kind
-    val Z3_OP_PR_REWRITE_STAR      : Z3_decl_kind
-    val Z3_OP_PR_PULL_QUANT        : Z3_decl_kind
-    val Z3_OP_PR_PULL_QUANT_STAR   : Z3_decl_kind
-    val Z3_OP_PR_PUSH_QUANT        : Z3_decl_kind
-    val Z3_OP_PR_ELIM_UNUSED_VARS  : Z3_decl_kind
-    val Z3_OP_PR_DER               : Z3_decl_kind
-    val Z3_OP_PR_QUANT_INST        : Z3_decl_kind
-    val Z3_OP_PR_HYPOTHESIS        : Z3_decl_kind
-    val Z3_OP_PR_LEMMA             : Z3_decl_kind
-    val Z3_OP_PR_UNIT_RESOLUTION   : Z3_decl_kind
-    val Z3_OP_PR_IFF_TRUE          : Z3_decl_kind
-    val Z3_OP_PR_IFF_FALSE         : Z3_decl_kind
-    val Z3_OP_PR_COMMUTATIVITY     : Z3_decl_kind
-    val Z3_OP_PR_DEF_AXIOM         : Z3_decl_kind
-    val Z3_OP_PR_DEF_INTRO         : Z3_decl_kind
-    val Z3_OP_PR_APPLY_DEF         : Z3_decl_kind
-    val Z3_OP_PR_IFF_OEQ           : Z3_decl_kind
-    val Z3_OP_PR_NNF_POS           : Z3_decl_kind
-    val Z3_OP_PR_NNF_NEG           : Z3_decl_kind
-    val Z3_OP_PR_NNF_STAR          : Z3_decl_kind
-    val Z3_OP_PR_CNF_STAR          : Z3_decl_kind
-    val Z3_OP_PR_SKOLEMIZE         : Z3_decl_kind
-    val Z3_OP_PR_MODUS_PONENS_OEQ  : Z3_decl_kind
-    val Z3_OP_PR_TH_LEMMA          : Z3_decl_kind
-    val Z3_OP_PR_HYPER_RESOLVE     : Z3_decl_kind
-    (* Sequences *)
-    val Z3_OP_RA_STORE           : Z3_decl_kind
-    val Z3_OP_RA_EMPTY           : Z3_decl_kind
-    val Z3_OP_RA_IS_EMPTY        : Z3_decl_kind
-    val Z3_OP_RA_JOIN            : Z3_decl_kind
-    val Z3_OP_RA_UNION           : Z3_decl_kind
-    val Z3_OP_RA_WIDEN           : Z3_decl_kind
-    val Z3_OP_RA_PROJECT         : Z3_decl_kind
-    val Z3_OP_RA_FILTER          : Z3_decl_kind
-    val Z3_OP_RA_NEGATION_FILTER : Z3_decl_kind
-    val Z3_OP_RA_RENAME          : Z3_decl_kind
-    val Z3_OP_RA_COMPLEMENT      : Z3_decl_kind
-    val Z3_OP_RA_SELECT          : Z3_decl_kind
-    val Z3_OP_RA_CLONE           : Z3_decl_kind
-    val Z3_OP_FD_LT              : Z3_decl_kind
-    (* Auxiliary *)
-    val Z3_OP_LABEL     : Z3_decl_kind
-    val Z3_OP_LABEL_LIT : Z3_decl_kind
-    (* Datatypes *)
-    val Z3_OP_DT_CONSTRUCTOR : Z3_decl_kind
-    val Z3_OP_DT_RECOGNISER  : Z3_decl_kind
-    val Z3_OP_DT_ACCESSOR    : Z3_decl_kind
-    val Z3_OP_UNINTERPRETED  : Z3_decl_kind
-
-    type Z3_param_kind = Z3_enum.Z3_param_kind
-    val Z3_PK_UINT    : Z3_param_kind
-    val Z3_PK_BOOL    : Z3_param_kind
-    val Z3_PK_DOUBLE  : Z3_param_kind
-    val Z3_PK_SYMBOL  : Z3_param_kind
-    val Z3_PK_STRING  : Z3_param_kind
-    val Z3_PK_OTHER   : Z3_param_kind
-    val Z3_PK_INVALID : Z3_param_kind
-
-    type Z3_search_failure = Z3_enum.Z3_search_failure
-    val Z3_NO_FAILURE       : Z3_search_failure
-    val Z3_UNKNOWN          : Z3_search_failure
-    val Z3_TIMEOUT          : Z3_search_failure
-    val Z3_MEMOUT_WATERMARK : Z3_search_failure
-    val Z3_CANCELED         : Z3_search_failure
-    val Z3_NUM_CONFLICTS    : Z3_search_failure
-    val Z3_THEORY           : Z3_search_failure
-    val Z3_QUANTIFIERS      : Z3_search_failure
-
-    type Z3_ast_print_mode = Z3_enum.Z3_ast_print_mode
-    val Z3_PRINT_SMTLIB_FULL       : Z3_ast_print_mode
-    val Z3_PRINT_LOW_LEVEL         : Z3_ast_print_mode
-    val Z3_PRINT_SMTLIB_COMPLIANT  : Z3_ast_print_mode
-    val Z3_PRINT_SMTLIB2_COMPLIANT : Z3_ast_print_mode
-
-    type Z3_error_code = Z3_enum.Z3_error_code
-    val Z3_OK                : Z3_error_code
-    val Z3_SORT_ERROR        : Z3_error_code
-    val Z3_IOB               : Z3_error_code
-    val Z3_INVALID_ARG       : Z3_error_code
-    val Z3_PARSER_ERROR      : Z3_error_code
-    val Z3_NO_PARSER         : Z3_error_code
-    val Z3_INVALID_PATTERN   : Z3_error_code
-    val Z3_MEMOUT_FAIL       : Z3_error_code
-    val Z3_FILE_ACCESS_ERROR : Z3_error_code
-    val Z3_INTERNAL_FATAL    : Z3_error_code
-    val Z3_INVALID_USAGE     : Z3_error_code
-    val Z3_DEC_REF_ERROR     : Z3_error_code
-    val Z3_EXCEPTION         : Z3_error_code
-
-    type Z3_goal_prec = Z3_enum.Z3_goal_prec
-    val Z3_GOAL_PRECISE    : Z3_goal_prec
-    val Z3_GOAL_UNDER      : Z3_goal_prec
-    val Z3_GOAL_OVER       : Z3_goal_prec
-    val Z3_GOAL_UNDER_OVER : Z3_goal_prec
-  end
-
-  structure Algebraic = (* Z3_Algebraic *)
-  struct
+  (**
+   * algebraic
+   *)
+  structure Algebraic : (* Z3_Algebraic *)
+  sig
     type Z3_context = Z3_context
     type Z3_ast     = Z3_ast
     type Z3_bool    = Z3_bool
@@ -414,8 +140,8 @@ struct
       : Z3_context * Z3_ast * word * Z3_ast array -> int
   end
 
-  structure Global = (* Z3_global *)
-  struct
+  structure Global : (* Z3_global *)
+  sig
     type Z3_bool   = Z3_bool
     type Z3_string = Z3_string
 
@@ -429,8 +155,8 @@ struct
       : Z3_string * Z3_string ref -> Z3_bool
   end
 
-  structure Config = (* Z3_config *)
-  struct
+  structure Config : (* Z3_config *)
+  sig
     type Z3_config = Z3_config
     type Z3_string = Z3_string
 
@@ -444,8 +170,8 @@ struct
       : Z3_config * Z3_string * Z3_string -> unit
   end
 
-  structure Context = (* Z3_Context *)
-  struct
+  structure Context : (* Z3_Context *)
+  sig
     type Z3_config  = Z3_config
     type Z3_context = Z3_context
     type Z3_ast     = Z3_ast
@@ -475,8 +201,8 @@ struct
 
   end (* Context *)
 
-  structure Parameter = (* Z3_Parameter *)
-  struct
+  structure Parameter : (* Z3_Parameter *)
+  sig
     type Z3_context      = Z3_context
     type Z3_params       = Z3_params
     type Z3_symbol       = Z3_symbol
@@ -513,8 +239,8 @@ struct
 
   end (* Parameter *)
 
-  structure ParameterDesc = (* Z3_ParameterDesc *)
-  struct
+  structure ParameterDesc : (* Z3_ParameterDesc *)
+  sig
     type Z3_context      = Z3_context
     type Z3_param_descrs = Z3_param_descrs
     type Z3_symbol       = Z3_symbol
@@ -546,8 +272,8 @@ struct
   val Z3_mk_string_symbol
     : Z3_context * Z3_string -> Z3_symbol
 
-  structure Sort = (* Z3_Sort *)
-  struct
+  structure Sort : (* Z3_Sort *)
+  sig
     type Z3_context          = Z3_context
     type Z3_params           = Z3_params
     type Z3_sort             = Z3_sort
@@ -647,8 +373,8 @@ struct
   val Z3_mk_fresh_const
     : Z3_context * Z3_string * Z3_sort -> Z3_ast
 
-  structure Propositional = (* Z3_Propositional *)
-  struct
+  structure Propositional : (* Z3_Propositional *)
+  sig
     type Z3_context = Z3_context
     type Z3_ast     = Z3_ast
 
@@ -687,8 +413,8 @@ struct
 
   end (* Propositional *)
 
-  structure Arithmetic = (* Z3_Arithmetic *)
-  struct
+  structure Arithmetic : (* Z3_Arithmetic *)
+  sig
     type Z3_context = Z3_context
     type Z3_ast     = Z3_ast
 
@@ -739,8 +465,8 @@ struct
 
   end (* Arithmetic *)
 
-  structure BitVector = (* Z3_BitVector *)
-  struct
+  structure BitVector : (* Z3_BitVector *)
+  sig
     type Z3_context = Z3_context
     type Z3_ast     = Z3_ast
     type Z3_bool    = Z3_bool
@@ -891,8 +617,8 @@ struct
 
   end (* BitVector *)
 
-  structure Array = (* Z3_Array *)
-  struct
+  structure Array : (* Z3_Array *)
+  sig
     type Z3_context   = Z3_context
     type Z3_ast       = Z3_ast
     type Z3_sort      = Z3_sort
@@ -914,8 +640,8 @@ struct
       : Z3_context * Z3_ast -> Z3_ast
   end
 
-  structure Set = (* Z3_Set *)
-  struct
+  structure Set : (* Z3_Set *)
+  sig
     type Z3_context = Z3_context
     type Z3_sort    = Z3_sort
     type Z3_ast     = Z3_ast
@@ -954,8 +680,8 @@ struct
       : Z3_context * Z3_ast * Z3_ast -> Z3_ast
   end (* Set *)
 
-  structure Numerals =
-  struct
+  structure Numerals :
+  sig
     type Z3_context = Z3_context
     type Z3_string  = Z3_string
     type Z3_sort    = Z3_sort
@@ -974,8 +700,8 @@ struct
       : Z3_context * word * Z3_sort -> Z3_ast
   end (* Numerals *)
 
-  structure Quantifier = (* Z3_Quantifier *)
-  struct
+  structure Quantifier : (* Z3_Quantifier *)
+  sig
     type Z3_context = Z3_context
     type Z3_pattern = Z3_pattern
     type Z3_sort    = Z3_sort
@@ -1044,8 +770,8 @@ struct
 
   end (* Quantifier *)
 
-  structure Accessor = (* Z3_Accessor *)
-  struct
+  structure Accessor : (* Z3_Accessor *)
+  sig
     type Z3_context      = Z3_context
     type Z3_symbol       = Z3_symbol
     type Z3_sort         = Z3_sort
@@ -1320,8 +1046,8 @@ struct
   val Z3_translate
     : Z3_context * Z3_ast * Z3_contextarget -> Z3_ast
 
-  structure Model = (* Z3_Models *)
-  struct
+  structure Model : (* Z3_Models *)
+  sig
     type Z3_context     = Z3_context
     type Z3_model       = Z3_model
     type Z3_ast         = Z3_ast
@@ -1408,8 +1134,8 @@ struct
 
   end
 
-  structure Log = (* Z3_Log *)
-  struct
+  structure Log : (* Z3_Log *)
+  sig
     type Z3_string = Z3_string
     type Z3_bool   = Z3_bool
 
@@ -1426,8 +1152,8 @@ struct
       : Z3_bool -> unit
   end (* Log *)
 
-  structure Stringconv = (* Z3_Stringconv *)
-  struct
+  structure Stringconv : (* Z3_Stringconv *)
+  sig
     type Z3_context        = Z3_context
     type Z3_ast            = Z3_ast
     type Z3_string         = Z3_string
@@ -1463,8 +1189,8 @@ struct
 
   end (* Stringconv *)
 
-  structure Parser = (* Z3_Parser *)
-  struct
+  structure Parser : (* Z3_Parser *)
+  sig
     type Z3_symbol    = Z3_symbol
     type Z3_ast       = Z3_ast
     type Z3_context   = Z3_context
@@ -1525,8 +1251,8 @@ struct
 
   end (* Parser *)
 
-  structure Error = (* Z3_Error *)
-  struct
+  structure Error : (* Z3_Error *)
+  sig
     type Z3_context       = Z3_context
     type Z3_error_code    = Enum.Z3_error_code
     type Z3_error_handler = Z3_error_handler
@@ -1557,8 +1283,8 @@ struct
   val Z3_reset_memory
     : unit -> unit
 
-  structure ExternalTheoryPlugin = (* Z3_ExternalTheoryPlugin *)
-  struct
+  structure ExternalTheoryPlugin : (* Z3_ExternalTheoryPlugin *)
+  sig
     type Z3_context     = Z3_context
     type Z3_theory      = Z3_theory
     type Z3_theory_data = Z3_theory_data
@@ -1684,8 +1410,8 @@ struct
 
   end (* ExternalTheoryPlugin *)
 
-  structure Fixedpoint = (* Z3_Fixedpoint *)
-  struct
+  structure Fixedpoint : (* Z3_Fixedpoint *)
+  sig
     type Z3_fixedpoint   = Z3_fixedpoint
     type Z3_context      = Z3_context
     type Z3_symbol       = Z3_symbol
@@ -1793,8 +1519,8 @@ struct
 
   end (* Fixedpoint *)
 
-  structure AstVector = (* Z3_Ast_Vector *)
-  struct
+  structure AstVector : (* Z3_Ast_Vector *)
+  sig
     type Z3_context    = Z3_context
     type Z3_ast        = Z3_ast
     type Z3_ast_vector = Z3_ast_vector
@@ -1832,8 +1558,8 @@ struct
 
   end (* AstVector *)
 
-  structure AstMap = (* Z3_Ast_Map *)
-  struct
+  structure AstMap : (* Z3_Ast_Map *)
+  sig
     type Z3_context    = Z3_context
     type Z3_ast        = Z3_ast
     type Z3_ast_vector = Z3_ast_vector
@@ -1876,8 +1602,8 @@ struct
 
   end (* AstMap *)
 
-  structure Goal = (* Z3_Goal *)
-  struct
+  structure Goal : (* Z3_Goal *)
+  sig
     type Z3_context   = Z3_context
     type Z3_goal      = Z3_goal
     type Z3_ast       = Z3_ast
@@ -1932,8 +1658,8 @@ struct
 
   end (* Goal *)
 
-  structure TacticAndProbe = (* Z3_Tactic_And_Probe *)
-  struct
+  structure TacticAndProbe : (* Z3_Tactic_And_Probe *)
+  sig
     type Z3_context      = Z3_context
     type Z3_tactic       = Z3_tactic
     type Z3_probe        = Z3_probe
@@ -2081,8 +1807,8 @@ struct
 
   end (* TacticAndProbe *)
 
-  structure Solver = (* Z3_Solver *)
-  struct
+  structure Solver : (* Z3_Solver *)
+  sig
     type Z3_context      = Z3_context
     type Z3_solver       = Z3_solver
     type Z3_symbol       = Z3_symbol
@@ -2169,8 +1895,8 @@ struct
       : Z3_context * Z3_solver -> Z3_string
   end (* Solver *)
 
-  structure Statistics =
-  struct
+  structure Statistics :
+  sig
     type Z3_context = Z3_context
     type Z3_stats   = Z3_stats
     type Z3_string  = Z3_string
@@ -2204,8 +1930,8 @@ struct
       : Z3_context * Z3_stats * word -> real
   end (* Statistics *)
 
-  structure Interpolation =
-  struct
+  structure Interpolation :
+  sig
     type Z3_ast        = Z3_ast
     type Z3_context    = Z3_context
     type Z3_string     = Z3_string
@@ -2249,8 +1975,8 @@ struct
   val Z3_polynomial_subresultants
     : Z3_context * Z3_ast * Z3_ast * Z3_ast -> Z3_ast_vector
 
-  structure RealClosedField =
-  struct
+  structure RealClosedField :
+  sig
     type Z3_context = Z3_context
     type Z3_rcf_num = Z3_rcf_num
 
@@ -2324,8 +2050,8 @@ struct
       : Z3_context * Z3_rcf_num * Z3_rcf_num ref * Z3_rcf_num ref -> unit
   end (* Z3_RealClosedField *)
 
-  structure Deprecated =
-  struct
+  structure Deprecated :
+  sig
     type Z3_context   = Z3_context
     type Z3_model     = Z3_model
     type Z3_ast       = Z3_ast
@@ -2491,6 +2217,5 @@ struct
       : Z3_error_code -> Z3_string
 
   end (* Deprecated *)
-
 end
 

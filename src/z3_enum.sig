@@ -1,17 +1,16 @@
-_require "z3_enum.sig"
 
-structure Z3_enum =
-struct
-  eqtype Z3_lbool (= int)
+signature Z3_ENUM =
+sig
+  eqtype Z3_lbool
   val Z3_L_FALSE : Z3_lbool
   val Z3_L_UNDEF : Z3_lbool
   val Z3_L_TRUE  : Z3_lbool
 
-  eqtype Z3_symbol_kind (= int)
+  eqtype Z3_symbol_kind
   val Z3_INT_SYMBOL    : Z3_symbol_kind
   val Z3_STRING_SYMBOL : Z3_symbol_kind
-     
-  eqtype Z3_parameter_kind (= int)
+
+  eqtype Z3_parameter_kind
   val Z3_PARAMETER_INT       : Z3_parameter_kind
   val Z3_PARAMETER_DOUBLE    : Z3_parameter_kind
   val Z3_PARAMETER_RATIONAL  : Z3_parameter_kind
@@ -20,7 +19,7 @@ struct
   val Z3_PARAMETER_AST       : Z3_parameter_kind
   val Z3_PARAMETER_FUNC_DECL : Z3_parameter_kind
 
-  eqtype Z3_sort_kind (= int)
+  eqtype Z3_sort_kind
   val Z3_UNINTERPRETED_SORT : Z3_sort_kind
   val Z3_BOOL_SORT          : Z3_sort_kind
   val Z3_INT_SORT           : Z3_sort_kind
@@ -31,8 +30,8 @@ struct
   val Z3_RELATION_SORT      : Z3_sort_kind
   val Z3_FINITE_DOMAIN_SORT : Z3_sort_kind
   val Z3_UNKNOWN_SORT       : Z3_sort_kind
-                     
-  eqtype Z3_ast_kind (= int)
+
+  eqtype Z3_ast_kind
   val Z3_NUMERAL_AST    : Z3_ast_kind
   val Z3_APP_AST        : Z3_ast_kind
   val Z3_VAR_AST        : Z3_ast_kind
@@ -40,8 +39,8 @@ struct
   val Z3_SORT_AST       : Z3_ast_kind
   val Z3_FUNC_DECL_AST  : Z3_ast_kind
   val Z3_UNKNOWN_AST    : Z3_ast_kind
-                             
-  eqtype Z3_decl_kind (= int)
+
+  eqtype Z3_decl_kind
   (* Basic *)
   val Z3_OP_TRUE     : Z3_decl_kind
   val Z3_OP_FALSE    : Z3_decl_kind
@@ -207,7 +206,7 @@ struct
   val Z3_OP_DT_ACCESSOR    : Z3_decl_kind
   val Z3_OP_UNINTERPRETED  : Z3_decl_kind
 
-  eqtype Z3_param_kind (= int)
+  eqtype Z3_param_kind
   val Z3_PK_UINT    : Z3_param_kind
   val Z3_PK_BOOL    : Z3_param_kind
   val Z3_PK_DOUBLE  : Z3_param_kind
@@ -216,7 +215,7 @@ struct
   val Z3_PK_OTHER   : Z3_param_kind
   val Z3_PK_INVALID : Z3_param_kind
 
-  eqtype Z3_search_failure (= int)
+  eqtype Z3_search_failure
   val Z3_NO_FAILURE       : Z3_search_failure
   val Z3_UNKNOWN          : Z3_search_failure
   val Z3_TIMEOUT          : Z3_search_failure
@@ -226,13 +225,13 @@ struct
   val Z3_THEORY           : Z3_search_failure
   val Z3_QUANTIFIERS      : Z3_search_failure
 
-  eqtype Z3_ast_print_mode (= int)
+  eqtype Z3_ast_print_mode
   val Z3_PRINT_SMTLIB_FULL       : Z3_ast_print_mode
   val Z3_PRINT_LOW_LEVEL         : Z3_ast_print_mode
   val Z3_PRINT_SMTLIB_COMPLIANT  : Z3_ast_print_mode
   val Z3_PRINT_SMTLIB2_COMPLIANT : Z3_ast_print_mode
 
-  eqtype Z3_error_code (= int)
+  eqtype Z3_error_code
   val Z3_OK                : Z3_error_code
   val Z3_SORT_ERROR        : Z3_error_code
   val Z3_IOB               : Z3_error_code
@@ -247,10 +246,11 @@ struct
   val Z3_DEC_REF_ERROR     : Z3_error_code
   val Z3_EXCEPTION         : Z3_error_code
 
-  eqtype Z3_goal_prec (= int)
+  eqtype Z3_goal_prec
   val Z3_GOAL_PRECISE    : Z3_goal_prec
   val Z3_GOAL_UNDER      : Z3_goal_prec
   val Z3_GOAL_OVER       : Z3_goal_prec
   val Z3_GOAL_UNDER_OVER : Z3_goal_prec
 end
+
 
