@@ -4,12 +4,12 @@ struct
   type Z3_lbool = int
   val Z3_L_FALSE = ~1
   val Z3_L_UNDEF =  0
-  val Z3_L_TRUE  =  1 
+  val Z3_L_TRUE  =  1
 
   type Z3_symbol_kind = int
   val Z3_INT_SYMBOL    = 0
   val Z3_STRING_SYMBOL = 1
-     
+
   type Z3_parameter_kind = int
   val Z3_PARAMETER_INT       = 0
   val Z3_PARAMETER_DOUBLE    = 1
@@ -30,7 +30,7 @@ struct
   val Z3_RELATION_SORT      = 7
   val Z3_FINITE_DOMAIN_SORT = 8
   val Z3_UNKNOWN_SORT       = 1000
-                     
+
   type Z3_ast_kind = int
   val Z3_NUMERAL_AST    = 0
   val Z3_APP_AST        = 1
@@ -39,7 +39,7 @@ struct
   val Z3_SORT_AST       = 4
   val Z3_FUNC_DECL_AST  = 5
   val Z3_UNKNOWN_AST    = 1000
-                             
+
   type Z3_decl_kind      = int
   (* Basic *)
   val Z3_OP_TRUE     = 0x100
