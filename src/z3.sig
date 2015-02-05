@@ -58,19 +58,7 @@ sig
          (unit ptr * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> unit
 
 
-  structure Enum
-    : Z3_ENUM
-      where type Z3_lbool          = Z3_enum.Z3_lbool
-        and type Z3_symbol_kind    = Z3_enum.Z3_symbol_kind
-        and type Z3_parameter_kind = Z3_enum.Z3_parameter_kind
-        and type Z3_sort_kind      = Z3_enum.Z3_sort_kind
-        and type Z3_ast_kind       = Z3_enum.Z3_ast_kind
-        and type Z3_decl_kind      = Z3_enum.Z3_decl_kind
-        and type Z3_param_kind     = Z3_enum.Z3_param_kind
-        and type Z3_search_failure = Z3_enum.Z3_search_failure
-        and type Z3_ast_print_mode = Z3_enum.Z3_ast_print_mode
-        and type Z3_error_code     = Z3_enum.Z3_error_code
-        and type Z3_goal_prec      = Z3_enum.Z3_goal_prec
+  structure Enum : Z3_ENUM
 
   (**
    * algebraic

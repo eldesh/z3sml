@@ -18,18 +18,12 @@ in
   type Z3_params       = unit ptr
 
   type Z3_string         = String.string
-
-  type Z3_decl_kind      = E.Z3_decl_kind
-  type Z3_symbol_kind    = E.Z3_symbol_kind
-  type Z3_parameter_kind = E.Z3_parameter_kind
-  type Z3_lbool          = E.Z3_lbool
-  type Z3_ast_kind       = E.Z3_ast_kind
-  type Z3_sort_kind      = E.Z3_sort_kind
   type Z3_bool           = int
 
   val Z3_get_symbol_kind =
+    E.Z3_symbol_kind.fromInt (
     Dyn.dlsym(libz3, "Z3_get_symbol_kind")
-    : _import (Z3_context, Z3_symbol) -> Z3_symbol_kind
+    : _import (Z3_context, Z3_symbol) -> int)
 
   val Z3_get_symbol_int =
     Dyn.dlsym(libz3, "Z3_get_symbol_int")
@@ -57,8 +51,9 @@ in
     : _import (Z3_context, Z3_sort, Z3_sort) -> Z3_bool
 
   val Z3_get_sort_kind =
+    E.Z3_sort_kind.fromInt (
     Dyn.dlsym(libz3, "Z3_get_sort_kind")
-    : _import (Z3_context, Z3_sort) -> Z3_sort_kind
+    : _import (Z3_context, Z3_sort) -> int)
 
   val Z3_get_bv_sort_size =
     Dyn.dlsym(libz3, "Z3_get_bv_sort_size")
@@ -131,8 +126,9 @@ in
     : _import (Z3_context, Z3_func_decl) -> Z3_symbol
 
   val Z3_get_decl_kind =
+    E.Z3_decl_kind.fromInt (
     Dyn.dlsym(libz3, "Z3_get_decl_kind")
-    : _import (Z3_context, Z3_func_decl) -> Z3_decl_kind
+    : _import (Z3_context, Z3_func_decl) -> int)
 
   val Z3_get_domain_size =
     Dyn.dlsym(libz3, "Z3_get_domain_size")
@@ -155,8 +151,9 @@ in
     : _import (Z3_context, Z3_func_decl) -> word
 
   val Z3_get_decl_parameter_kind =
+    E.Z3_parameter_kind.fromInt (
     Dyn.dlsym(libz3, "Z3_get_decl_parameter_kind")
-    : _import (Z3_context, Z3_func_decl, word) -> Z3_parameter_kind
+    : _import (Z3_context, Z3_func_decl, word) -> int)
 
   val Z3_get_decl_int_parameter =
     Dyn.dlsym(libz3, "Z3_get_decl_int_parameter")
@@ -224,12 +221,14 @@ in
     : _import (Z3_context, Z3_ast) -> Z3_bool
 
   val Z3_get_bool_value =
+    E.Z3_lbool.fromInt (
     Dyn.dlsym(libz3, "Z3_get_bool_value")
-    : _import (Z3_context, Z3_ast) -> Z3_lbool
+    : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_get_ast_kind =
+    E.Z3_ast_kind.fromInt (
     Dyn.dlsym(libz3, "Z3_get_ast_kind")
-    : _import (Z3_context, Z3_ast) -> Z3_ast_kind
+    : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_is_app =
     Dyn.dlsym(libz3, "Z3_is_app")
