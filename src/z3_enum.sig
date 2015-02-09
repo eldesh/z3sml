@@ -258,6 +258,7 @@ sig
                | Z3_PRINT_SMTLIB2_COMPLIANT
 
     val fromInt : int -> t
+    val toInt: t -> int
   end
 
   structure Z3_error_code : sig
@@ -276,6 +277,7 @@ sig
                | Z3_EXCEPTION
 
     val fromInt : int -> t
+    val toInt: t -> int
   end
 
   structure Z3_goal_prec : sig

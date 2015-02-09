@@ -15,7 +15,6 @@ struct
   type Z3_ast_vector   = unit ptr
   type Z3_string       = string
   type Z3_stats        = unit ptr
-  type Z3_lbool        = Z3_enum.Z3_lbool
 
   type Z3_fixedpoint_reduce_assign_callback_fptr =
          (unit ptr * Z3_func_decl * Z3_ast vector * Z3_ast vector) -> unit
@@ -42,10 +41,10 @@ struct
     : Z3_context * Z3_fixedpoint * Z3_ast -> unit
 
   val Z3_fixedpoint_query 
-    : Z3_context * Z3_fixedpoint * Z3_ast -> Z3_lbool
+    : Z3_context * Z3_fixedpoint * Z3_ast -> Z3_enum.Z3_lbool.t
 
   val Z3_fixedpoint_query_relations 
-    : Z3_context * Z3_fixedpoint * Z3_func_decl vector -> Z3_lbool
+    : Z3_context * Z3_fixedpoint * Z3_func_decl vector -> Z3_enum.Z3_lbool.t
 
   val Z3_fixedpoint_get_answer 
     : Z3_context * Z3_fixedpoint -> Z3_ast

@@ -5,6 +5,7 @@ local
   structure Ptr = Pointer
   structure Dyn = DynamicLink
   val libz3 = Library.libz3
+  open Z3_enum
 in
   type Z3_context   = unit ptr
   type Z3_ast       = unit ptr
@@ -13,11 +14,11 @@ in
   type Z3_model     = unit ptr
   type Z3_func_decl = unit ptr
   type Z3_sort      = unit ptr
-  type Z3_ast_print_mode = Z3_enum.Z3_ast_print_mode
 
-  val Z3_set_ast_print_mode =
-    Dyn.dlsym(libz3, "Z3_set_ast_print_mode")
-    : _import (Z3_context, Z3_ast_print_mode) -> ()
+  fun Z3_set_ast_print_mode (c, mode) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_set_ast_print_mode"))
+    ( c : Z3_context
+    , Z3_ast_print_mode.toInt mode : int) : ()
 
   val Z3_ast_to_string =
     Ptr.importString o

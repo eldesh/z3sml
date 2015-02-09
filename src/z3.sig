@@ -40,7 +40,7 @@ sig
   val Z3_TRUE  : Z3_bool
   val Z3_FALSE : Z3_bool
 
-  type Z3_error_handler = Z3_context * Z3_enum.Z3_error_code -> unit
+  type Z3_error_handler = Z3_context * Z3_enum.Z3_error_code.t -> unit
 
   type Z3_reduce_app_callback_fptr =
          (Z3_theory * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> Z3_bool
@@ -232,7 +232,6 @@ sig
     type Z3_context      = Z3_context
     type Z3_param_descrs = Z3_param_descrs
     type Z3_symbol       = Z3_symbol
-    type Z3_param_kind   = Enum.Z3_param_kind
     type Z3_string       = Z3_string
 
     val Z3_param_descrs_inc_ref
@@ -242,7 +241,7 @@ sig
       : Z3_context * Z3_param_descrs -> unit
 
     val Z3_param_descrs_get_kind
-      : Z3_context * Z3_param_descrs * Z3_symbol -> Z3_param_kind
+      : Z3_context * Z3_param_descrs * Z3_symbol -> Enum.Z3_param_kind.t
 
     val Z3_param_descrs_size
       : Z3_context * Z3_param_descrs -> Word32.word
@@ -772,16 +771,10 @@ sig
 
     type Z3_string       = Z3_string
 
-    type Z3_decl_kind      = Enum.Z3_decl_kind
-    type Z3_symbol_kind    = Enum.Z3_symbol_kind
-    type Z3_parameter_kind = Enum.Z3_parameter_kind
-    type Z3_lbool          = Enum.Z3_lbool
-    type Z3_ast_kind       = Enum.Z3_ast_kind
-    type Z3_sort_kind      = Enum.Z3_sort_kind
     type Z3_bool           = Z3_bool
 
     val Z3_get_symbol_kind
-      : Z3_context * Z3_symbol -> Z3_symbol_kind
+      : Z3_context * Z3_symbol -> Enum.Z3_symbol_kind.t
 
     val Z3_get_symbol_int
       : Z3_context * Z3_symbol -> int
@@ -802,7 +795,7 @@ sig
       : Z3_context * Z3_sort * Z3_sort -> Z3_bool
 
     val Z3_get_sort_kind
-      : Z3_context * Z3_sort -> Z3_sort_kind
+      : Z3_context * Z3_sort -> Enum.Z3_sort_kind.t
 
     val Z3_get_bv_sort_size
       : Z3_context * Z3_sort -> word
@@ -853,7 +846,7 @@ sig
       : Z3_context * Z3_func_decl -> Z3_symbol
 
     val Z3_get_decl_kind
-      : Z3_context * Z3_func_decl -> Z3_decl_kind
+      : Z3_context * Z3_func_decl -> Enum.Z3_decl_kind.t
 
     val Z3_get_domain_size
       : Z3_context * Z3_func_decl -> word
@@ -871,7 +864,7 @@ sig
       : Z3_context * Z3_func_decl -> word
 
     val Z3_get_decl_parameter_kind
-      : Z3_context * Z3_func_decl * word -> Z3_parameter_kind
+      : Z3_context * Z3_func_decl * word -> Enum.Z3_parameter_kind.t
 
     val Z3_get_decl_int_parameter
       : Z3_context * Z3_func_decl * word -> int
@@ -922,10 +915,10 @@ sig
       : Z3_context * Z3_ast -> Z3_bool
 
     val Z3_get_bool_value
-      : Z3_context * Z3_ast -> Enum.Z3_lbool
+      : Z3_context * Z3_ast -> Enum.Z3_lbool.t
 
     val Z3_get_ast_kind
-      : Z3_context * Z3_ast -> Z3_ast_kind
+      : Z3_context * Z3_ast -> Enum.Z3_ast_kind.t
 
     val Z3_is_app
       : Z3_context * Z3_ast -> Z3_bool
@@ -1149,10 +1142,9 @@ sig
     type Z3_model          = Z3_model
     type Z3_func_decl      = Z3_func_decl
     type Z3_sort           = Z3_sort
-    type Z3_ast_print_mode = Enum.Z3_ast_print_mode
 
     val Z3_set_ast_print_mode
-      : Z3_context * Z3_ast_print_mode -> unit
+      : Z3_context * Enum.Z3_ast_print_mode.t -> unit
 
     val Z3_ast_to_string
        : Z3_context * Z3_ast -> Z3_string
@@ -1242,21 +1234,20 @@ sig
   structure Error : (* Z3_Error *)
   sig
     type Z3_context       = Z3_context
-    type Z3_error_code    = Enum.Z3_error_code
     type Z3_error_handler = Z3_error_handler
     type Z3_string        = Z3_string
 
     val Z3_get_error_code
-      : Z3_context -> Z3_error_code
+      : Z3_context -> Enum.Z3_error_code.t
 
     val Z3_set_error_handler
       : Z3_context * Z3_error_handler option -> unit
 
     val Z3_set_error
-      : Z3_context * Z3_error_code -> unit
+      : Z3_context * Enum.Z3_error_code.t -> unit
 
     val Z3_get_error_msg_ex
-      : Z3_context * Z3_error_code -> Z3_string
+      : Z3_context * Enum.Z3_error_code.t -> Z3_string
   end (* Error *)
 
   val Z3_get_version
@@ -1410,7 +1401,6 @@ sig
     type Z3_ast_vector   = Z3_ast_vector
     type Z3_string       = Z3_string
     type Z3_stats        = Z3_stats
-    type Z3_lbool        = Enum.Z3_lbool
 
     type Z3_fixedpoint_reduce_assign_callback_fptr = Z3_fixedpoint_reduce_assign_callback_fptr
     type Z3_fixedpoint_reduce_app_callback_fptr    = Z3_fixedpoint_reduce_app_callback_fptr
@@ -1434,10 +1424,10 @@ sig
       : Z3_context * Z3_fixedpoint * Z3_ast -> unit
 
     val Z3_fixedpoint_query
-      : Z3_context * Z3_fixedpoint * Z3_ast -> Z3_lbool
+      : Z3_context * Z3_fixedpoint * Z3_ast -> Enum.Z3_lbool.t
 
     val Z3_fixedpoint_query_relations
-      : Z3_context * Z3_fixedpoint * Z3_func_decl vector -> Z3_lbool
+      : Z3_context * Z3_fixedpoint * Z3_func_decl vector -> Enum.Z3_lbool.t
 
     val Z3_fixedpoint_get_answer
       : Z3_context * Z3_fixedpoint -> Z3_ast
@@ -1596,7 +1586,6 @@ sig
     type Z3_goal      = Z3_goal
     type Z3_ast       = Z3_ast
     type Z3_bool      = Z3_bool
-    type Z3_goal_prec = Enum.Z3_goal_prec
     type Z3_string    = Z3_string
 
     val Z3_mk_goal
@@ -1609,7 +1598,7 @@ sig
       : Z3_context * Z3_goal -> unit
 
     val Z3_goal_precision
-      : Z3_context * Z3_goal -> Z3_goal_prec
+      : Z3_context * Z3_goal -> Enum.Z3_goal_prec.t
 
     val Z3_goal_assert
       : Z3_context * Z3_goal * Z3_ast -> unit
@@ -1808,7 +1797,6 @@ sig
     type Z3_ast          = Z3_ast
     type Z3_ast_vector   = Z3_ast_vector
     type Z3_string       = Z3_string
-    type Z3_lbool        = Enum.Z3_lbool
 
     val Z3_mk_solver
       : Z3_context -> Z3_solver
@@ -1859,10 +1847,10 @@ sig
       : Z3_context * Z3_solver -> Z3_ast_vector
 
     val Z3_solver_check
-      : Z3_context * Z3_solver -> Z3_lbool
+      : Z3_context * Z3_solver -> Enum.Z3_lbool.t
 
     val Z3_solver_check_assumptions
-      : Z3_context * Z3_solver * Z3_ast vector -> Z3_lbool
+      : Z3_context * Z3_solver * Z3_ast vector -> Enum.Z3_lbool.t
 
     val Z3_solver_get_model
       : Z3_context * Z3_solver -> Z3_model
@@ -1925,7 +1913,6 @@ sig
     type Z3_string     = Z3_string
     type Z3_config     = Z3_config
     type Z3_params     = Z3_params
-    type Z3_lbool      = Enum.Z3_lbool
     type Z3_ast_vector = Z3_ast_vector
     type Z3_model      = Z3_model
 
@@ -1940,7 +1927,7 @@ sig
 
     val Z3_compute_interpolant
       : Z3_context * Z3_ast * Z3_params
-                * Z3_ast_vector ref * Z3_model ref -> Z3_lbool
+                * Z3_ast_vector ref * Z3_model ref -> Enum.Z3_lbool.t
 
     val Z3_interpolation_profile
       : Z3_context -> Z3_string
@@ -2045,13 +2032,11 @@ sig
     type Z3_ast       = Z3_ast
     type Z3_symbol    = Z3_symbol
     type Z3_sort      = Z3_sort
-    type Z3_lbool     = Enum.Z3_lbool
     type Z3_bool      = Z3_bool
     type Z3_string    = Z3_string
     type Z3_literals  = Z3_literals
     type Z3_func_decl = Z3_func_decl
     type Z3_solver    = Z3_solver
-    type Z3_error_code = Enum.Z3_error_code
 
     (*
      * Deprecated Injective functions API
@@ -2081,18 +2066,18 @@ sig
       : Z3_context * Z3_ast -> unit
 
     val Z3_check_and_get_model
-      : Z3_context * Z3_model ref -> Z3_lbool
+      : Z3_context * Z3_model ref -> Enum.Z3_lbool.t
 
     val Z3_check
-      : Z3_context -> Z3_lbool
+      : Z3_context -> Enum.Z3_lbool.t
 
     val Z3_check_assumptions
       : Z3_context * Z3_ast vector * Z3_model ref
-        * Z3_ast ref * word ref * Z3_ast array -> Z3_lbool
+        * Z3_ast ref * word ref * Z3_ast array -> Enum.Z3_lbool.t
 
     val Z3_get_implied_equalities
       : Z3_context * Z3_solver
-        * Z3_ast vector * word array -> Z3_lbool
+        * Z3_ast vector * word array -> Enum.Z3_lbool.t
 
     val Z3_del_model
       : Z3_context * Z3_model -> unit
@@ -2104,7 +2089,7 @@ sig
       : Z3_context -> unit
 
     val Z3_get_search_failure
-      : Z3_context -> Enum.Z3_search_failure
+      : Z3_context -> Enum.Z3_search_failure.t
 
     (*
      * Deprecated Labels API
@@ -2202,7 +2187,7 @@ sig
      * Deprecated Error Handling API
      *)
     val Z3_get_error_msg
-      : Z3_error_code -> Z3_string
+      : Enum.Z3_error_code.t -> Z3_string
 
   end (* Deprecated *)
 end

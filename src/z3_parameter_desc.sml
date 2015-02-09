@@ -9,7 +9,6 @@ in
   type Z3_context      = unit ptr
   type Z3_param_descrs = unit ptr
   type Z3_symbol       = unit ptr
-  type Z3_param_kind   = Z3_enum.Z3_param_kind
   type Z3_string       = String.string
  
   val Z3_param_descrs_inc_ref =
@@ -21,8 +20,9 @@ in
     : _import (Z3_context, Z3_param_descrs) -> ()
 
   val Z3_param_descrs_get_kind =
+    Z3_enum.Z3_param_kind.fromInt o (
     Dyn.dlsym (libz3, "Z3_param_descrs_get_kind")
-    : _import (Z3_context, Z3_param_descrs, Z3_symbol) -> Z3_param_kind
+    : _import (Z3_context, Z3_param_descrs, Z3_symbol) -> int)
 
   val Z3_param_descrs_size =
     Dyn.dlsym (libz3, "Z3_param_descrs_get_kind")

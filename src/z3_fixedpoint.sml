@@ -6,6 +6,8 @@ local
   structure Dyn = DynamicLink
   val libz3 = Library.libz3
 
+  open Z3_enum
+
   fun importVector p n =
     Vector.tabulate(n, fn i=>
       SMLSharp_Builtin.Pointer.deref (Pointer.advance(p, i)))
@@ -20,7 +22,6 @@ in
   type Z3_ast_vector   = unit ptr
   type Z3_string       = string
   type Z3_stats        = unit ptr
-  type Z3_lbool        = Z3_enum.Z3_lbool
 
   type Z3_fixedpoint_reduce_assign_callback_fptr =
          (unit ptr * Z3_func_decl * Z3_ast vector * Z3_ast vector) -> unit
@@ -57,15 +58,17 @@ in
     : _import (Z3_context, Z3_fixedpoint, Z3_ast) -> ()
 
   val Z3_fixedpoint_query =
+    Z3_lbool.fromInt o (
     Dyn.dlsym(libz3, "Z3_fixedpoint_query")
-    : _import (Z3_context, Z3_fixedpoint, Z3_ast) -> Z3_lbool
+    : _import (Z3_context, Z3_fixedpoint, Z3_ast) -> int)
 
   fun Z3_fixedpoint_query_relations (c, d, relations) =
+    Z3_lbool.fromInt (
     _ffiapply (Dyn.dlsym(libz3, "Z3_fixedpoint_query_relations"))
     ( c : Z3_context
     , d : Z3_fixedpoint
     , Vector.length relations : int
-    , relations : Z3_func_decl vector) : Z3_lbool
+    , relations : Z3_func_decl vector) : int)
 
   val Z3_fixedpoint_get_answer =
     Dyn.dlsym(libz3, "Z3_fixedpoint_get_answer")

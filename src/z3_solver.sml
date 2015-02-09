@@ -5,6 +5,7 @@ local
   structure Ptr = Pointer
   structure Dyn = DynamicLink
   val libz3 = Library.libz3
+  open Z3_enum
 in
   type Z3_context = unit ptr
   type Z3_solver  = unit ptr
@@ -17,7 +18,6 @@ in
   type Z3_ast     = unit ptr
   type Z3_ast_vector = unit ptr
   type Z3_string  = String.string
-  type Z3_lbool   = Z3_enum.Z3_lbool
 
   val Z3_mk_solver =
     Dyn.dlsym(libz3, "Z3_mk_solver")
@@ -85,15 +85,17 @@ in
     : _import (Z3_context, Z3_solver) -> Z3_ast_vector
      
   val Z3_solver_check =
+    Z3_lbool.fromInt o (
     Dyn.dlsym(libz3, "Z3_solver_check")
-    : _import (Z3_context, Z3_solver) -> Z3_lbool
+    : _import (Z3_context, Z3_solver) -> int)
      
   fun Z3_solver_check_assumptions (c, s, assumptions) =
+    Z3_lbool.fromInt (
     _ffiapply (Dyn.dlsym(libz3, "Z3_solver_check_assumptions"))
     ( c : Z3_context
     , s : Z3_solver
     , Vector.length assumptions : int
-    , assumptions : Z3_ast vector) : Z3_lbool
+    , assumptions : Z3_ast vector) : int)
      
   val Z3_solver_get_model =
     Dyn.dlsym(libz3, "Z3_solver_get_model")

@@ -10,7 +10,6 @@ in
   type Z3_goal      = unit ptr
   type Z3_ast       = unit ptr
   type Z3_bool      = int
-  type Z3_goal_prec = Z3_enum.Z3_goal_prec
   type Z3_string    = String.string
 
   val Z3_mk_goal =
@@ -26,8 +25,9 @@ in
     : _import (Z3_context, Z3_goal) -> ()
      
   val Z3_goal_precision =
+    Z3_enum.Z3_goal_prec.fromInt o (
     Dyn.dlsym(libz3, "Z3_goal_precision")
-    : _import (Z3_context, Z3_goal) -> Z3_goal_prec
+    : _import (Z3_context, Z3_goal) -> int)
      
   val Z3_goal_assert =
     Dyn.dlsym(libz3, "Z3_goal_assert")

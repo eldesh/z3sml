@@ -487,6 +487,13 @@ struct
          | 2 => Z3_PRINT_SMTLIB_COMPLIANT
          | 3 => Z3_PRINT_SMTLIB2_COMPLIANT
          | n => raise EnumDomain n
+
+    fun toInt e =
+      case e
+        of Z3_PRINT_SMTLIB_FULL       => 0
+         | Z3_PRINT_LOW_LEVEL         => 1
+         | Z3_PRINT_SMTLIB_COMPLIANT  => 2
+         | Z3_PRINT_SMTLIB2_COMPLIANT => 3
   end
 
   structure Z3_error_code = struct
@@ -520,6 +527,22 @@ struct
          | 11 => Z3_DEC_REF_ERROR
          | 12 => Z3_EXCEPTION
          | n  => raise EnumDomain n
+
+    fun toInt e =
+      case e
+        of Z3_OK                => 0
+         | Z3_SORT_ERROR        => 1
+         | Z3_IOB               => 2
+         | Z3_INVALID_ARG       => 3
+         | Z3_PARSER_ERROR      => 4
+         | Z3_NO_PARSER         => 5
+         | Z3_INVALID_PATTERN   => 6
+         | Z3_MEMOUT_FAIL       => 7
+         | Z3_FILE_ACCESS_ERROR => 8
+         | Z3_INTERNAL_FATAL    => 9
+         | Z3_INVALID_USAGE     => 10
+         | Z3_DEC_REF_ERROR     => 11
+         | Z3_EXCEPTION         => 12
   end
 
   structure Z3_goal_prec = struct

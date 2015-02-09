@@ -55,7 +55,7 @@ in
    *)
   structure Enum = Z3_enum
 
-  type Z3_error_handler = Z3_context * Enum.Z3_error_code -> unit
+  type Z3_error_handler = Z3_context * Enum.Z3_error_code.t -> unit
 
   type Z3_reduce_app_callback_fptr =
          (Z3_theory * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> Z3_bool

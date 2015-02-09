@@ -11,7 +11,6 @@ in
   type Z3_string     = String.string
   type Z3_config     = unit ptr
   type Z3_params     = unit ptr
-  type Z3_lbool      = Z3_enum.Z3_lbool
   type Z3_ast_vector = unit ptr
   type Z3_model      = unit ptr
 
@@ -28,9 +27,10 @@ in
     : _import (Z3_context, Z3_ast, Z3_ast, Z3_params) -> Z3_ast_vector
 
   val Z3_compute_interpolant =
+    Z3_enum.Z3_lbool.fromInt o (
     Dyn.dlsym(libz3, "Z3_compute_interpolant")
     : _import (Z3_context, Z3_ast, Z3_params
-             , Z3_ast_vector ref, Z3_model ref) -> Z3_lbool
+             , Z3_ast_vector ref, Z3_model ref) -> int)
 
   val Z3_interpolation_profile =
     Ptr.importString o

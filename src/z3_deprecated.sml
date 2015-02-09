@@ -8,19 +8,18 @@ local
   structure Ptr = Pointer
   structure Dyn = DynamicLink
   val libz3 = Library.libz3
+  open Z3_enum
 in
   type Z3_context  = unit ptr
   type Z3_model    = unit ptr
   type Z3_ast      = unit ptr
   type Z3_symbol   = unit ptr
   type Z3_sort     = unit ptr
-  type Z3_lbool    = Z3_enum.Z3_lbool
   type Z3_bool     = int
   type Z3_string   = String.string
   type Z3_literals = unit ptr
   type Z3_func_decl = unit ptr
   type Z3_solver    = unit ptr
-  type Z3_error_code = Z3_enum.Z3_error_code
 
   (*
    * Deprecated Injective functions API
@@ -61,14 +60,17 @@ in
     : _import (Z3_context, Z3_ast) -> ()
 
   val Z3_check_and_get_model =
+    Z3_lbool.fromInt o (
     Dyn.dlsym (libz3, "Z3_check_and_get_model")
-    : _import (Z3_context, Z3_model ref) -> Z3_lbool
+    : _import (Z3_context, Z3_model ref) -> int)
 
   val Z3_check =
+    Z3_lbool.fromInt o (
     Dyn.dlsym (libz3, "Z3_check")
-    : _import Z3_context -> Z3_lbool
+    : _import Z3_context -> int)
 
   fun Z3_check_assumptions (c, assumptions, m, proof, core_size, core) =
+    Z3_lbool.fromInt (
     _ffiapply (Dyn.dlsym (libz3, "Z3_check_assumptions"))
     ( c : Z3_context
     , Vector.length assumptions : int
@@ -76,15 +78,16 @@ in
     , m : Z3_model ref
     , proof : Z3_ast ref
     , core_size : word ref
-    , core : Z3_ast array) : Z3_lbool
+    , core : Z3_ast array) : int)
 
   fun Z3_get_implied_equalities (c, s, terms, class_ids) =
+    Z3_lbool.fromInt (
     _ffiapply (Dyn.dlsym (libz3, "Z3_get_implied_equalities"))
     ( c : Z3_context
     , s : Z3_solver
     , Vector.length terms : int
     , terms : Z3_ast vector
-    , class_ids : word array) : Z3_lbool
+    , class_ids : word array) : int)
 
   val Z3_del_model =
     Dyn.dlsym (libz3, "Z3_del_model")
@@ -98,8 +101,9 @@ in
     : _import Z3_context -> ()
 
   val Z3_get_search_failure =
+    Z3_search_failure.fromInt o (
     Dyn.dlsym (libz3, "Z3_get_search_failure")
-    : _import Z3_context -> Z3_enum.Z3_search_failure 
+    : _import Z3_context -> int)
 
   (*
    * Deprecated Labels API
@@ -226,10 +230,10 @@ in
     Dyn.dlsym (libz3, "Z3_get_context_assignment")
     : _import Z3_context -> Z3_ast
 
-  val Z3_get_error_msg =
-    Ptr.importString o
-    ( Dyn.dlsym(libz3, "Z3_get_error_msg")
-      : _import Z3_error_code -> char ptr)
+  fun Z3_get_error_msg err =
+    Ptr.importString (
+      _ffiapply (Dyn.dlsym(libz3, "Z3_get_error_msg"))
+      ( Z3_enum.Z3_error_code.toInt err : int ) : char ptr)
 
 end (* local *)
 end
