@@ -9,6 +9,7 @@ sig
                | Z3_L_TRUE
 
     val fromInt : int -> t
+    val toInt : t -> int
   end
 
   structure Z3_symbol_kind : sig
@@ -16,6 +17,7 @@ sig
                | Z3_STRING_SYMBOL
 
     val fromInt : int -> t
+    val toInt : t -> int
   end
 
   structure Z3_parameter_kind : sig
@@ -28,6 +30,7 @@ sig
                | Z3_PARAMETER_FUNC_DECL
 
     val fromInt : int -> t
+    val toInt : t -> int
   end
 
   structure Z3_sort_kind : sig
@@ -43,6 +46,7 @@ sig
                | Z3_UNKNOWN_SORT
 
     val fromInt : int -> t
+    val toInt : t -> int
   end
 
   structure Z3_ast_kind : sig
@@ -55,6 +59,7 @@ sig
                | Z3_UNKNOWN_AST
 
     val fromInt : int -> t
+    val toInt : t -> int
   end
 
   structure Z3_decl_kind : sig
@@ -224,6 +229,7 @@ sig
                | Z3_OP_UNINTERPRETED
 
     val fromInt : int -> t
+    val toInt : t -> int
   end
 
   structure Z3_param_kind : sig
@@ -236,6 +242,7 @@ sig
                | Z3_PK_INVALID
 
     val fromInt : int -> t
+    val toInt : t -> int
   end
 
   structure Z3_search_failure : sig
@@ -249,6 +256,7 @@ sig
                | Z3_QUANTIFIERS
 
     val fromInt : int -> t
+    val toInt : t -> int
   end
 
   structure Z3_ast_print_mode : sig
@@ -258,7 +266,7 @@ sig
                | Z3_PRINT_SMTLIB2_COMPLIANT
 
     val fromInt : int -> t
-    val toInt: t -> int
+    val toInt : t -> int
   end
 
   structure Z3_error_code : sig
@@ -277,7 +285,7 @@ sig
                | Z3_EXCEPTION
 
     val fromInt : int -> t
-    val toInt: t -> int
+    val toInt : t -> int
   end
 
   structure Z3_goal_prec : sig
@@ -287,6 +295,7 @@ sig
                | Z3_GOAL_UNDER_OVER
 
     val fromInt : int -> t
+    val toInt : t -> int
   end
 
 end

@@ -14,6 +14,12 @@ struct
          |  0 => Z3_L_UNDEF
          |  1 => Z3_L_TRUE
          |  n => raise EnumDomain n
+
+    fun toInt t =
+      case t
+        of Z3_L_FALSE => ~1
+         | Z3_L_UNDEF =>  0
+         | Z3_L_TRUE  =>  1
   end
 
   structure Z3_symbol_kind = struct
@@ -25,6 +31,11 @@ struct
         of 0 => Z3_INT_SYMBOL
          | 1 => Z3_STRING_SYMBOL
          | n => raise EnumDomain n
+
+    fun toInt t =
+      case t
+        of Z3_INT_SYMBOL    => 0
+         | Z3_STRING_SYMBOL => 1
   end
 
   structure Z3_parameter_kind = struct
@@ -46,6 +57,16 @@ struct
          | 5 => Z3_PARAMETER_AST
          | 6 => Z3_PARAMETER_FUNC_DECL
          | n => raise EnumDomain n
+
+    fun toInt t =
+      case t
+        of Z3_PARAMETER_INT       => 0
+         | Z3_PARAMETER_DOUBLE    => 1
+         | Z3_PARAMETER_RATIONAL  => 2
+         | Z3_PARAMETER_SYMBOL    => 3
+         | Z3_PARAMETER_SORT      => 4
+         | Z3_PARAMETER_AST       => 5
+         | Z3_PARAMETER_FUNC_DECL => 6
   end
 
   structure Z3_sort_kind = struct
@@ -73,6 +94,19 @@ struct
          | 8 => Z3_FINITE_DOMAIN_SORT
          | 1000 => Z3_UNKNOWN_SORT
          | n => raise EnumDomain n
+
+    fun toInt t =
+      case t
+        of Z3_UNINTERPRETED_SORT => 0
+         | Z3_BOOL_SORT          => 1
+         | Z3_INT_SORT           => 2
+         | Z3_REAL_SORT          => 3
+         | Z3_BV_SORT            => 4
+         | Z3_ARRAY_SORT         => 5
+         | Z3_DATATYPE_SORT      => 6
+         | Z3_RELATION_SORT      => 7
+         | Z3_FINITE_DOMAIN_SORT => 8
+         | Z3_UNKNOWN_SORT       => 1000
   end
 
   structure Z3_ast_kind = struct
@@ -94,6 +128,16 @@ struct
          | 5 => Z3_FUNC_DECL_AST
          | 1000 => Z3_UNKNOWN_AST
          | n => raise EnumDomain n
+
+    fun toInt t =
+      case t
+        of Z3_NUMERAL_AST    => 0
+         | Z3_APP_AST        => 1
+         | Z3_VAR_AST        => 2
+         | Z3_QUANTIFIER_AST => 3
+         | Z3_SORT_AST       => 4
+         | Z3_FUNC_DECL_AST  => 5
+         | Z3_UNKNOWN_AST    => 1000
   end
 
   structure Z3_decl_kind = struct
@@ -428,6 +472,172 @@ struct
          | 0x802 => Z3_OP_DT_ACCESSOR
          | 0x803 => Z3_OP_UNINTERPRETED
          | n => raise EnumDomain n
+
+    fun toInt t =
+      case t
+        of Z3_OP_TRUE      => 0x100(* Basic *)
+         | Z3_OP_FALSE     => 0x101
+         | Z3_OP_EQ        => 0x102
+         | Z3_OP_DISTINCT  => 0x103
+         | Z3_OP_ITE       => 0x104
+         | Z3_OP_AND       => 0x105
+         | Z3_OP_OR        => 0x106
+         | Z3_OP_IFF       => 0x107
+         | Z3_OP_XOR       => 0x108
+         | Z3_OP_NOT       => 0x109
+         | Z3_OP_IMPLIES   => 0x10A
+         | Z3_OP_OEQ       => 0x10B
+         (* Arithmetic *)
+         | Z3_OP_ANUM     => 0x200
+         | Z3_OP_AGNUM    => 0x201
+         | Z3_OP_LE       => 0x202
+         | Z3_OP_GE       => 0x203
+         | Z3_OP_LT       => 0x204
+         | Z3_OP_GT       => 0x205
+         | Z3_OP_ADD      => 0x206
+         | Z3_OP_SUB      => 0x207
+         | Z3_OP_UMINUS   => 0x208
+         | Z3_OP_MUL      => 0x209
+         | Z3_OP_DIV      => 0x20A
+         | Z3_OP_IDIV     => 0x20B
+         | Z3_OP_REM      => 0x20C
+         | Z3_OP_MOD      => 0x20D
+         | Z3_OP_TO_REAL  => 0x20E
+         | Z3_OP_TO_INT   => 0x20F
+         | Z3_OP_IS_INT   => 0x210
+         | Z3_OP_POWER    => 0x211
+         (* Arrays & Sets *)
+         | Z3_OP_STORE           => 0x300
+         | Z3_OP_SELECT          => 0x301
+         | Z3_OP_CONST_ARRAY     => 0x302
+         | Z3_OP_ARRAY_MAP       => 0x303
+         | Z3_OP_ARRAY_DEFAULT   => 0x304
+         | Z3_OP_SET_UNION       => 0x305
+         | Z3_OP_SET_INTERSECT   => 0x306
+         | Z3_OP_SET_DIFFERENCE  => 0x307
+         | Z3_OP_SET_COMPLEMENT  => 0x308
+         | Z3_OP_SET_SUBSET      => 0x309
+         | Z3_OP_AS_ARRAY        => 0x30A
+         (* Bit-vectors *)
+         | Z3_OP_BNUM            => 0x400
+         | Z3_OP_BIT1            => 0x401
+         | Z3_OP_BIT0            => 0x402
+         | Z3_OP_BNEG            => 0x403
+         | Z3_OP_BADD            => 0x404
+         | Z3_OP_BSUB            => 0x405
+         | Z3_OP_BMUL            => 0x406
+         | Z3_OP_BSDIV           => 0x407
+         | Z3_OP_BUDIV           => 0x408
+         | Z3_OP_BSREM           => 0x409
+         | Z3_OP_BUREM           => 0x40A
+         | Z3_OP_BSMOD           => 0x40B
+         (*
+         * special functions to record the division by 0 cases
+         * these are internal functions
+         *)
+         | Z3_OP_BSDIV0           => 0x40C
+         | Z3_OP_BUDIV0           => 0x40D
+         | Z3_OP_BSREM0           => 0x40E
+         | Z3_OP_BUREM0           => 0x40F
+         | Z3_OP_BSMOD0           => 0x410
+         | Z3_OP_ULEQ             => 0x411
+         | Z3_OP_SLEQ             => 0x412
+         | Z3_OP_UGEQ             => 0x413
+         | Z3_OP_SGEQ             => 0x414
+         | Z3_OP_ULT              => 0x415
+         | Z3_OP_SLT              => 0x416
+         | Z3_OP_UGT              => 0x417
+         | Z3_OP_SGT              => 0x418
+         | Z3_OP_BAND             => 0x419
+         | Z3_OP_BOR              => 0x41A
+         | Z3_OP_BNOT             => 0x41B
+         | Z3_OP_BXOR             => 0x41C
+         | Z3_OP_BNAND            => 0x41D
+         | Z3_OP_BNOR             => 0x41E
+         | Z3_OP_BXNOR            => 0x41F
+         | Z3_OP_CONCAT           => 0x420
+         | Z3_OP_SIGN_EXT         => 0x421
+         | Z3_OP_ZERO_EXT         => 0x422
+         | Z3_OP_EXTRACT          => 0x423
+         | Z3_OP_REPEAT           => 0x424
+         | Z3_OP_BREDOR           => 0x425
+         | Z3_OP_BREDAND          => 0x426
+         | Z3_OP_BCOMP            => 0x427
+         | Z3_OP_BSHL             => 0x428
+         | Z3_OP_BLSHR            => 0x429
+         | Z3_OP_BASHR            => 0x42A
+         | Z3_OP_ROTATE_LEFT      => 0x42B
+         | Z3_OP_ROTATE_RIGHT     => 0x42C
+         | Z3_OP_EXT_ROTATE_LEFT  => 0x42D
+         | Z3_OP_EXT_ROTATE_RIGHT => 0x42E
+         | Z3_OP_INT2BV           => 0x42F
+         | Z3_OP_BV2INT           => 0x430
+         | Z3_OP_CARRY            => 0x431
+         | Z3_OP_XOR3             => 0x432
+         (* Proofs *)
+         | Z3_OP_PR_UNDEF             => 0x500
+         | Z3_OP_PR_TRUE              => 0x501
+         | Z3_OP_PR_ASSERTED          => 0x502
+         | Z3_OP_PR_GOAL              => 0x503
+         | Z3_OP_PR_MODUS_PONENS      => 0x504
+         | Z3_OP_PR_REFLEXIVITY       => 0x505
+         | Z3_OP_PR_SYMMETRY          => 0x506
+         | Z3_OP_PR_TRANSITIVITY      => 0x507
+         | Z3_OP_PR_TRANSITIVITY_STAR => 0x508
+         | Z3_OP_PR_MONOTONICITY      => 0x509
+         | Z3_OP_PR_QUANT_INTRO       => 0x50A
+         | Z3_OP_PR_DISTRIBUTIVITY    => 0x50B
+         | Z3_OP_PR_AND_ELIM          => 0x50C
+         | Z3_OP_PR_NOT_OR_ELIM       => 0x50D
+         | Z3_OP_PR_REWRITE           => 0x50E
+         | Z3_OP_PR_REWRITE_STAR      => 0x50F
+         | Z3_OP_PR_PULL_QUANT        => 0x510
+         | Z3_OP_PR_PULL_QUANT_STAR   => 0x511
+         | Z3_OP_PR_PUSH_QUANT        => 0x512
+         | Z3_OP_PR_ELIM_UNUSED_VARS  => 0x513
+         | Z3_OP_PR_DER               => 0x514
+         | Z3_OP_PR_QUANT_INST        => 0x515
+         | Z3_OP_PR_HYPOTHESIS        => 0x516
+         | Z3_OP_PR_LEMMA             => 0x517
+         | Z3_OP_PR_UNIT_RESOLUTION   => 0x518
+         | Z3_OP_PR_IFF_TRUE          => 0x519
+         | Z3_OP_PR_IFF_FALSE         => 0x51A
+         | Z3_OP_PR_COMMUTATIVITY     => 0x51B
+         | Z3_OP_PR_DEF_AXIOM         => 0x51C
+         | Z3_OP_PR_DEF_INTRO         => 0x51D
+         | Z3_OP_PR_APPLY_DEF         => 0x51E
+         | Z3_OP_PR_IFF_OEQ           => 0x51F
+         | Z3_OP_PR_NNF_POS           => 0x520
+         | Z3_OP_PR_NNF_NEG           => 0x521
+         | Z3_OP_PR_NNF_STAR          => 0x522
+         | Z3_OP_PR_CNF_STAR          => 0x523
+         | Z3_OP_PR_SKOLEMIZE         => 0x524
+         | Z3_OP_PR_MODUS_PONENS_OEQ  => 0x525
+         | Z3_OP_PR_TH_LEMMA          => 0x526
+         | Z3_OP_PR_HYPER_RESOLVE     => 0x527
+         (* Sequences *)
+         | Z3_OP_RA_STORE           => 0x600
+         | Z3_OP_RA_EMPTY           => 0x601
+         | Z3_OP_RA_IS_EMPTY        => 0x602
+         | Z3_OP_RA_JOIN            => 0x603
+         | Z3_OP_RA_UNION           => 0x604
+         | Z3_OP_RA_WIDEN           => 0x605
+         | Z3_OP_RA_PROJECT         => 0x606
+         | Z3_OP_RA_FILTER          => 0x607
+         | Z3_OP_RA_NEGATION_FILTER => 0x608
+         | Z3_OP_RA_RENAME          => 0x609
+         | Z3_OP_RA_COMPLEMENT      => 0x60A
+         | Z3_OP_RA_SELECT          => 0x60B
+         | Z3_OP_RA_CLONE           => 0x60C
+         | Z3_OP_FD_LT              => 0x60D
+         (* Auxiliary *)
+         | Z3_OP_LABEL          => 0x700
+         | Z3_OP_LABEL_LIT      => 0x701
+         (* Datatypes *)
+         | Z3_OP_DT_CONSTRUCTOR => 0x800
+         | Z3_OP_DT_RECOGNISER  => 0x801
+         | Z3_OP_DT_ACCESSOR    => 0x802
+         | Z3_OP_UNINTERPRETED  => 0x803
   end
 
   structure Z3_param_kind = struct
@@ -449,6 +659,16 @@ struct
          | 5 => Z3_PK_OTHER
          | 6 => Z3_PK_INVALID
          | n => raise EnumDomain n
+
+    fun toInt t =
+      case t
+        of Z3_PK_UINT    => 0
+         | Z3_PK_BOOL    => 1
+         | Z3_PK_DOUBLE  => 2
+         | Z3_PK_SYMBOL  => 3
+         | Z3_PK_STRING  => 4
+         | Z3_PK_OTHER   => 5
+         | Z3_PK_INVALID => 6
   end
 
   structure Z3_search_failure = struct
@@ -472,6 +692,17 @@ struct
          | 6 => Z3_THEORY
          | 7 => Z3_QUANTIFIERS
          | n => raise EnumDomain n
+
+    fun toInt t =
+      case t
+        of Z3_NO_FAILURE       => 0
+         | Z3_UNKNOWN          => 1
+         | Z3_TIMEOUT          => 2
+         | Z3_MEMOUT_WATERMARK => 3
+         | Z3_CANCELED         => 4
+         | Z3_NUM_CONFLICTS    => 5
+         | Z3_THEORY           => 6
+         | Z3_QUANTIFIERS      => 7
   end
 
   structure Z3_ast_print_mode = struct
@@ -558,6 +789,13 @@ struct
          | 2 => Z3_GOAL_OVER
          | 3 => Z3_GOAL_UNDER_OVER
          | n => raise EnumDomain n
+
+    fun toInt n =
+      case n
+        of Z3_GOAL_PRECISE    => 0
+         | Z3_GOAL_UNDER      => 1
+         | Z3_GOAL_OVER       => 2
+         | Z3_GOAL_UNDER_OVER => 3
   end
 end
 
