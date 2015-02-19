@@ -65,7 +65,7 @@ struct
                              , Z3.Stringconv.Z3_model_to_string (ctx, !m)
                              , "\n"]))
     in
-      if !m <> Ptr.NULL() then D.Z3_del_model (ctx, !m) else ();
+      if not (Ptr.isNull (!m))  then D.Z3_del_model (ctx, !m) else ();
       if result <> expected then raise Fail "unexpected result" else ()
     end
 
@@ -1729,7 +1729,7 @@ struct
          | E.Z3_lbool.Z3_L_TRUE =>
              (print "sat\n";
               Display.model ctx TextIO.stdOut (!m));
-      if Ptr.NULL() <> !m then (
+      if not (Ptr.isNull (!m)) then (
         D.Z3_del_model (ctx, !m);
         m := Ptr.NULL()
       ) else ()
