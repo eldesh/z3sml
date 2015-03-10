@@ -78,9 +78,9 @@ in
   type Z3_sort_opt         = Z3_sort option
   type Z3_string_ptr       = Z3_string ref
 
-  type Z3_bool             = int
-  val Z3_TRUE  : Z3_bool   = 1
-  val Z3_FALSE : Z3_bool   = 0
+  datatype Z3_bool = datatype Z3_bool.t
+  val Z3_TRUE  = Z3_bool.Z3_TRUE 
+  val Z3_FALSE = Z3_bool.Z3_FALSE
 
   (**
    * Z3 enum constants

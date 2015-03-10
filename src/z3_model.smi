@@ -1,6 +1,7 @@
 _require "basis.smi"
 _require "ffi.smi"
 _require "libh.smi"
+_require "z3_bool.smi"
 
 structure Z3_Model =
 struct
@@ -12,7 +13,7 @@ struct
   type Z3_sort        = unit ptr
   type Z3_func_entry  = unit ptr
   type Z3_ast_vector  = unit ptr
-  type Z3_bool        = int
+  type Z3_bool        = Z3_bool.t
 
   val Z3_model_inc_ref
     : Z3_context * Z3_model -> unit

@@ -278,7 +278,6 @@ struct
   fun prove ctx f is_valid =
     local_ctx ctx (fn ctx =>
     let
-      val is_valid = is_valid = Z3.Z3_TRUE
       val not_f = Prop.Z3_mk_not (ctx, f)
       val () = D.Z3_assert_cnstr (ctx, not_f)
       val m : Z3.Z3_model ref = ref (Ptr.NULL())
@@ -998,7 +997,7 @@ struct
          let val x_plus_y = Z3.Arithmetic.Z3_mk_add (ctx, Vector.fromList[x,y]) in
          print "\nevaluating x+y\n";
          let val v = ref (Ptr.NULL()) in
-         if D.Z3_eval(ctx, !m, x_plus_y, v) = Z3.Z3_TRUE
+         if D.Z3_eval(ctx, !m, x_plus_y, v)
          then
            (print "result = ";
             Display.ast ctx TextIO.stdOut (!v);
@@ -2047,9 +2046,9 @@ struct
      f())
 
   fun open_log file =
-    if Z3.Log.Z3_open_log file = Z3.Z3_FALSE
-    then raise Fail (concat["Z3_open_log: ", file])
-    else ()
+    if Z3.Log.Z3_open_log file
+    then ()
+    else raise Fail (concat["Z3_open_log: ", file])
 
   fun main (name, args) =
     (case args

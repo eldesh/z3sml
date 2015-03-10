@@ -2,6 +2,7 @@ _require "basis.smi"
 _require "ffi.smi"
 _require "libh.smi"
 _require "z3_enum.smi"
+_require "z3_bool.smi"
 
 structure Z3_Accessor =
 struct
@@ -16,7 +17,7 @@ struct
   type Z3_params       = unit ptr
 
   type Z3_string         = String.string
-  type Z3_bool           = int
+  type Z3_bool           = Z3_bool.t
 
   val Z3_get_symbol_kind
     : Z3_context * Z3_symbol -> Z3_enum.Z3_symbol_kind.t

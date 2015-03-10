@@ -15,6 +15,7 @@ SAMPLE_SRC = sample/sample.sml
 SAMPLE = $(SAMPLE_SRC:.sml=)
 
 SRCS = src/z3.sml \
+	   src/z3_bool.sml \
 	   src/z3_fixedpoint.sml \
 	   src/z3_ast_vector.sml \
 	   src/z3_ast_map.sml \

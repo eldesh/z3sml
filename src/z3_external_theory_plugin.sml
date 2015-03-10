@@ -19,7 +19,7 @@ in
   type Z3_func_decl   = unit ptr
 
   type Z3_string = String.string
-  type Z3_bool   = int
+  type Z3_bool   = Z3_bool.t
 
   type Z3_reduce_app_callback_fptr =
          (Z3_theory * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> Z3_bool
@@ -70,7 +70,7 @@ in
   val Z3_set_reduce_app_callback_raw =
     Dyn.dlsym(libz3, "Z3_set_reduce_app_callback")
     : _import (Z3_theory
-                , (Z3_theory, Z3_func_decl, word, Z3_ast ptr, Z3_ast ptr) -> Z3_bool) -> ()
+                , (Z3_theory, Z3_func_decl, word, Z3_ast ptr, Z3_ast ptr) -> int) -> ()
 
   fun Z3_set_reduce_app_callback (t, f) =
     let
@@ -79,14 +79,14 @@ in
           val args = importVector args (Word.toInt n)
           val r'   = ref (SMLSharp_Builtin.Pointer.deref r)
         in
-          f (t, d, args, r')
+          Z3_bool.toInt (f (t, d, args, r'))
         end
     in Z3_set_reduce_app_callback_raw (t, f')
     end
 
   val Z3_set_reduce_distinct_callback_raw =
     Dyn.dlsym(libz3, "Z3_set_reduce_distinct_callback")
-    : _import (Z3_theory, (Z3_theory, word, Z3_ast ptr, Z3_ast ptr)->Z3_bool) -> ()
+    : _import (Z3_theory, (Z3_theory, word, Z3_ast ptr, Z3_ast ptr) -> int) -> ()
 
   fun Z3_set_reduce_distinct_callback (t, f) =
     let
@@ -94,20 +94,20 @@ in
         let
           val args = importVector args (Word.toInt n)
           val r' = ref (SMLSharp_Builtin.Pointer.deref r)
-        in f (t, args, r')
+        in Z3_bool.toInt (f (t, args, r'))
         end
     in Z3_set_reduce_distinct_callback_raw (t, f')
     end
 
   val Z3_set_reduce_eq_callback_raw =
     Dyn.dlsym(libz3, "Z3_set_reduce_eq_callback")
-    : _import (Z3_theory, (Z3_theory, Z3_ast, Z3_ast, Z3_ast ptr) -> Z3_bool) -> ()
+    : _import (Z3_theory, (Z3_theory, Z3_ast, Z3_ast, Z3_ast ptr) -> int) -> ()
 
   fun Z3_set_reduce_eq_callback (t, f) =
     let
       fun f' (t, s_1, s_2, r) =
         let val r' = ref (SMLSharp_Builtin.Pointer.deref r)
-        in f (t, s_1, s_2, r')
+        in Z3_bool.toInt (f (t, s_1, s_2, r'))
         end
     in Z3_set_reduce_eq_callback_raw (t, f')
     end
@@ -140,9 +140,14 @@ in
     Dyn.dlsym(libz3, "Z3_set_reset_callback")
     : _import (Z3_theory, Z3_theory -> ()) -> ()
 
-  val Z3_set_final_check_callback =
+  val Z3_set_final_check_callback_raw =
     Dyn.dlsym(libz3, "Z3_set_final_check_callback")
-    : _import (Z3_theory, Z3_theory -> Z3_bool) -> ()
+    : _import (Z3_theory, Z3_theory -> int) -> ()
+
+  fun Z3_set_final_check_callback (t, f) =
+    let fun f' t = Z3_bool.toInt (f t) in
+      Z3_set_final_check_callback_raw (t, f')
+    end
 
   val Z3_set_new_eq_callback =
     Dyn.dlsym(libz3, "Z3_set_new_eq_callback")
@@ -152,9 +157,14 @@ in
     Dyn.dlsym(libz3, "Z3_set_new_diseq_callback")
     : _import (Z3_theory, (Z3_theory, Z3_ast, Z3_ast)->()) -> ()
 
-  val Z3_set_new_assignment_callback =
+  val Z3_set_new_assignment_callback_raw =
     Dyn.dlsym(libz3, "Z3_set_new_assignment_callback")
-    : _import (Z3_theory, (Z3_theory, Z3_ast, Z3_bool)->()) -> ()
+    : _import (Z3_theory, (Z3_theory, Z3_ast, int)->()) -> ()
+
+  fun Z3_set_new_assignment_callback (t, f) =
+    let fun f' (t, p, v) = f (t, p, Z3_bool.fromInt v) in
+      Z3_set_new_assignment_callback_raw (t, f')
+    end
 
   val Z3_set_new_relevant_callback =
     Dyn.dlsym(libz3, "Z3_set_new_relevant_callback")
@@ -168,9 +178,10 @@ in
     Dyn.dlsym(libz3, "Z3_theory_assume_eq")
     : _import (Z3_theory, Z3_ast, Z3_ast) -> ()
 
-  val Z3_theory_enable_axiom_simplification =
-    Dyn.dlsym(libz3, "Z3_theory_enable_axiom_simplification")
-    : _import (Z3_theory, Z3_bool) -> ()
+  fun Z3_theory_enable_axiom_simplification (t, flag) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_theory_enable_axiom_simplification"))
+    ( t : Z3_theory
+    , Z3_bool.toInt flag : int) : ()
 
   val Z3_theory_get_eqc_root =
     Dyn.dlsym(libz3, "Z3_theory_get_eqc_root")
@@ -189,12 +200,14 @@ in
     : _import (Z3_theory, Z3_ast, word) -> Z3_ast
 
   val Z3_theory_is_value =
-    Dyn.dlsym(libz3, "Z3_theory_is_value")
-    : _import (Z3_theory, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_theory_is_value")
+       : _import (Z3_theory, Z3_ast) -> int)
 
   val Z3_theory_is_decl =
-    Dyn.dlsym(libz3, "Z3_theory_is_decl")
-    : _import (Z3_theory, Z3_func_decl) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_theory_is_decl")
+       : _import (Z3_theory, Z3_func_decl) -> int)
 
   val Z3_theory_get_num_elems =
     Dyn.dlsym(libz3, "Z3_theory_get_num_elems")

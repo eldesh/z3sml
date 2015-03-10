@@ -14,7 +14,7 @@ in
   type Z3_sort        = unit ptr
   type Z3_func_entry  = unit ptr
   type Z3_ast_vector  = unit ptr
-  type Z3_bool        = int
+  type Z3_bool        = Z3_bool.t
 
   val Z3_model_inc_ref =
     Dyn.dlsym(libz3, "Z3_model_inc_ref")
@@ -24,9 +24,14 @@ in
     Dyn.dlsym(libz3, "Z3_model_dec_ref")
     : _import (Z3_context, Z3_model) -> ()
 
-  val Z3_model_eval =
-    Dyn.dlsym(libz3, "Z3_model_eval")
-    : _import (Z3_context, Z3_model, Z3_ast, Z3_bool, Z3_ast ref) -> Z3_bool
+  fun Z3_model_eval (c, m, t, model_completion, v) =
+    Z3_bool.fromInt
+    (_ffiapply (Dyn.dlsym(libz3, "Z3_model_eval"))
+      ( c : Z3_context
+      , m : Z3_model
+      , t : Z3_ast
+      , Z3_bool.toInt model_completion : int
+      , v : Z3_ast ref) : int)
 
   val Z3_model_get_const_interp =
     Dyn.dlsym(libz3, "Z3_model_get_const_interp")
@@ -65,8 +70,9 @@ in
     : _import (Z3_context, Z3_model, Z3_sort) -> Z3_ast_vector
 
   val Z3_is_as_array =
-    Dyn.dlsym(libz3, "Z3_is_as_array")
-    : _import (Z3_context, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_is_as_array")
+       : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_get_as_array_func_decl =
     Dyn.dlsym(libz3, "Z3_get_as_array_func_decl")

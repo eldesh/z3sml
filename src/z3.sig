@@ -1,42 +1,74 @@
 
 signature Z3 =
 sig
-  type Z3_config
+  structure Tag :
+  sig
+    eqtype Z3_config           
+    eqtype Z3_symbol           
+    eqtype Z3_ast              
+    eqtype Z3_sort             
+    eqtype Z3_func_decl        
+    eqtype Z3_app              
+    eqtype Z3_pattern          
+    eqtype Z3_params           
+    eqtype Z3_model            
+    eqtype Z3_func_interp      
+    eqtype Z3_func_entry       
+    eqtype Z3_fixedpoint       
+    eqtype Z3_ast_vector       
+    eqtype Z3_ast_map          
+    eqtype Z3_tactic           
+    eqtype Z3_probe            
+    eqtype Z3_apply_result     
+    eqtype Z3_solver           
+    eqtype Z3_stats            
+    eqtype Z3_rcf_num          
+    eqtype Z3_literals         
+    eqtype Z3_goal             
+    eqtype Z3_context          
+    eqtype Z3_constructor      
+    eqtype Z3_constructor_list 
+    eqtype Z3_param_descrs     
+    eqtype Z3_contextarget     
+    eqtype Z3_theory           
+    eqtype Z3_theory_data      
+  end
 
-  type Z3_symbol
-  type Z3_ast           = unit ptr
-  eqtype Z3_sort
-  type Z3_func_decl     = unit ptr
-  type Z3_app
-  type Z3_pattern
-  type Z3_params
-  type Z3_model         = unit ptr
-  type Z3_func_interp  
-  type Z3_func_entry   
-  type Z3_fixedpoint   
-  type Z3_ast_vector   
-  type Z3_ast_map      
-  type Z3_tactic       
-  type Z3_probe        
-  type Z3_apply_result 
-  type Z3_solver       
-  type Z3_stats        
-  type Z3_rcf_num      
-  type Z3_literals     
-  type Z3_goal         
+  type Z3_config           = Tag.Z3_config ptr
+  type Z3_symbol           = Tag.Z3_symbol ptr
+  type Z3_ast              = Tag.Z3_ast ptr
+  type Z3_sort             = Tag.Z3_sort ptr
+  type Z3_func_decl        = Tag.Z3_func_decl ptr
+  type Z3_app              = Tag.Z3_app ptr
+  type Z3_pattern          = Tag.Z3_pattern ptr
+  type Z3_params           = Tag.Z3_params ptr
+  type Z3_model            = Tag.Z3_model ptr
+  type Z3_func_interp      = Tag.Z3_func_interp ptr
+  type Z3_func_entry       = Tag.Z3_func_entry ptr
+  type Z3_fixedpoint       = Tag.Z3_fixedpoint ptr
+  type Z3_ast_vector       = Tag.Z3_ast_vector ptr
+  type Z3_ast_map          = Tag.Z3_ast_map ptr
+  type Z3_tactic           = Tag.Z3_tactic ptr
+  type Z3_probe            = Tag.Z3_probe ptr
+  type Z3_apply_result     = Tag.Z3_apply_result ptr
+  type Z3_solver           = Tag.Z3_solver ptr
+  type Z3_stats            = Tag.Z3_stats ptr
+  type Z3_rcf_num          = Tag.Z3_rcf_num ptr
+  type Z3_literals         = Tag.Z3_literals ptr
+  type Z3_goal             = Tag.Z3_goal ptr
+  type Z3_context          = Tag.Z3_context ptr
+  type Z3_constructor      = Tag.Z3_constructor ptr
+  type Z3_constructor_list = Tag.Z3_constructor_list ptr
+  type Z3_param_descrs     = Tag.Z3_param_descrs ptr
+  type Z3_contextarget     = Tag.Z3_contextarget ptr
+  type Z3_theory           = Tag.Z3_theory ptr
+  type Z3_theory_data      = Tag.Z3_theory_data ptr
 
-  type Z3_context          
-  type Z3_sort_opt          = Z3_sort option
-  type Z3_constructor      
-  type Z3_constructor_list 
-  type Z3_string            = String.string
-  type Z3_string_ptr        = Z3_string ref
-  type Z3_param_descrs     
-  type Z3_contextarget     
-  type Z3_theory           
-  type Z3_theory_data      
+  type Z3_string           = String.string
+  type Z3_sort_opt         = Z3_sort option
+  type Z3_string_ptr       = Z3_string ref
 
-  eqtype Z3_bool           
+  datatype Z3_bool = datatype Z3_bool.t
   val Z3_TRUE  : Z3_bool
   val Z3_FALSE : Z3_bool
 

@@ -5,7 +5,7 @@ local
   structure Dyn = DynamicLink
   val libz3 = Library.libz3
 in
-  type Z3_bool = int
+  type Z3_bool   = Z3_bool.t
   type Z3_string = String.string
 
   val Z3_global_param_set =
@@ -17,8 +17,9 @@ in
     : _import () -> ()
 
   val Z3_global_param_get =
-    Dyn.dlsym (libz3, "Z3_global_param_get")
-    : _import (Z3_string, Z3_string ref) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym (libz3, "Z3_global_param_get")
+       : _import (Z3_string, Z3_string ref) -> int)
 
 end (* local *)
 end

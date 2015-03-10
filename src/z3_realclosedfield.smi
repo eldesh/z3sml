@@ -1,13 +1,14 @@
 _require "basis.smi"
 _require "ffi.smi"
 _require "libh.smi"
+_require "z3_bool.smi"
 
 structure Z3_RealClosedField =
 struct
   type Z3_context = unit ptr
   type Z3_rcf_num = unit ptr
   type Z3_string  = String.string
-  type Z3_bool    = int
+  type Z3_bool    = Z3_bool.t
 
   val Z3_rcf_del
     : Z3_context * Z3_rcf_num -> unit

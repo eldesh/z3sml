@@ -11,7 +11,7 @@ in
   type Z3_ast_vector = unit ptr
   type Z3_ast_map    = unit ptr
   type Z3_string     = String.string
-  type Z3_bool       = int
+  type Z3_bool       = Z3_bool.t
 
   val Z3_mk_ast_map =
     Dyn.dlsym(libz3, "Z3_mk_ast_map")
@@ -26,8 +26,9 @@ in
     : _import (Z3_context, Z3_ast_map) -> ()
 
   val Z3_ast_map_contains =
-    Dyn.dlsym(libz3, "Z3_ast_map_contains")
-    : _import (Z3_context, Z3_ast_map, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_ast_map_contains")
+       : _import (Z3_context, Z3_ast_map, Z3_ast) -> int)
 
   val Z3_ast_map_find =
     Dyn.dlsym(libz3, "Z3_ast_map_find")

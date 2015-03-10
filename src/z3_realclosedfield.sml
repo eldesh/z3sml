@@ -9,7 +9,7 @@ in
   type Z3_context = unit ptr
   type Z3_rcf_num = unit ptr
   type Z3_string  = String.string
-  type Z3_bool    = int
+  type Z3_bool    = Z3_bool.t
 
   val Z3_rcf_del =
     Dyn.dlsym(libz3, "Z3_rcf_del")
@@ -94,10 +94,13 @@ in
     Dyn.dlsym(libz3, "Z3_rcf_neq")
     : _import (Z3_context, Z3_rcf_num, Z3_rcf_num) -> Z3_rcf_num
 
-  val Z3_rcf_num_to_string =
-    Pointer.importString o
-    (Dyn.dlsym(libz3, "Z3_rcf_num_to_string")
-    : _import (Z3_context, Z3_rcf_num, Z3_bool, Z3_bool) -> char ptr)
+  fun Z3_rcf_num_to_string (c, a, compact, html) =
+    Pointer.importString
+    (_ffiapply (Dyn.dlsym(libz3, "Z3_rcf_num_to_string"))
+      ( c : Z3_context
+      , a : Z3_rcf_num
+      , Z3_bool.toInt compact : int
+      , Z3_bool.toInt html : int) : char ptr)
 
   val Z3_rcf_num_to_decimal_string =
     Pointer.importString o

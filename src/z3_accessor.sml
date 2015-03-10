@@ -18,7 +18,7 @@ in
   type Z3_params       = unit ptr
 
   type Z3_string         = String.string
-  type Z3_bool           = int
+  type Z3_bool           = Z3_bool.t
 
   val Z3_get_symbol_kind =
     E.Z3_symbol_kind.fromInt o (
@@ -47,8 +47,9 @@ in
     : _import (Z3_context, Z3_sort) -> Z3_ast
 
   val Z3_is_eq_sort =
-    Dyn.dlsym(libz3, "Z3_is_eq_sort")
-    : _import (Z3_context, Z3_sort, Z3_sort) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_is_eq_sort")
+       : _import (Z3_context, Z3_sort, Z3_sort) -> int)
 
   val Z3_get_sort_kind =
     E.Z3_sort_kind.fromInt o (
@@ -114,8 +115,9 @@ in
     : _import (Z3_context, Z3_func_decl) -> Z3_ast
 
   val Z3_is_eq_func_decl =
-    Dyn.dlsym(libz3, "Z3_is_eq_func_decl")
-    : _import (Z3_context, Z3_func_decl, Z3_func_decl) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_is_eq_func_decl")
+       : _import (Z3_context, Z3_func_decl, Z3_func_decl) -> int)
 
   val Z3_get_func_decl_id =
     Dyn.dlsym(libz3, "Z3_get_func_decl_id")
@@ -201,8 +203,9 @@ in
     : _import (Z3_context, Z3_app, word) -> Z3_ast
 
   val Z3_is_eq_ast =
-    Dyn.dlsym(libz3, "Z3_is_eq_ast")
-    : _import (Z3_context, Z3_ast, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_is_eq_ast")
+       : _import (Z3_context, Z3_ast, Z3_ast) -> int)
 
   val Z3_get_ast_id =
     Dyn.dlsym(libz3, "Z3_get_ast_id")
@@ -217,8 +220,9 @@ in
     : _import (Z3_context, Z3_ast) -> Z3_sort
 
   val Z3_is_well_sorted =
-    Dyn.dlsym(libz3, "Z3_is_well_sorted")
-    : _import (Z3_context, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_is_well_sorted")
+       : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_get_bool_value =
     E.Z3_lbool.fromInt o (
@@ -231,16 +235,19 @@ in
     : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_is_app =
-    Dyn.dlsym(libz3, "Z3_is_app")
-    : _import (Z3_context, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_is_app")
+       : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_is_numeral_ast =
-    Dyn.dlsym(libz3, "Z3_is_numeral_ast")
-    : _import (Z3_context, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_is_numeral_ast")
+       : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_is_algebraic_number =
-    Dyn.dlsym(libz3, "Z3_is_algebraic_number")
-    : _import (Z3_context, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_is_algebraic_number")
+       : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_to_app =
     Dyn.dlsym(libz3, "Z3_to_app")
@@ -275,12 +282,14 @@ in
  *)
 
   val Z3_get_numeral_int =
-    Dyn.dlsym(libz3, "Z3_get_numeral_int")
-    : _import (Z3_context, Z3_ast, int ref) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_get_numeral_int")
+       : _import (Z3_context, Z3_ast, int ref) -> int)
 
   val Z3_get_numeral_uint =
-    Dyn.dlsym(libz3, "Z3_get_numeral_uint")
-    : _import (Z3_context, Z3_ast, word ref) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_get_numeral_uint")
+       : _import (Z3_context, Z3_ast, word ref) -> int)
 
 (*
   val Z3_get_numeral_uint64 =
@@ -322,8 +331,9 @@ in
     : _import (Z3_context, Z3_ast) -> word
 
   val Z3_is_quantifier_forall =
-    Dyn.dlsym(libz3, "Z3_is_quantifier_forall")
-    : _import (Z3_context, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_is_quantifier_forall")
+       : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_get_quantifier_weight =
     Dyn.dlsym(libz3, "Z3_get_quantifier_weight")

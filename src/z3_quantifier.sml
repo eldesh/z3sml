@@ -12,7 +12,7 @@ in
   type Z3_ast     = unit ptr
   type Z3_app     = unit ptr
   type Z3_symbol  = unit ptr
-  type Z3_bool    = int
+  type Z3_bool    = Z3_bool.t
 
   fun Z3_mk_pattern (c, args) =
     _ffiapply (Dyn.dlsym(libz3, "Z3_mk_pattern"))
@@ -45,7 +45,7 @@ in
   fun Z3_mk_quantifier (c, is_forall, weight, patterns, sorts, decl_names, body) =
     _ffiapply (Dyn.dlsym(libz3, "Z3_mk_quantifier"))
     ( c : Z3_context
-    , is_forall : Z3_bool
+    , Z3_bool.toInt is_forall : int
     , weight : word
     , Vector.length patterns : int, patterns : Z3_pattern vector
     , Vector.length sorts : int, sorts : Z3_sort vector
@@ -56,7 +56,7 @@ in
                         , patterns, no_patterns, sorts, decl_names, body) =
     _ffiapply (Dyn.dlsym(libz3, "Z3_mk_quantifier_ex"))
     ( c : Z3_context
-    , is_forall : Z3_bool
+    , Z3_bool.toInt is_forall : int
     , weight : word
     , quantifier_id : Z3_symbol
     , skolem_id : Z3_symbol
@@ -86,7 +86,7 @@ in
                             , bound, patterns, body) =
     _ffiapply (Dyn.dlsym(libz3, "Z3_mk_quantifier_const"))
     ( c : Z3_context
-    , is_forall : Z3_bool
+    , Z3_bool.toInt is_forall : int
     , weight : word
     , Vector.length bound : int, bound : Z3_app vector
     , Vector.length patterns : int, patterns : Z3_pattern vector
@@ -96,7 +96,7 @@ in
                                 , bound, patterns, no_patterns, body) =
     _ffiapply (Dyn.dlsym(libz3, "Z3_mk_quantifier_const_ex"))
     ( c : Z3_context
-    , is_forall : Z3_bool
+    , Z3_bool.toInt is_forall : int
     , weight : word
     , quantifier_id : Z3_symbol
     , skolem_id : Z3_symbol

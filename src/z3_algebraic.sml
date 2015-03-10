@@ -10,24 +10,28 @@ local
 in
   type Z3_context = unit ptr
   type Z3_ast = unit ptr
-  type Z3_bool = int
   type Z3_ast_vector = unit ptr
+  type Z3_bool       = Z3_bool.t
 
   val Z3_algebraic_is_value =
-    Dyn.dlsym(libz3, "Z3_algebraic_is_value")
-    : _import (Z3_context, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_algebraic_is_value")
+       : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_algebraic_is_pos =
-    Dyn.dlsym(libz3, "Z3_algebraic_is_pos")
-    : _import (Z3_context, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_algebraic_is_pos")
+       : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_algebraic_is_neg =
-    Dyn.dlsym(libz3, "Z3_algebraic_is_neg")
-    : _import (Z3_context, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_algebraic_is_neg")
+       : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_algebraic_is_zero =
-    Dyn.dlsym(libz3, "Z3_algebraic_is_zero")
-    : _import (Z3_context, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_algebraic_is_zero")
+       : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_algebraic_sign =
     Dyn.dlsym(libz3, "Z3_algebraic_sign")
@@ -58,28 +62,34 @@ in
     : _import (Z3_context, Z3_ast, word) -> Z3_ast
 
   val Z3_algebraic_lt =
-    Dyn.dlsym(libz3, "Z3_algebraic_lt")
-    : _import (Z3_context, Z3_ast, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_algebraic_lt")
+       : _import (Z3_context, Z3_ast, Z3_ast) -> int)
 
   val Z3_algebraic_gt =
-    Dyn.dlsym(libz3, "Z3_algebraic_gt")
-    : _import (Z3_context, Z3_ast, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_algebraic_gt")
+       : _import (Z3_context, Z3_ast, Z3_ast) -> int)
 
   val Z3_algebraic_le =
-    Dyn.dlsym(libz3, "Z3_algebraic_le")
-    : _import (Z3_context, Z3_ast, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_algebraic_le")
+       : _import (Z3_context, Z3_ast, Z3_ast) -> int)
 
   val Z3_algebraic_ge =
-    Dyn.dlsym(libz3, "Z3_algebraic_ge")
-    : _import (Z3_context, Z3_ast, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_algebraic_ge")
+       : _import (Z3_context, Z3_ast, Z3_ast) -> int)
 
   val Z3_algebraic_eq =
-    Dyn.dlsym(libz3, "Z3_algebraic_eq")
-    : _import (Z3_context, Z3_ast, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_algebraic_eq")
+       : _import (Z3_context, Z3_ast, Z3_ast) -> int)
 
   val Z3_algebraic_neq =
-    Dyn.dlsym(libz3, "Z3_algebraic_neq")
-    : _import (Z3_context, Z3_ast, Z3_ast) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_algebraic_neq")
+       : _import (Z3_context, Z3_ast, Z3_ast) -> int)
 
   val Z3_algebraic_roots =
     Dyn.dlsym(libz3, "Z3_algebraic_roots")

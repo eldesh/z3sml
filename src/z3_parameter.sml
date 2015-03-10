@@ -10,7 +10,7 @@ in
   type Z3_params       = unit ptr
   type Z3_symbol       = unit ptr
   type Z3_param_descrs = unit ptr
-  type Z3_bool         = int
+  type Z3_bool         = Z3_bool.t
   type Z3_string       = String.string
  
   val Z3_mk_params =
@@ -25,9 +25,12 @@ in
     Dyn.dlsym (libz3, "Z3_params_dec_ref")
     : _import (Z3_context, Z3_params) -> ()
 
-  val Z3_params_set_bool =
-    Dyn.dlsym (libz3, "Z3_params_set_bool")
-    : _import (Z3_context, Z3_params, Z3_symbol, Z3_bool) -> ()
+  fun Z3_params_set_bool (c, p, k, v) =
+    _ffiapply (Dyn.dlsym (libz3, "Z3_params_set_bool"))
+    ( c : Z3_context
+    , p : Z3_params
+    , k : Z3_symbol
+    , Z3_bool.toInt v : int) : ()
 
   val Z3_params_set_uint =
     Dyn.dlsym (libz3, "Z3_params_set_uint")

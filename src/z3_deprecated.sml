@@ -15,7 +15,7 @@ in
   type Z3_ast      = unit ptr
   type Z3_symbol   = unit ptr
   type Z3_sort     = unit ptr
-  type Z3_bool     = int
+  type Z3_bool     = Z3_bool.t
   type Z3_string   = String.string
   type Z3_literals = unit ptr
   type Z3_func_decl = unit ptr
@@ -36,8 +36,9 @@ in
    * Deprecated Constraints API
    *)
   val Z3_set_logic =
-    Dyn.dlsym (libz3, "Z3_set_logic")
-    : _import (Z3_context, Z3_string) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym (libz3, "Z3_set_logic")
+       : _import (Z3_context, Z3_string) -> int)
 
   val Z3_push =
     Dyn.dlsym (libz3, "Z3_push")
@@ -108,9 +109,12 @@ in
   (*
    * Deprecated Labels API
    *)
-  val Z3_mk_label =
-    Dyn.dlsym (libz3, "Z3_mk_label")
-    : _import (Z3_context, Z3_symbol, Z3_bool, Z3_ast) -> Z3_ast
+  fun Z3_mk_label (c, s, is_pos, f) =
+    _ffiapply (Dyn.dlsym (libz3, "Z3_mk_label"))
+    ( c : Z3_context
+    , s : Z3_symbol
+    , Z3_bool.toInt is_pos : int
+    , f : Z3_ast) : Z3_ast
 
   val Z3_get_relevant_labels =
     Dyn.dlsym (libz3, "Z3_get_relevant_labels")
@@ -168,12 +172,14 @@ in
     : _import (Z3_context, Z3_model, word) -> Z3_func_decl
 
   val Z3_eval_func_decl =
-    Dyn.dlsym (libz3, "Z3_eval_func_decl")
-    : _import (Z3_context, Z3_model, Z3_func_decl, Z3_ast ref) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym (libz3, "Z3_eval_func_decl")
+       : _import (Z3_context, Z3_model, Z3_func_decl, Z3_ast ref) -> int)
 
   val Z3_is_array_value =
-    Dyn.dlsym (libz3, "Z3_is_array_value")
-    : _import (Z3_context, Z3_model, Z3_ast, word ref) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym (libz3, "Z3_is_array_value")
+       : _import (Z3_context, Z3_model, Z3_ast, word ref) -> int)
 
   val Z3_get_array_value =
     Dyn.dlsym (libz3, "Z3_get_array_value")
@@ -201,17 +207,19 @@ in
     : _import (Z3_context, Z3_model, word, word) -> Z3_ast
 
   val Z3_eval =
-    Dyn.dlsym (libz3, "Z3_eval")
-    : _import (Z3_context, Z3_model, Z3_ast, Z3_ast ref) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym (libz3, "Z3_eval")
+       : _import (Z3_context, Z3_model, Z3_ast, Z3_ast ref) -> int)
 
   fun Z3_eval_decl (c, m, d, args, v) =
-    _ffiapply (Dyn.dlsym (libz3, "Z3_eval_decl"))
-    ( c : Z3_context
-    , m : Z3_model
-    , d : Z3_func_decl
-    , Vector.length args : int
-    , args : Z3_ast vector
-    , v : Z3_ast ref) : Z3_bool
+    Z3_bool.fromInt
+      (_ffiapply (Dyn.dlsym (libz3, "Z3_eval_decl"))
+       ( c : Z3_context
+       , m : Z3_model
+       , d : Z3_func_decl
+       , Vector.length args : int
+       , args : Z3_ast vector
+       , v : Z3_ast ref) : int)
 
   (*
    * Deprecated String conversion API

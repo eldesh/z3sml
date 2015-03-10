@@ -9,12 +9,15 @@ in
   type Z3_context   = unit ptr
   type Z3_goal      = unit ptr
   type Z3_ast       = unit ptr
-  type Z3_bool      = int
+  type Z3_bool      = Z3_bool.t
   type Z3_string    = String.string
 
-  val Z3_mk_goal =
-    Dyn.dlsym(libz3, "Z3_mk_goal")
-    : _import (Z3_context, Z3_bool, Z3_bool, Z3_bool) -> Z3_goal
+  fun Z3_mk_goal (c, models, unsat_cores, proofs) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_mk_goal"))
+    ( c : Z3_context
+    , Z3_bool.toInt models      : int
+    , Z3_bool.toInt unsat_cores : int
+    , Z3_bool.toInt proofs      : int) : Z3_goal
      
   val Z3_goal_inc_ref =
     Dyn.dlsym(libz3, "Z3_goal_inc_ref")
@@ -34,8 +37,9 @@ in
     : _import (Z3_context, Z3_goal, Z3_ast) -> ()
      
   val Z3_goal_inconsistent =
-    Dyn.dlsym(libz3, "Z3_goal_inconsistent")
-    : _import (Z3_context, Z3_goal) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_goal_inconsistent")
+       : _import (Z3_context, Z3_goal) -> int)
      
   val Z3_goal_depth =
     Dyn.dlsym(libz3, "Z3_goal_depth")
@@ -58,12 +62,14 @@ in
     : _import (Z3_context, Z3_goal) -> word
      
   val Z3_goal_is_decided_sat =
-    Dyn.dlsym(libz3, "Z3_goal_is_decided_sat")
-    : _import (Z3_context, Z3_goal) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_goal_is_decided_sat")
+       : _import (Z3_context, Z3_goal) -> int)
      
   val Z3_goal_is_decided_unsat =
-    Dyn.dlsym(libz3, "Z3_goal_is_decided_unsat")
-    : _import (Z3_context, Z3_goal) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_goal_is_decided_unsat")
+       : _import (Z3_context, Z3_goal) -> int)
      
   val Z3_goal_translate =
     Dyn.dlsym(libz3, "Z3_goal_translate")

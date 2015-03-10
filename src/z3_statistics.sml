@@ -9,7 +9,7 @@ in
   type Z3_context = unit ptr
   type Z3_stats   = unit ptr
   type Z3_string  = String.string
-  type Z3_bool    = int
+  type Z3_bool    = Z3_bool.t
 
   val Z3_stats_to_string =
     Ptr.importString o
@@ -34,12 +34,14 @@ in
     : _import (Z3_context, Z3_stats, word) -> char ptr)
 
   val Z3_stats_is_uint =
-    Dyn.dlsym(libz3, "Z3_stats_is_uint")
-    : _import (Z3_context, Z3_stats, word) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_stats_is_uint")
+       : _import (Z3_context, Z3_stats, word) -> int)
 
   val Z3_stats_is_double =
-    Dyn.dlsym(libz3, "Z3_stats_is_double")
-    : _import (Z3_context, Z3_stats, word) -> Z3_bool
+    Z3_bool.fromInt o
+      (Dyn.dlsym(libz3, "Z3_stats_is_double")
+       : _import (Z3_context, Z3_stats, word) -> int)
 
   val Z3_stats_get_uint_value =
     Dyn.dlsym(libz3, "Z3_stats_get_uint_value")

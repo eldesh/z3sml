@@ -8,7 +8,7 @@ local
 in
   type Z3_context = unit ptr
   type Z3_ast     = unit ptr
-  type Z3_bool    = int
+  type Z3_bool    = Z3_bool.t
 
   val Z3_mk_bvnot =
     Dyn.dlsym(libz3, "Z3_mk_bvnot")
@@ -166,13 +166,18 @@ in
     Dyn.dlsym(libz3, "Z3_mk_int2bv")
     : _import (Z3_context, word, Z3_ast) -> Z3_ast
 
-  val Z3_mk_bv2int =
-    Dyn.dlsym(libz3, "Z3_mk_bv2int")
-    : _import (Z3_context, Z3_ast, Z3_bool) -> Z3_ast
+  fun Z3_mk_bv2int (c, t1, is_signed) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_mk_bv2int"))
+    ( c : Z3_context
+    , t1 : Z3_ast
+    , Z3_bool.toInt is_signed : int) : Z3_ast
 
-  val Z3_mk_bvadd_no_overflow =
-    Dyn.dlsym(libz3, "Z3_mk_bvadd_no_overflow")
-    : _import (Z3_context, Z3_ast, Z3_ast, Z3_bool) -> Z3_ast
+  fun Z3_mk_bvadd_no_overflow (c, t1, t2, is_signed) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_mk_bvadd_no_overflow"))
+    ( c : Z3_context
+    , t1 : Z3_ast
+    , t1 : Z3_ast
+    , Z3_bool.toInt is_signed : int) : Z3_ast
 
   val Z3_mk_bvadd_no_underflow =
     Dyn.dlsym(libz3, "Z3_mk_bvadd_no_underflow")
@@ -182,9 +187,12 @@ in
     Dyn.dlsym(libz3, "Z3_mk_bvsub_no_overflow")
     : _import (Z3_context, Z3_ast, Z3_ast) -> Z3_ast
 
-  val Z3_mk_bvsub_no_underflow =
-    Dyn.dlsym(libz3, "Z3_mk_bvsub_no_underflow")
-    : _import (Z3_context, Z3_ast, Z3_ast, Z3_bool) -> Z3_ast
+  fun Z3_mk_bvsub_no_underflow (c, t1, t2, is_signed) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_mk_bvsub_no_underflow"))
+    ( c : Z3_context
+    , t1 : Z3_ast
+    , t2 : Z3_ast
+    , Z3_bool.toInt is_signed : int) : Z3_ast
 
   val Z3_mk_bvsdiv_no_overflow =
     Dyn.dlsym(libz3, "Z3_mk_bvsdiv_no_overflow")
@@ -194,9 +202,12 @@ in
     Dyn.dlsym(libz3, "Z3_mk_bvneg_no_overflow")
     : _import (Z3_context, Z3_ast) -> Z3_ast
 
-  val Z3_mk_bvmul_no_overflow =
-    Dyn.dlsym(libz3, "Z3_mk_bvmul_no_overflow")
-    : _import (Z3_context, Z3_ast, Z3_ast, Z3_bool) -> Z3_ast
+  fun Z3_mk_bvmul_no_overflow (c, t1, t2, is_signed) =
+    _ffiapply (Dyn.dlsym(libz3, "Z3_mk_bvmul_no_overflow"))
+    ( c : Z3_context
+    , t1 : Z3_ast
+    , t2 : Z3_ast
+    , Z3_bool.toInt is_signed : int) : Z3_ast
 
   val Z3_mk_bvmul_no_underflow =
     Dyn.dlsym(libz3, "Z3_mk_bvmul_no_underflow")

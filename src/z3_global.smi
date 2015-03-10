@@ -1,10 +1,11 @@
 _require "basis.smi"
 _require "ffi.smi"
 _require "libh.smi"
+_require "z3_bool.smi"
 
 structure Z3_Global =
 struct
-  type Z3_bool = int
+  type Z3_bool   = Z3_bool.t
   type Z3_string = String.string
 
   val Z3_global_param_set : Z3_string * Z3_string -> unit

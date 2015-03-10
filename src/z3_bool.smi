@@ -1,0 +1,12 @@
+_require "basis.smi"
+
+structure Z3_bool =
+struct
+  datatype t = datatype Bool.bool
+  val Z3_TRUE  : t
+  val Z3_FALSE : t
+
+  val toInt : t -> int
+  val fromInt : int -> t
+end
+

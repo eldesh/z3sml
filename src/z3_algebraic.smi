@@ -1,13 +1,14 @@
 _require "basis.smi"
 _require "ffi.smi"
 _require "libh.smi"
+_require "z3_bool.smi"
 
 structure Z3_Algebraic =
 struct
-  type Z3_context = unit ptr
-  type Z3_ast     = unit ptr
-  type Z3_bool    = int
+  type Z3_context    = unit ptr
+  type Z3_ast        = unit ptr
   type Z3_ast_vector = unit ptr
+  type Z3_bool       = Z3_bool.t
 
   val Z3_algebraic_is_value
     : Z3_context * Z3_ast -> Z3_bool
