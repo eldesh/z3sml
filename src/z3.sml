@@ -4,7 +4,7 @@
  * 
  * ref. http://research.microsoft.com/en-us/um/redmond/projects/z3/code/group__capi.html
  *)
-structure Z3 (* :> Z3 *) =
+structure Z3 : Z3 =
 struct
 local
   structure Ptr = Pointer

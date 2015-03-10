@@ -196,7 +196,6 @@ sig
     type Z3_context = Z3_context
     type Z3_ast     = Z3_ast
     type Z3_string  = Z3_string
-    type Z3_bool    = Z3_bool
 
     val Z3_mk_context
       : Z3_config -> Z3_context
@@ -1068,6 +1067,7 @@ sig
     type Z3_func_interp = Z3_func_interp
     type Z3_sort        = Z3_sort
     type Z3_func_entry  = Z3_func_entry
+    type Z3_ast_vector  = Z3_ast_vector
     type Z3_bool        = Z3_bool
 
     val Z3_model_inc_ref
@@ -1986,6 +1986,8 @@ sig
   sig
     type Z3_context = Z3_context
     type Z3_rcf_num = Z3_rcf_num
+    type Z3_string  = String.string
+    type Z3_bool    = Z3_bool
 
     val Z3_rcf_del
       : Z3_context * Z3_rcf_num -> unit
