@@ -22,10 +22,11 @@ Status
 Supported System
 --------------------------------
 
-* SML
+* SML Implementations
 
   Currently, SML# 2.0.0 is only supported.
   This library use Z3 functions of shared library(libz3.so) throught C API.
+  The most low level binding glue code is generated from C header files of Z3 with MLNLFFIGen.
 
 * Version
 
