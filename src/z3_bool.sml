@@ -1,7 +1,7 @@
 
 structure Z3_bool =
 struct
-  datatype t = datatype Bool.bool
+  type t = Bool.bool
   val Z3_TRUE  = true
   val Z3_FALSE = false
 
