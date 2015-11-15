@@ -3,14 +3,13 @@ structure Main =
 struct
   structure Ptr = Pointer
   structure D = Z3.Deprecated
-  structure Prop = Z3.Propositional
   structure E = Z3.Enum
 
   val LOG_Z3_CALLS = ref false
 
   fun LOG_MSG msg =
     if !LOG_Z3_CALLS
-    then Z3.Log.Z3_append_log msg
+    then Z3.Z3_append_log msg
     else ()
 
   fun println s = print(s^"\n")
@@ -34,18 +33,18 @@ struct
     end
 
   fun int_var ctx name =
-    let val ty = Z3.Sort.Z3_mk_int_sort ctx
+    let val ty = Z3.Z3_mk_int_sort ctx
     in var ctx name ty
     end
 
   fun bool_var ctx name =
-    let val ty = Z3.Sort.Z3_mk_bool_sort ctx
+    let val ty = Z3.Z3_mk_bool_sort ctx
     in var ctx name ty
     end
 
   fun int ctx v =
-    let val ty = Z3.Sort.Z3_mk_int_sort ctx
-    in Z3.Numerals.Z3_mk_int (ctx, v, ty)
+    let val ty = Z3.Z3_mk_int_sort ctx
+    in Z3.Z3_mk_int (ctx, v, ty)
     end
 
   fun check ctx expected =
@@ -58,11 +57,11 @@ struct
            | E.Z3_lbool.Z3_L_UNDEF =>
                (print "unknown\n";
                 print (concat["potential model:\n"
-                             , Z3.Stringconv.Z3_model_to_string (ctx, !m)
+                             , Z3.Z3_model_to_string (ctx, !m)
                              , "\n"]))
            | E.Z3_lbool.Z3_L_TRUE  =>
                (print (concat["sat\n"
-                             , Z3.Stringconv.Z3_model_to_string (ctx, !m)
+                             , Z3.Z3_model_to_string (ctx, !m)
                              , "\n"]))
     in
       if not (Ptr.isNull (!m))  then D.Z3_del_model (ctx, !m) else ();
@@ -70,48 +69,48 @@ struct
     end
 
   fun with_config f =
-    using Z3.Config.Z3_mk_config
-          Z3.Config.Z3_del_config
+    using Z3.Z3_mk_config
+          Z3.Z3_del_config
           f
 
   fun mk_context () =
     with_config (fn cfg =>
       let
-        val () = Z3.Config.Z3_set_param_value (cfg, "model", "true")
-        val ctx = Z3.Context.Z3_mk_context cfg
+        val () = Z3.Z3_set_param_value (cfg, "model", "true")
+        val ctx = Z3.Z3_mk_context cfg
       in
-        Z3.Error.Z3_set_error_handler(ctx, SOME (fn _ => print "error\n"));
+        Z3.Z3_set_error_handler(ctx, SOME (fn _ => print "error\n"));
         ctx
       end)
 
   fun mk_context_custom cfg error_handler =
     let
-      val ()  = Z3.Config.Z3_set_param_value (cfg, "model", "true")
-      val ctx = Z3.Context.Z3_mk_context cfg
-      val ()  = Z3.Error.Z3_set_error_handler(ctx, error_handler)
+      val ()  = Z3.Z3_set_param_value (cfg, "model", "true")
+      val ctx = Z3.Z3_mk_context cfg
+      val ()  = Z3.Z3_set_error_handler(ctx, error_handler)
     in
       ctx
     end
 
   fun with_context f =
     using mk_context
-          Z3.Context.Z3_del_context
+          Z3.Z3_del_context
           f
 
   exception ErrorCode of E.Z3_error_code.t
 
   fun with_ctx_error_handler h f =
     using (fn()=> let val ctx = mk_context () in
-                    Z3.Error.Z3_set_error_handler(ctx, h);
+                    Z3.Z3_set_error_handler(ctx, h);
                     ctx
                   end)
-          Z3.Context.Z3_del_context
+          Z3.Z3_del_context
           f
 
   fun mk_proof_context () =
     with_config (fn cfg =>
     let
-      val () = Z3.Config.Z3_set_param_value(cfg, "proof", "true")
+      val () = Z3.Z3_set_param_value(cfg, "proof", "true")
     in
       mk_context_custom cfg (SOME(fn(_, err)=> raise ErrorCode err))
     end)
@@ -132,25 +131,25 @@ struct
   fun demorgan () =
     with_context (fn ctx =>
     let
-      val bool_sort = Z3.Sort.Z3_mk_bool_sort ctx
+      val bool_sort = Z3.Z3_mk_bool_sort ctx
       val symbol_x  = Z3.Z3_mk_int_symbol (ctx, 0)
       val symbol_y  = Z3.Z3_mk_int_symbol (ctx, 1)
       val x         = Z3.Z3_mk_const (ctx, symbol_x, bool_sort)
       val y         = Z3.Z3_mk_const (ctx, symbol_y, bool_sort)
-      val not_x     = Prop.Z3_mk_not (ctx, x)
-      val not_y     = Prop.Z3_mk_not (ctx, y)
+      val not_x     = Z3.Z3_mk_not (ctx, x)
+      val not_y     = Z3.Z3_mk_not (ctx, y)
       (*
        * De Morgan - with a negation around
        * !(!(x && y) <-> (!x || !y))
        *)
       val args    = Array.fromList [x, y]
-      val x_and_y = Prop.Z3_mk_and (ctx, Array.vector args)
-      val ls      = Prop.Z3_mk_not (ctx, x_and_y)
+      val x_and_y = Z3.Z3_mk_and (ctx, Array.vector args)
+      val ls      = Z3.Z3_mk_not (ctx, x_and_y)
       val () = Array.update (args, 0, not_x)
       val () = Array.update (args, 1, not_y)
-      val rs                 = Prop.Z3_mk_or (ctx, Array.vector args)
-      val conjecture         = Prop.Z3_mk_iff(ctx, ls, rs)
-      val negated_conjecture = Prop.Z3_mk_not(ctx, conjecture)
+      val rs                 = Z3.Z3_mk_or (ctx, Array.vector args)
+      val conjecture         = Z3.Z3_mk_iff(ctx, ls, rs)
+      val negated_conjecture = Z3.Z3_mk_not(ctx, conjecture)
       val () = D.Z3_assert_cnstr (ctx, negated_conjecture)
     in
       case D.Z3_check ctx
@@ -164,7 +163,7 @@ struct
     let
       val x = bool_var ctx "x"
       val y = bool_var ctx "y"
-      val x_xor_y = Prop.Z3_mk_xor (ctx, x, y)
+      val x_xor_y = Z3.Z3_mk_xor (ctx, x, y)
       val () = D.Z3_assert_cnstr (ctx, x_xor_y)
     in
       print "model for: x xor y\n";
@@ -173,19 +172,18 @@ struct
 
   fun find_model_example2 () =
     let
-      open Z3.Arithmetic
-      val cfg = Z3.Config.Z3_mk_config ()
-      val ctx = Z3.Context.Z3_mk_context cfg
+      val cfg = Z3.Z3_mk_config ()
+      val ctx = Z3.Z3_mk_context cfg
 
       val x = int_var ctx "x"
       val y = int_var ctx "y"
       val one = int ctx 1
       val two = int ctx 2
 
-      val y_plus_one = Z3.Arithmetic.Z3_mk_add (ctx, Vector.fromList [y, one])
+      val y_plus_one = Z3.Z3_mk_add (ctx, Vector.fromList [y, one])
 
-      val c1 = Z3_mk_lt (ctx, x, y_plus_one)
-      val c2 = Z3_mk_gt (ctx, x, two)
+      val c1 = Z3.Z3_mk_lt (ctx, x, y_plus_one)
+      val c2 = Z3.Z3_mk_gt (ctx, x, two)
 
       val () = D.Z3_assert_cnstr (ctx, c1)
       val () = D.Z3_assert_cnstr (ctx, c2)
@@ -193,13 +191,13 @@ struct
       val () = print "model for: x < y + 1, x > 2\n"
       val () = check ctx E.Z3_lbool.Z3_L_TRUE
 
-      val x_eq_y = Prop.Z3_mk_eq (ctx, x, y)
-      val c3     = Prop.Z3_mk_not(ctx, x_eq_y)
+      val x_eq_y = Z3.Z3_mk_eq (ctx, x, y)
+      val c3     = Z3.Z3_mk_not(ctx, x_eq_y)
     in
       D.Z3_assert_cnstr (ctx, c3);
       print "model for: x < y + 1, x > 2, not(x = y)\n";
       check ctx E.Z3_lbool.Z3_L_TRUE;
-      Z3.Context.Z3_del_context ctx
+      Z3.Z3_del_context ctx
     end
 
   fun display_version () =
@@ -217,29 +215,28 @@ struct
   fun tutorial_sample () =
     with_context (fn ctx =>
     let
-      open Z3.Arithmetic
-      val solver = Z3.Solver.Z3_mk_solver ctx
+      val solver = Z3.Z3_mk_solver ctx
       val x = int_var ctx "x"
       val y = int_var ctx "y"
       val two   = int ctx 2
       val seven = int ctx 7
       val ten   = int ctx 10
-      fun add ctx (l,r) = Z3_mk_add (ctx, Vector.fromList [l, r])
-      fun mul ctx (l,r) = Z3_mk_mul (ctx, Vector.fromList [l, r])
-      val () = app (fn assert => Z3.Solver.Z3_solver_assert (ctx, solver, assert))
-                    [ Z3_mk_gt (ctx, x, two) (* x < 2 *)
-                    , Z3_mk_lt (ctx, y, ten) (* y < 10 *)
-                    , Prop.Z3_mk_eq (ctx, add ctx (x, mul ctx (two, y))
+      fun add ctx (l,r) = Z3.Z3_mk_add (ctx, Vector.fromList [l, r])
+      fun mul ctx (l,r) = Z3.Z3_mk_mul (ctx, Vector.fromList [l, r])
+      val () = app (fn assert => Z3.Z3_solver_assert (ctx, solver, assert))
+                    [ Z3.Z3_mk_gt (ctx, x, two) (* x < 2 *)
+                    , Z3.Z3_mk_lt (ctx, y, ten) (* y < 10 *)
+                    , Z3.Z3_mk_eq (ctx, add ctx (x, mul ctx (two, y))
                                    , seven) (* x + 2*y = 7 *)
                     ]
-      val () = print (Z3.Solver.Z3_solver_to_string (ctx, solver) ^ "\n")
+      val () = print (Z3.Z3_solver_to_string (ctx, solver) ^ "\n")
       val model =
-        case Z3.Solver.Z3_solver_check (ctx, solver)
-          of E.Z3_lbool.Z3_L_TRUE => Z3.Solver.Z3_solver_get_model (ctx, solver)
+        case Z3.Z3_solver_check (ctx, solver)
+          of E.Z3_lbool.Z3_L_TRUE => Z3.Z3_solver_get_model (ctx, solver)
            | _                 => raise Fail "solver_check"
       val decls = Vector.tabulate(
-                      Word.toInt (Z3.Model.Z3_model_get_num_consts(ctx, model))
-                    , fn i=> Z3.Model.Z3_model_get_const_decl(ctx, model, Word.fromInt i))
+                      Word.toInt (Z3.Z3_model_get_num_consts(ctx, model))
+                    , fn i=> Z3.Z3_model_get_const_decl(ctx, model, Word.fromInt i))
     in
       (*
       print (Z3.Z3_model_to_string (ctx, model)^"\n");
@@ -247,11 +244,11 @@ struct
       Vector.app
          (fn decl =>
           let
-            val ast = Z3.Model.Z3_model_get_const_interp (ctx, model, decl)
+            val ast = Z3.Z3_model_get_const_interp (ctx, model, decl)
           in
-            print (concat[Z3.Stringconv.Z3_func_decl_to_string (ctx, decl)
+            print (concat[Z3.Z3_func_decl_to_string (ctx, decl)
                          , " -> "
-                         ,Z3.Stringconv.Z3_ast_to_string (ctx, ast)
+                         ,Z3.Z3_ast_to_string (ctx, ast)
                          , "\n"])
           end)
          decls
@@ -278,7 +275,7 @@ struct
   fun prove ctx f is_valid =
     local_ctx ctx (fn ctx =>
     let
-      val not_f = Prop.Z3_mk_not (ctx, f)
+      val not_f = Z3.Z3_mk_not (ctx, f)
       val () = D.Z3_assert_cnstr (ctx, not_f)
       val m : Z3.Z3_model ref = ref (Ptr.NULL())
       val ret = D.Z3_check_and_get_model (ctx, m)
@@ -295,14 +292,14 @@ struct
                 (print "unknown\n";
                  if not (Ptr.isNull m)
                  then print(concat["potential counterexample:\n"
-                                  , Z3.Stringconv.Z3_model_to_string (ctx, m), "\n"])
+                                  , Z3.Z3_model_to_string (ctx, m), "\n"])
                  else ();
                  if is_valid then raise Unexpected "prove/unknown" else ())
            | E.Z3_lbool.Z3_L_TRUE =>
                 (print "invalid\n";
                  if not (Ptr.isNull m)
                  then print(concat["counterexample:\n"
-                                  , Z3.Stringconv.Z3_model_to_string (ctx, m), "\n"])
+                                  , Z3.Z3_model_to_string (ctx, m), "\n"])
                  else ();
                  if is_valid then raise Unexpected "prove/invalid" else ()))
     end)
@@ -312,7 +309,7 @@ struct
      let
        (* create uninterpreted type *)
        val U_name   = Z3.Z3_mk_string_symbol (ctx, "U")
-       val U        = Z3.Sort.Z3_mk_uninterpreted_sort (ctx, U_name)
+       val U        = Z3.Z3_mk_uninterpreted_sort (ctx, U_name)
        (* declare function g *)
        val g_name   = Z3.Z3_mk_string_symbol (ctx, "g")
        val g_domain = Vector.fromList [U]
@@ -326,15 +323,15 @@ struct
        val gx       = mk_unary_app ctx g x
        val gy       = mk_unary_app ctx g y
        (* assert x = y *)
-       val ()  = D.Z3_assert_cnstr (ctx, Prop.Z3_mk_eq (ctx, x, y))
+       val ()  = D.Z3_assert_cnstr (ctx, Z3.Z3_mk_eq (ctx, x, y))
        (* prove g(x) = g(y) *)
-       val f   = Prop.Z3_mk_eq (ctx, gx, gy)
+       val f   = Z3.Z3_mk_eq (ctx, gx, gy)
        val ()  = print "prove: x = y implies g(x) = g(y)\n"
        val ()  = prove ctx f Z3.Z3_TRUE
        (* create g(g(x)) *)
        val ggx = mk_unary_app ctx g gx
        (* disprove g(g(x)) = g(y) *)
-       val f   = Prop.Z3_mk_eq (ctx, ggx, gy)
+       val f   = Z3.Z3_mk_eq (ctx, ggx, gy)
      in
        print "disprove: x = y implies g(g(x)) = g(y)\n";
        prove ctx f Z3.Z3_FALSE
@@ -344,19 +341,19 @@ struct
     Z3.Z3_mk_const (ctx, Z3.Z3_mk_string_symbol (ctx, name), ty)
 
   fun mk_int_var ctx name =
-    mk_var ctx name (Z3.Sort.Z3_mk_int_sort ctx)
+    mk_var ctx name (Z3.Z3_mk_int_sort ctx)
 
   fun mk_bool_var ctx name =
-    mk_var ctx name (Z3.Sort.Z3_mk_bool_sort ctx)
+    mk_var ctx name (Z3.Z3_mk_bool_sort ctx)
 
   fun mk_int ctx n =
-    Z3.Numerals.Z3_mk_int (ctx, n, Z3.Sort.Z3_mk_int_sort ctx)
+    Z3.Z3_mk_int (ctx, n, Z3.Z3_mk_int_sort ctx)
 
   fun prove_example2() =
      with_context (fn ctx =>
      let
        (* declare function g *)
-       val int_sort = Z3.Sort.Z3_mk_int_sort ctx
+       val int_sort = Z3.Z3_mk_int_sort ctx
        val g_name   = Z3.Z3_mk_string_symbol (ctx, "g")
        val g_domain = Vector.fromList [int_sort]
        val g        = Z3.Z3_mk_func_decl (ctx, g_name, g_domain, int_sort)
@@ -372,23 +369,23 @@ struct
        val zero     = mk_int ctx 0
        (* assert not(g(g(x) - g(y)) = g(z)) *)
        val args     = Vector.fromList [gx, gy]
-       val gx_gy    = Z3.Arithmetic.Z3_mk_sub (ctx, args)
+       val gx_gy    = Z3.Z3_mk_sub (ctx, args)
        val ggx_gy   = mk_unary_app ctx g gx_gy
-       val eq       = Prop.Z3_mk_eq  (ctx, ggx_gy, gz)
-       val c1       = Prop.Z3_mk_not (ctx, eq)
+       val eq       = Z3.Z3_mk_eq  (ctx, ggx_gy, gz)
+       val c1       = Z3.Z3_mk_not (ctx, eq)
        val () = D.Z3_assert_cnstr (ctx, c1)
        (* assert x + z <= y *)
        val args     = Vector.fromList [x,z]
-       val x_plus_z = Z3.Arithmetic.Z3_mk_add (ctx, args)
-       val c2       = Z3.Arithmetic.Z3_mk_le (ctx, x_plus_z, y)
+       val x_plus_z = Z3.Z3_mk_add (ctx, args)
+       val c2       = Z3.Z3_mk_le (ctx, x_plus_z, y)
        val () = D.Z3_assert_cnstr (ctx, c2)
        (* assert y <= x *)
-       val c3       = Z3.Arithmetic.Z3_mk_le (ctx, y, x)
+       val c3       = Z3.Z3_mk_le (ctx, y, x)
        val () = D.Z3_assert_cnstr (ctx, c3)
      in
        (* prove z < 0 *)
        let
-         val f = Z3.Arithmetic.Z3_mk_lt (ctx, z, zero)
+         val f = Z3.Z3_mk_lt (ctx, z, zero)
        in
          print "prove: not(g(g(x) - g(y)) = g(z)), x + z <= y <= x implies z < 0\n";
          prove ctx f Z3.Z3_TRUE
@@ -396,7 +393,7 @@ struct
        (* disprove z < ~1 *)
        let
          val minus_one = mk_int ctx ~1
-         val f = Z3.Arithmetic.Z3_mk_lt (ctx, z, minus_one)
+         val f = Z3.Z3_mk_lt (ctx, z, minus_one)
        in
          print "disprove: not(g(g(x) - g(y)) = g(z)), x + z <= y <= x implies z < -1\n";
          prove ctx f Z3.Z3_FALSE
@@ -406,50 +403,50 @@ struct
   structure Display =
   struct
     fun symbol c out s =
-      case Z3.Accessor.Z3_get_symbol_kind (c, s)
+      case Z3.Z3_get_symbol_kind (c, s)
         of E.Z3_symbol_kind.Z3_INT_SYMBOL =>
             TextIO.output (out, concat["#", Int.toString
-                                           (Z3.Accessor.Z3_get_symbol_int(c, s))])
+                                           (Z3.Z3_get_symbol_int(c, s))])
          | E.Z3_symbol_kind.Z3_STRING_SYMBOL =>
-            TextIO.output (out, Z3.Accessor.Z3_get_symbol_string(c, s))
+            TextIO.output (out, Z3.Z3_get_symbol_string(c, s))
 
     fun sort c out ty =
       let
         fun succ w = w + 0w1
         val printf = TextIO.output
       in
-        case Z3.Accessor.Z3_get_sort_kind (c, ty)
+        case Z3.Z3_get_sort_kind (c, ty)
           of E.Z3_sort_kind.Z3_UNINTERPRETED_SORT =>
-                symbol c out (Z3.Accessor.Z3_get_sort_name (c, ty))
+                symbol c out (Z3.Z3_get_sort_name (c, ty))
            | E.Z3_sort_kind.Z3_BOOL_SORT => printf (out, "bool")
            | E.Z3_sort_kind.Z3_INT_SORT  => printf (out, "int")
            | E.Z3_sort_kind.Z3_REAL_SORT => printf (out, "real")
            | E.Z3_sort_kind.Z3_BV_SORT   =>
                printf (out, concat["bv"
-                          , Word.toString(Z3.Accessor.Z3_get_bv_sort_size(c,ty))])
+                          , Word.toString(Z3.Z3_get_bv_sort_size(c,ty))])
            | E.Z3_sort_kind.Z3_ARRAY_SORT =>
               (printf (out, "[");
-               sort c out (Z3.Accessor.Z3_get_array_sort_domain(c, ty));
+               sort c out (Z3.Z3_get_array_sort_domain(c, ty));
                printf (out, "->");
-               sort c out (Z3.Accessor.Z3_get_array_sort_range (c, ty));
+               sort c out (Z3.Z3_get_array_sort_range (c, ty));
                printf (out, "]"))
            | E.Z3_sort_kind.Z3_DATATYPE_SORT =>
-              ((if Z3.Accessor.Z3_get_datatype_sort_num_constructors(c, ty) <> 0w1
-                then printf (out, Z3.Stringconv.Z3_sort_to_string(c, ty))
+              ((if Z3.Z3_get_datatype_sort_num_constructors(c, ty) <> 0w1
+                then printf (out, Z3.Z3_sort_to_string(c, ty))
                 else ());
                printf (out, "(");
-               for 0w0 (fn i=> i < Z3.Accessor.Z3_get_tuple_sort_num_fields(c, ty)) succ
+               for 0w0 (fn i=> i < Z3.Z3_get_tuple_sort_num_fields(c, ty)) succ
                (fn i=>
                  let
-                   val field = Z3.Accessor.Z3_get_tuple_sort_field_decl(c, ty, i)
+                   val field = Z3.Z3_get_tuple_sort_field_decl(c, ty, i)
                  in
                    (if i > 0w0 then printf (out, ", ") else ());
-                   sort c out (Z3.Accessor.Z3_get_range(c, field))
+                   sort c out (Z3.Z3_get_range(c, field))
                  end);
                printf (out, ")"))
            | _ =>
               (printf (out, "unknown[");
-               symbol c out (Z3.Accessor.Z3_get_sort_name(c, ty));
+               symbol c out (Z3.Z3_get_sort_name(c, ty));
                printf (out, "]"))
       end
 
@@ -457,24 +454,24 @@ struct
       let
         fun succ w = w + 0w1
       in
-        case Z3.Accessor.Z3_get_ast_kind (c, v)
+        case Z3.Z3_get_ast_kind (c, v)
           of E.Z3_ast_kind.Z3_NUMERAL_AST =>
-               (TextIO.output (out, Z3.Accessor.Z3_get_numeral_string (c, v));
+               (TextIO.output (out, Z3.Z3_get_numeral_string (c, v));
                 TextIO.output (out, ":");
-                sort c out (Z3.Accessor.Z3_get_sort (c, v)))
+                sort c out (Z3.Z3_get_sort (c, v)))
            | E.Z3_ast_kind.Z3_APP_AST =>
                let
-                 val app = Z3.Accessor.Z3_to_app (c, v)
-                 val num_fields = Z3.Accessor.Z3_get_app_num_args (c, app)
-                 val d = Z3.Accessor.Z3_get_app_decl (c, app)
+                 val app = Z3.Z3_to_app (c, v)
+                 val num_fields = Z3.Z3_get_app_num_args (c, app)
+                 val d = Z3.Z3_get_app_decl (c, app)
                in
-                 TextIO.output (out, Z3.Stringconv.Z3_func_decl_to_string(c, d));
+                 TextIO.output (out, Z3.Z3_func_decl_to_string(c, d));
                  if num_fields > 0w0
                  then
                    (TextIO.output (out, "[");
                     for 0w0 (fn i=> i < num_fields) succ (fn i=>
                       (if i > 0w0 then TextIO.output (out, ", ") else ();
-                       ast c out (Z3.Accessor.Z3_get_app_arg (c, app, i))
+                       ast c out (Z3.Z3_get_app_arg (c, app, i))
                       )
                     );
                     TextIO.output (out, "]")
@@ -497,7 +494,7 @@ struct
         (fn i=>
         let
           val fdecl = D.Z3_get_model_func_decl(c, m, i)
-          val () = symbol c out (Z3.Accessor.Z3_get_decl_name(c, fdecl))
+          val () = symbol c out (Z3.Z3_get_decl_name(c, fdecl))
           val () = TextIO.output (out, " = {")
           val num_entries = D.Z3_get_model_func_num_entries(c, m, i)
         in
@@ -531,7 +528,7 @@ struct
         for 0w0 (fn i=> i<num_constants) succ (fn i=>
         let
           val cnst = D.Z3_get_model_constant (ctx, m, i)
-          val name = Z3.Accessor.Z3_get_decl_name (ctx, cnst)
+          val name = Z3.Z3_get_decl_name (ctx, cnst)
           val () = symbol ctx out name
           val () = TextIO.output (out, " = ")
           val a = Z3.Z3_mk_app (ctx, cnst, Vector.fromList[])
@@ -569,29 +566,29 @@ struct
 
   fun assert_inj_axiom ctx f i =
     let
-      val sz = Z3.Accessor.Z3_get_domain_size (ctx, f)
+      val sz = Z3.Z3_get_domain_size (ctx, f)
       val _  = if i >= sz then raise Fail "failed to create inj axiom"
                else ()
-      val finv_domain = Z3.Accessor.Z3_get_range (ctx, f)
-      val finv_range  = Z3.Accessor.Z3_get_domain(ctx, f, i)
+      val finv_domain = Z3.Z3_get_range (ctx, f)
+      val finv_range  = Z3.Z3_get_domain(ctx, f, i)
       val finv        = Z3.Z3_mk_fresh_func_decl(ctx, "inv"
                             , Vector.fromList[finv_domain], finv_range)
       (* allocate temporary arrays *)
       val types = Vector.tabulate(Word.toInt sz, fn j=>
-                     Z3.Accessor.Z3_get_domain (ctx, f, Word.fromInt j))
+                     Z3.Z3_get_domain (ctx, f, Word.fromInt j))
       val names = Vector.tabulate(Word.toInt sz, fn j=>
                      Z3.Z3_mk_int_symbol (ctx, j))
       val xs    = Vector.tabulate(Word.toInt sz, fn j=>
-                     Z3.Quantifier.Z3_mk_bound(ctx, Word.fromInt j, Vector.sub(types, j)))
+                     Z3.Z3_mk_bound(ctx, Word.fromInt j, Vector.sub(types, j)))
       val x_i   = Vector.sub (xs, Word.toInt i)
       val fxs   = Z3.Z3_mk_app (ctx, f, xs)
       val finv_fxs = mk_unary_app ctx finv fxs
-      val eq       = Prop.Z3_mk_eq (ctx, finv_fxs, x_i)
-      val p        = Z3.Quantifier.Z3_mk_pattern(ctx, Vector.fromList[fxs])
-      val () = print(concat["pattern: ", Z3.Stringconv.Z3_pattern_to_string(ctx, p), "\n\n"])
-      val q  = Z3.Quantifier.Z3_mk_forall (ctx, 0w0, Vector.fromList[p], types, names, eq)
+      val eq       = Z3.Z3_mk_eq (ctx, finv_fxs, x_i)
+      val p        = Z3.Z3_mk_pattern(ctx, Vector.fromList[fxs])
+      val () = print(concat["pattern: ", Z3.Z3_pattern_to_string(ctx, p), "\n\n"])
+      val q  = Z3.Z3_mk_forall (ctx, 0w0, Vector.fromList[p], types, names, eq)
     in
-      print(concat["assert axiom:\n", Z3.Stringconv.Z3_ast_to_string(ctx, q), "\n"]);
+      print(concat["assert axiom:\n", Z3.Z3_ast_to_string(ctx, q), "\n"]);
       D.Z3_assert_cnstr(ctx, q)
     end
 
@@ -617,11 +614,11 @@ struct
   fun quantifier_example1() =
     let
       val ctx = with_config (fn cfg =>
-                 (Z3.Global.Z3_global_param_set("smt.mbqi.max_iterations", "10");
+                 (Z3.Z3_global_param_set("smt.mbqi.max_iterations", "10");
                   mk_context_custom cfg (SOME(fn _ => print "error\n"))
                  ))
       (* declare function f *)
-      val int_sort = Z3.Sort.Z3_mk_int_sort ctx
+      val int_sort = Z3.Z3_mk_int_sort ctx
       val f_name   = Z3.Z3_mk_string_symbol (ctx, "f")
       val f_domain = Vector.fromList [int_sort, int_sort]
       val f        = Z3.Z3_mk_func_decl(ctx, f_name, f_domain, int_sort)
@@ -638,20 +635,20 @@ struct
       val fwv = mk_binary_app ctx f w v
 
       (* assert f(x, y) = f(w, v) *)
-      val p1 = Prop.Z3_mk_eq (ctx, fxy, fwv)
+      val p1 = Z3.Z3_mk_eq (ctx, fxy, fwv)
     in
       D.Z3_assert_cnstr(ctx, p1);
     let
       (* prove f(x, y) = f(w, v) implies y = v *)
-      val p2 = Prop.Z3_mk_eq (ctx, y, v)
+      val p2 = Z3.Z3_mk_eq (ctx, y, v)
     in
       print "prove: f(x, y) = f(w, v) implies y = v\n";
       prove ctx p2 Z3.Z3_TRUE;
     let
       (* disprove f(x, y) = f(w, v) implies x = w *)
       (* using check2 instead of prove *)
-      val p3     = Prop.Z3_mk_eq (ctx, x, w)
-      val not_p3 = Prop.Z3_mk_not(ctx, p3)
+      val p3     = Z3.Z3_mk_eq (ctx, x, w)
+      val not_p3 = Z3.Z3_mk_not(ctx, p3)
     in
       D.Z3_assert_cnstr(ctx, not_p3);
       print "disprove: f(x, y) = f(w, v) implies x = w\n";
@@ -663,24 +660,24 @@ struct
       if D.Z3_get_search_failure ctx <> E.Z3_search_failure.Z3_QUANTIFIERS
       then raise Fail "unexpected result" else ()
     end end end;
-      Z3.Context.Z3_del_context ctx;
-      Z3.Global.Z3_global_param_reset_all()
+      Z3.Z3_del_context ctx;
+      Z3.Z3_global_param_reset_all()
     end
 
   fun push_pop_example1 () =
     with_context (fn ctx =>
     let
       (* create a big number *)
-      val int_sort   = Z3.Sort.Z3_mk_int_sort ctx
-      val big_number = Z3.Numerals.Z3_mk_numeral
+      val int_sort   = Z3.Z3_mk_int_sort ctx
+      val big_number = Z3.Z3_mk_numeral
                         (ctx, "1000000000000000000000000000000000000000000000000000000", int_sort)
       (* create number 3 *)
-      val three      = Z3.Numerals.Z3_mk_numeral (ctx, "3", int_sort)
+      val three      = Z3.Z3_mk_numeral (ctx, "3", int_sort)
       (* create x *)
       val x_sym      = Z3.Z3_mk_string_symbol (ctx, "x")
       val x          = Z3.Z3_mk_const (ctx, x_sym, int_sort)
       (* assert x >= "big number" *)
-      val c1         = Z3.Arithmetic.Z3_mk_ge (ctx, x, big_number)
+      val c1         = Z3.Z3_mk_ge (ctx, x, big_number)
       val ()         = print "assert: x >= 'big number'\n"
       val ()         = D.Z3_assert_cnstr(ctx, c1)
       (* create a backtracking point *)
@@ -691,7 +688,7 @@ struct
         val () = print (concat["number of scopes: "
                               , Word.toString (D.Z3_get_num_scopes ctx)
                               , "\n"])
-        val c2 = Z3.Arithmetic.Z3_mk_le (ctx, x, three)
+        val c2 = Z3.Z3_mk_le (ctx, x, three)
         val () = print "assert: x <= 3\n"
         val () = D.Z3_assert_cnstr (ctx, c2)
       in
@@ -712,7 +709,7 @@ struct
         val y_sym = Z3.Z3_mk_string_symbol (ctx, "y")
         val y     = Z3.Z3_mk_const (ctx, y_sym, int_sort)
         (* assert y > x *)
-        val c3    = Z3.Arithmetic.Z3_mk_gt(ctx, y, x)
+        val c3    = Z3.Z3_mk_gt(ctx, y, x)
       in
         print "assert: y > x\n";
         D.Z3_assert_cnstr(ctx, c3);
@@ -721,14 +718,11 @@ struct
       end
     end)
 
-  local
-    open Z3.Array Z3.Propositional
-  in
   fun array_example1 () =
     with_context (fn ctx =>
     let
-      val int_sort   = Z3.Sort.Z3_mk_int_sort ctx
-      val array_sort = Z3.Sort.Z3_mk_array_sort (ctx, int_sort, int_sort)
+      val int_sort   = Z3.Z3_mk_int_sort ctx
+      val array_sort = Z3.Z3_mk_array_sort (ctx, int_sort, int_sort)
 
       val a1   = mk_var ctx "a1" array_sort
       val a2   = mk_var ctx "a2" array_sort
@@ -738,27 +732,27 @@ struct
       val v1   = mk_var ctx "v1" int_sort
       val v2   = mk_var ctx "v2" int_sort
 
-      val st1  = Z3_mk_store (ctx, a1, i1, v1)
-      val st2  = Z3_mk_store (ctx, a2, i2, v2)
+      val st1  = Z3.Z3_mk_store (ctx, a1, i1, v1)
+      val st2  = Z3.Z3_mk_store (ctx, a2, i2, v2)
 
-      val sel1 = Z3_mk_select (ctx, a1, i3)
-      val sel2 = Z3_mk_select (ctx, a2, i3)
+      val sel1 = Z3.Z3_mk_select (ctx, a1, i3)
+      val sel2 = Z3.Z3_mk_select (ctx, a2, i3)
 
       (* create antecedent *)
-      val antecedent = Z3_mk_eq (ctx, st1, st2)
+      val antecedent = Z3.Z3_mk_eq (ctx, st1, st2)
 
       (* create consequent: i1 = i3 or  i2 = i3 or select(a1, i3) = select(a2, i3) *)
-      val consequent = Z3_mk_or (ctx, Vector.fromList [
-                                        Z3_mk_eq (ctx, i1, i3),
-                                        Z3_mk_eq (ctx, i2, i3),
-                                        Z3_mk_eq (ctx, sel1, sel2)
+      val consequent = Z3.Z3_mk_or (ctx, Vector.fromList [
+                                        Z3.Z3_mk_eq (ctx, i1, i3),
+                                        Z3.Z3_mk_eq (ctx, i2, i3),
+                                        Z3.Z3_mk_eq (ctx, sel1, sel2)
                                       ])
 
       (* prove store(a1, i1, v1) = store(a2, i2, v2) implies (i1 = i3 or i2 = i3 or select(a1, i3) = select(a2, i3)) *)
-      val thm = Z3_mk_implies (ctx, antecedent, consequent)
+      val thm = Z3.Z3_mk_implies (ctx, antecedent, consequent)
     in
       print "prove: store(a1, i1, v1) = store(a2, i2, v2) implies (i1 = i3 or i2 = i3 or select(a1, i3) = select(a2, i3))\n";
-      print(concat[Z3.Stringconv.Z3_ast_to_string (ctx, thm), "\n"]);
+      print(concat[Z3.Z3_ast_to_string (ctx, thm), "\n"]);
       prove ctx thm Z3.Z3_TRUE
     end)
 
@@ -771,14 +765,14 @@ struct
       with_context (fn ctx =>
       let
         val () = print(concat["n = ", Word.toString n, "\n"])
-        val bool_sort = Z3.Sort.Z3_mk_bool_sort ctx
-        val array_sort = Z3.Sort.Z3_mk_array_sort (ctx, bool_sort, bool_sort)
+        val bool_sort = Z3.Z3_mk_bool_sort ctx
+        val array_sort = Z3.Z3_mk_array_sort (ctx, bool_sort, bool_sort)
         val a = Vector.tabulate(Word.toInt n, fn i=>
                    Z3.Z3_mk_const (ctx, Z3.Z3_mk_int_symbol (ctx, i), array_sort))
         (* assert distinct(a[0], ..., a[n]) *)
-        val d = Z3_mk_distinct(ctx, a)
+        val d = Z3.Z3_mk_distinct(ctx, a)
       in
-        println (Z3.Stringconv.Z3_ast_to_string(ctx, d));
+        println (Z3.Z3_ast_to_string(ctx, d));
         D.Z3_assert_cnstr (ctx, d);
         (* context is satisfiable if n < 5 *)
         check2 ctx (if n < 0w5
@@ -790,16 +784,16 @@ struct
   fun array_example3 () =
     with_context (fn ctx =>
     let
-      val bool_sort  = Z3.Sort.Z3_mk_bool_sort ctx
-      val int_sort   = Z3.Sort.Z3_mk_int_sort ctx
-      val array_sort = Z3.Sort.Z3_mk_array_sort (ctx, int_sort, bool_sort)
-      val () = if Z3.Accessor.Z3_get_sort_kind (ctx, array_sort)
+      val bool_sort  = Z3.Z3_mk_bool_sort ctx
+      val int_sort   = Z3.Z3_mk_int_sort ctx
+      val array_sort = Z3.Z3_mk_array_sort (ctx, int_sort, bool_sort)
+      val () = if Z3.Z3_get_sort_kind (ctx, array_sort)
                    <> E.Z3_sort_kind.Z3_ARRAY_SORT
                then raise Fail "type must be an array type"
                else ()
       (* 'domain -> 'range *)
-      val domain = Z3.Accessor.Z3_get_array_sort_domain (ctx, array_sort)
-      val range  = Z3.Accessor.Z3_get_array_sort_range  (ctx, array_sort)
+      val domain = Z3.Z3_get_array_sort_domain (ctx, array_sort)
+      val range  = Z3.Z3_get_array_sort_range  (ctx, array_sort)
     in
       print "domain: ";
       Display.sort ctx TextIO.stdOut domain;
@@ -811,10 +805,8 @@ struct
       then raise Fail "invalid array type" else ()
     end)
 
-  end (* local *)
-
   fun mk_real_var ctx name =
-    mk_var ctx name (Z3.Sort.Z3_mk_real_sort ctx)
+    mk_var ctx name (Z3.Z3_mk_real_sort ctx)
 
   exception TypeMismatch of {exp:E.Z3_sort_kind.t, act:E.Z3_sort_kind.t}
 
@@ -825,9 +817,9 @@ struct
 
   fun mk_tuple_update c t i new_val =
     let
-      val ty = Z3.Accessor.Z3_get_sort (c, t)
-      val () = check_type E.Z3_sort_kind.Z3_DATATYPE_SORT (Z3.Accessor.Z3_get_sort_kind (c, ty))
-      val num_fields = Z3.Accessor.Z3_get_tuple_sort_num_fields (c, ty)
+      val ty = Z3.Z3_get_sort (c, t)
+      val () = check_type E.Z3_sort_kind.Z3_DATATYPE_SORT (Z3.Z3_get_sort_kind (c, ty))
+      val num_fields = Z3.Z3_get_tuple_sort_num_fields (c, ty)
       val () = if i >= num_fields
                then raise Fail "invalid tuple update, index is too big"
                else ()
@@ -837,11 +829,11 @@ struct
               new_val (* use new_val at positio i *)
             else
               (* use field j of t *)
-              let val proj_decl = Z3.Accessor.Z3_get_tuple_sort_field_decl (c, ty, Word.fromInt j)
+              let val proj_decl = Z3.Z3_get_tuple_sort_field_decl (c, ty, Word.fromInt j)
               in
                 mk_unary_app c proj_decl t
               end)
-      val mk_tuple_decl = Z3.Accessor.Z3_get_tuple_sort_mk_decl (c, ty)
+      val mk_tuple_decl = Z3.Z3_get_tuple_sort_mk_decl (c, ty)
     in
       Z3.Z3_mk_app (c, mk_tuple_decl, new_fields)
     end
@@ -849,7 +841,7 @@ struct
   fun tuple_example1 () =
     with_context (fn ctx =>
     let
-      val real_sort = Z3.Sort.Z3_mk_real_sort ctx
+      val real_sort = Z3.Z3_mk_real_sort ctx
       (* create pair (tuple) type *)
       val mk_tuple_name = Z3.Z3_mk_string_symbol (ctx, "mk_pair")
       val proj_names = Vector.fromList [
@@ -860,7 +852,7 @@ struct
       (* Z3_mk_tule_sort will set mk_tuple_decl and proj_decls *)
       val mk_tuple_decl : Z3.Z3_func_decl ref = ref (Ptr.NULL())
       val proj_decls : Z3.Z3_func_decl array = Array.fromList [Ptr.NULL(), Ptr.NULL()]
-      val pair_sort = Z3.Sort.Z3_mk_tuple_sort (ctx, mk_tuple_name, proj_names
+      val pair_sort = Z3.Z3_mk_tuple_sort (ctx, mk_tuple_name, proj_names
                                                 , proj_sorts, mk_tuple_decl, proj_decls)
       (* function that extracts the first element of a tuple. *)
       val get_x_decl = Array.sub (proj_decls, 0)
@@ -876,15 +868,15 @@ struct
         val y    = mk_real_var ctx "y"
         val app1 = mk_binary_app ctx (!mk_tuple_decl) x y
         val app2 = mk_unary_app ctx get_x_decl app1
-        val one  = Z3.Numerals.Z3_mk_numeral (ctx, "1", real_sort)
-        val eq1  = Prop.Z3_mk_eq (ctx, app2, one)
-        val eq2  = Prop.Z3_mk_eq (ctx,    x, one)
-        val thm  = Prop.Z3_mk_implies(ctx, eq1, eq2)
+        val one  = Z3.Z3_mk_numeral (ctx, "1", real_sort)
+        val eq1  = Z3.Z3_mk_eq (ctx, app2, one)
+        val eq2  = Z3.Z3_mk_eq (ctx,    x, one)
+        val thm  = Z3.Z3_mk_implies(ctx, eq1, eq2)
         val () = print "prove: get_x(mk_pair(x, y)) = 1 implies x = 1\n"
         val () = prove ctx thm Z3.Z3_TRUE
         (* disprove that get_x(mk_pair(x,y)) == 1 implies y = 1 *)
-        val eq3 = Prop.Z3_mk_eq (ctx, y, one)
-        val thm = Prop.Z3_mk_implies (ctx, eq1, eq3)
+        val eq3 = Z3.Z3_mk_eq (ctx, y, one)
+        val thm = Z3.Z3_mk_implies (ctx, eq1, eq3)
         val () = print "disprove: get_x(mk_pair(x, y)) = 1 implies y = 1\n"
         val () = prove ctx thm Z3.Z3_FALSE
       in () end;
@@ -897,16 +889,16 @@ struct
         val x2 = mk_unary_app ctx get_x_decl p2
         val y2 = mk_unary_app ctx get_y_decl p2
         val antecedents = Vector.fromList [
-                            Prop.Z3_mk_eq (ctx, x1, x2),
-                            Prop.Z3_mk_eq (ctx, y1, y2)
+                            Z3.Z3_mk_eq (ctx, x1, x2),
+                            Z3.Z3_mk_eq (ctx, y1, y2)
                           ]
-        val antecedent = Prop.Z3_mk_and (ctx, antecedents)
-        val consequent = Prop.Z3_mk_eq (ctx, p1, p2)
-        val thm = Prop.Z3_mk_implies (ctx, antecedent, consequent)
+        val antecedent = Z3.Z3_mk_and (ctx, antecedents)
+        val consequent = Z3.Z3_mk_eq (ctx, p1, p2)
+        val thm = Z3.Z3_mk_implies (ctx, antecedent, consequent)
         val () = print "prove: get_x(p1) = get_x(p2) and get_y(p1) = get_y(p2) implies p1 = p2\n"
         val () = prove ctx thm Z3.Z3_TRUE
         (* disprove that get_x(p1) = get_x(p2) implies p1 = p2 *)
-        val thm = Prop.Z3_mk_implies (ctx, Vector.sub(antecedents,0), consequent)
+        val thm = Z3.Z3_mk_implies (ctx, Vector.sub(antecedents,0), consequent)
         val () = print "disprove: get_x(p1) = get_x(p2) implies p1 = p2\n"
         val () = prove ctx thm Z3.Z3_FALSE
       in () end;
@@ -915,40 +907,37 @@ struct
       let
         val p1 = mk_var ctx "p1" pair_sort
         val p2 = mk_var ctx "p2" pair_sort
-        val one = Z3.Numerals.Z3_mk_numeral (ctx, "1" , real_sort)
-        val ten = Z3.Numerals.Z3_mk_numeral (ctx, "10", real_sort)
+        val one = Z3.Z3_mk_numeral (ctx, "1" , real_sort)
+        val ten = Z3.Z3_mk_numeral (ctx, "10", real_sort)
         val updt = mk_tuple_update ctx p1 0w0 ten
-        val antecedent = Prop.Z3_mk_eq (ctx, p2, updt)
+        val antecedent = Z3.Z3_mk_eq (ctx, p2, updt)
         val x = mk_unary_app ctx get_x_decl p2
-        val consequent = Prop.Z3_mk_eq (ctx, x, ten)
-        val thm = Prop.Z3_mk_implies (ctx, antecedent, consequent)
+        val consequent = Z3.Z3_mk_eq (ctx, x, ten)
+        val thm = Z3.Z3_mk_implies (ctx, antecedent, consequent)
         val () = print "prove: p2 = update(p1, 0, 10) implies get_x(p2) = 10\n"
         val () = prove ctx thm Z3.Z3_TRUE
         (* disprove that p2 = update(p1, 0, 10) implies get_y(p2) = 10 *)
         val y = mk_unary_app ctx get_y_decl p2
-        val consequent = Prop.Z3_mk_eq (ctx, y, ten)
-        val thm = Prop.Z3_mk_implies (ctx, antecedent, consequent)
+        val consequent = Z3.Z3_mk_eq (ctx, y, ten)
+        val thm = Z3.Z3_mk_implies (ctx, antecedent, consequent)
       in
         print "disprove: p2 = update(p1, 0, 10) implies get_y(p2) = 10\n";
         prove ctx thm Z3.Z3_FALSE
       end
     end)
 
-  local
-    open Z3.BitVector
-  in
   fun bitvector_example1 () =
     with_context (fn ctx =>
     let
-      val bv_sort = Z3.Sort.Z3_mk_bv_sort (ctx, 0w32)
+      val bv_sort = Z3.Z3_mk_bv_sort (ctx, 0w32)
       val x    = mk_var ctx "x" bv_sort
-      val zero = Z3.Numerals.Z3_mk_numeral (ctx,  "0", bv_sort)
-      val ten  = Z3.Numerals.Z3_mk_numeral (ctx, "10", bv_sort)
-      val x_minus_ten = Z3_mk_bvsub (ctx, x, ten)
+      val zero = Z3.Z3_mk_numeral (ctx,  "0", bv_sort)
+      val ten  = Z3.Z3_mk_numeral (ctx, "10", bv_sort)
+      val x_minus_ten = Z3.Z3_mk_bvsub (ctx, x, ten)
       (* bvsle is signed less than or equal to *)
-      val c1 = Z3_mk_bvsle(ctx, x, ten)
-      val c2 = Z3_mk_bvsle(ctx, x_minus_ten, zero)
-      val thm = Prop.Z3_mk_iff (ctx, c1, c2)
+      val c1 = Z3.Z3_mk_bvsle(ctx, x, ten)
+      val c2 = Z3.Z3_mk_bvsle(ctx, x_minus_ten, zero)
+      val thm = Z3.Z3_mk_iff (ctx, c1, c2)
     in
       print "disprove: x - 10 <= 0 IFF x <= 10 for (32-bit) machine integers\n";
       prove ctx thm Z3.Z3_FALSE
@@ -959,22 +948,20 @@ struct
     with_context (fn ctx =>
     let
       val () = print "find values of x and y, such that x ^ y - 103 == x * y\n"
-      val bv_sort = Z3.Sort.Z3_mk_bv_sort (ctx, 0w32)
+      val bv_sort = Z3.Z3_mk_bv_sort (ctx, 0w32)
       val x       = mk_var ctx "x" bv_sort
       val y       = mk_var ctx "y" bv_sort
-      val x_xor_y = Z3_mk_bvxor(ctx, x, y)
-      val c103    = Z3.Numerals.Z3_mk_numeral(ctx, "103", bv_sort)
-      val lhs     = Z3_mk_bvsub (ctx, x_xor_y, c103)
-      val rhs     = Z3_mk_bvmul (ctx, x, y)
-      val ctr     = Prop.Z3_mk_eq (ctx, lhs, rhs)
+      val x_xor_y = Z3.Z3_mk_bvxor(ctx, x, y)
+      val c103    = Z3.Z3_mk_numeral(ctx, "103", bv_sort)
+      val lhs     = Z3.Z3_mk_bvsub (ctx, x_xor_y, c103)
+      val rhs     = Z3.Z3_mk_bvmul (ctx, x, y)
+      val ctr     = Z3.Z3_mk_eq (ctx, lhs, rhs)
     in
       (* add the constraint x ^ y - 103 == x * y to the logical context *)
       D.Z3_assert_cnstr(ctx, ctr);
       (* find a model (i.e., values for x an y that satisfy the constraint *)
       check ctx E.Z3_lbool.Z3_L_TRUE
     end)
-
-  end (* local *)
 
   fun eval_example1 () =
     with_context (fn ctx =>
@@ -983,18 +970,18 @@ struct
       val y = mk_int_var ctx "y"
       val two = mk_int ctx 2
       (* assert x < y *)
-      val c1 = Z3.Arithmetic.Z3_mk_lt (ctx, x, y)
+      val c1 = Z3.Z3_mk_lt (ctx, x, y)
       val () = D.Z3_assert_cnstr(ctx, c1)
       (* assert x > 2 *)
-      val c2 = Z3.Arithmetic.Z3_mk_gt(ctx, x, two)
+      val c2 = Z3.Z3_mk_gt(ctx, x, two)
       val () = D.Z3_assert_cnstr(ctx, c2)
       val m : Z3.Z3_model ref = ref (Ptr.NULL())
     in
       (* find model for the constraints above *)
       if D.Z3_check_and_get_model (ctx, m) = E.Z3_lbool.Z3_L_TRUE
       then
-        (print(concat["MODEL:\n", Z3.Stringconv.Z3_model_to_string(ctx, !m)]);
-         let val x_plus_y = Z3.Arithmetic.Z3_mk_add (ctx, Vector.fromList[x,y]) in
+        (print(concat["MODEL:\n", Z3.Z3_model_to_string(ctx, !m)]);
+         let val x_plus_y = Z3.Z3_mk_add (ctx, Vector.fromList[x,y]) in
          print "\nevaluating x+y\n";
          let val v = ref (Ptr.NULL()) in
          if D.Z3_eval(ctx, !m, x_plus_y, v)
@@ -1012,16 +999,16 @@ struct
 
   fun two_contexts_example1 () =
     let
-      open Z3 Z3.Sort
+      open Z3
       val ctx1 = mk_context ()
       val ctx2 = mk_context ()
       val x1 = Z3_mk_const (ctx1, Z3_mk_int_symbol(ctx1, 0), Z3_mk_bool_sort ctx1)
       val x2 = Z3_mk_const (ctx2, Z3_mk_int_symbol(ctx2, 0), Z3_mk_bool_sort ctx2)
     in
-      Z3.Context.Z3_del_context ctx1;
+      Z3_del_context ctx1;
       (* ctx2 can still be used. *)
-      print(concat[Stringconv.Z3_ast_to_string(ctx2, x2), "\n"]);
-      Z3.Context.Z3_del_context ctx2
+      print(concat[Z3_ast_to_string(ctx2, x2), "\n"]);
+      Z3_del_context ctx2
     end
 
   fun check_cond cond msg =
@@ -1034,7 +1021,7 @@ struct
 
   fun error_code_example1 () =
     let
-      open Z3 Z3.Accessor
+      open Z3
       val ctx = with_config (fn cfg => mk_context_custom cfg NONE)
       val x      = bool_var ctx "x"
       val x_decl = Z3_get_app_decl(ctx, Z3_to_app(ctx, x))
@@ -1046,15 +1033,15 @@ struct
                  NONE;
       check_cond (fn()=> D.Z3_eval_func_decl(ctx, !m, x_decl, v) = Z3_FALSE)
                  (SOME "did not obtain value for declaration.\n");
-      if Error.Z3_get_error_code ctx = E.Z3_error_code.Z3_OK
+      if Z3_get_error_code ctx = E.Z3_error_code.Z3_OK
       then print "last call succeeded.\n" else ();
       let val str = Z3_get_numeral_string(ctx, !v) in
         (* The following call will fail since the value of x is a boolean *)
-        if Error.Z3_get_error_code ctx <> E.Z3_error_code.Z3_OK
+        if Z3_get_error_code ctx <> E.Z3_error_code.Z3_OK
         then print "last call failed.\n" else ()
       end;
       D.Z3_del_model (ctx, !m);
-      Z3.Context.Z3_del_context ctx
+      Z3.Z3_del_context ctx
     end
 
   fun error_code_example2 () =
@@ -1065,7 +1052,7 @@ struct
       val y   = int_var ctx "y"
       val ()  = print "before Z3_mk_iff\n"
       (* the next call will produce an error *)
-      val app = Prop.Z3_mk_iff(ctx, x, y)
+      val app = Z3.Z3_mk_iff(ctx, x, y)
     in
       unreachable "error_code_example2"
     end)
@@ -1075,18 +1062,18 @@ struct
   fun parser_example1 () =
     with_context (fn ctx =>
     let
-      val () = Z3.Parser.Z3_parse_smtlib_string(
+      val () = Z3.Z3_parse_smtlib_string(
                  ctx,
                  "(benchmark tst :extrafuns ((x Int) (y Int)) :formula (> x y) :formula (> x 0))",
                  Vector.fromList[], Vector.fromList[],
                  Vector.fromList[], Vector.fromList[])
-      val num_formulas = Z3.Parser.Z3_get_smtlib_num_formulas ctx
+      val num_formulas = Z3.Z3_get_smtlib_num_formulas ctx
     in
       for 0w0 (fn i=> i<num_formulas) (fn i=>i+0w1) (fn i=>
-        let val f = Z3.Parser.Z3_get_smtlib_formula(ctx, i) in
+        let val f = Z3.Z3_get_smtlib_formula(ctx, i) in
           print(concat["formula "
                       , Word.toString i, ": "
-                      , Z3.Stringconv.Z3_ast_to_string(ctx, f)
+                      , Z3.Z3_ast_to_string(ctx, f)
                       , "\n"]);
           D.Z3_assert_cnstr(ctx, f)
         end);
@@ -1096,27 +1083,26 @@ struct
   fun parser_example2 () =
     with_context (fn ctx =>
     let
-      open Z3.Accessor
       val x = int_var ctx "x"
       val y = int_var ctx "y"
       val decls = Vector.fromList[
-                    Z3_get_app_decl(ctx, Z3_to_app(ctx, x)),
-                    Z3_get_app_decl(ctx, Z3_to_app(ctx, y))
+                    Z3.Z3_get_app_decl(ctx, Z3.Z3_to_app(ctx, x)),
+                    Z3.Z3_get_app_decl(ctx, Z3.Z3_to_app(ctx, y))
                   ]
       val names = Vector.fromList[
                     Z3.Z3_mk_string_symbol (ctx, "a"),
                     Z3.Z3_mk_string_symbol (ctx, "b")
                   ]
-      val () = Z3.Parser.Z3_parse_smtlib_string(
+      val () = Z3.Z3_parse_smtlib_string(
                  ctx,
                  "(benchmark tst :formula (> a b))",
                  Vector.fromList[],
                  Vector.fromList[],
                  names, decls)
-      val f  = Z3.Parser.Z3_get_smtlib_formula(ctx, 0w0)
+      val f  = Z3.Z3_get_smtlib_formula(ctx, 0w0)
     in
       print(concat["formula: "
-                  , Z3.Stringconv.Z3_ast_to_string(ctx, f)
+                  , Z3.Z3_ast_to_string(ctx, f)
                   , "\n"]);
       D.Z3_assert_cnstr(ctx, f);
       check ctx E.Z3_lbool.Z3_L_TRUE
@@ -1124,13 +1110,12 @@ struct
 
   fun assert_comm_axiom ctx f =
     let
-      open Z3.Accessor
-      val t = Z3_get_range (ctx, f)
+      val t = Z3.Z3_get_range (ctx, f)
     in
       check_cond (fn()=>
-                    Z3_get_domain_size(ctx, f) <> 0w2 orelse
-                    Z3_get_domain(ctx, f, 0w0) <> t orelse
-                    Z3_get_domain(ctx, f, 0w1) <> t)
+                    Z3.Z3_get_domain_size(ctx, f) <> 0w2 orelse
+                    Z3.Z3_get_domain(ctx, f, 0w0) <> t orelse
+                    Z3.Z3_get_domain(ctx, f, 0w1) <> t)
         (SOME "function must be binary, and argument types must be equal to return type");
       let
         (* Inside the parser, function f will be referenced using the symbol 'f'. *)
@@ -1139,16 +1124,16 @@ struct
         val t_name = Z3.Z3_mk_string_symbol(ctx, "T")
         fun ` x = Vector.fromList [x]
       in
-        Z3.Parser.Z3_parse_smtlib_string(
+        Z3.Z3_parse_smtlib_string(
                     ctx,
                     "(benchmark comm :formula (forall (x T) (y T) (= (f x y) (f y x))))",
                     `t_name, `t,
                     `f_name, `f);
       let
-        val q = Z3.Parser.Z3_get_smtlib_formula(ctx, 0w0)
+        val q = Z3.Z3_get_smtlib_formula(ctx, 0w0)
       in
         print(concat["assert axiom:\n"
-                    , Z3.Stringconv.Z3_ast_to_string(ctx, q), "\n"]);
+                    , Z3.Z3_ast_to_string(ctx, q), "\n"]);
         D.Z3_assert_cnstr(ctx, q)
       end end
     end
@@ -1156,8 +1141,7 @@ struct
   fun parser_example3 () =
     with_context (fn ctx =>
     let
-      open Z3.Sort
-      val int_sort = Z3_mk_int_sort ctx
+      val int_sort = Z3.Z3_mk_int_sort ctx
       val g_name   = Z3.Z3_mk_string_symbol(ctx, "g")
       val g_domain = Vector.fromList[int_sort, int_sort]
       val g        = Z3.Z3_mk_func_decl(
@@ -1169,14 +1153,14 @@ struct
     in
       assert_comm_axiom ctx g;
       (* forall x y, x=y => (g x 0) = (g 0 y) *)
-      Z3.Parser.Z3_parse_smtlib_string(
+      Z3.Z3_parse_smtlib_string(
         ctx,
         "(benchmark tst :formula (forall (x Int) (y Int) (implies (= x y) (= (g x 0) (g 0 y)))))",
         `[], `[],
         `[g_name], `[g]);
-      let val thm = Z3.Parser.Z3_get_smtlib_formula(ctx, 0w0) in
+      let val thm = Z3.Z3_get_smtlib_formula(ctx, 0w0) in
         print(concat["formula: ",
-                     Z3.Stringconv.Z3_ast_to_string(ctx, thm), "\n"]);
+                     Z3.Z3_ast_to_string(ctx, thm), "\n"]);
         prove ctx thm Z3.Z3_TRUE
       end
     end)
@@ -1184,37 +1168,36 @@ struct
   fun parser_example4 () =
     with_context (fn ctx =>
     let
-      open Z3.Parser
       val vec = Vector.fromList
-      val () = Z3_parse_smtlib_string(
+      val () = Z3.Z3_parse_smtlib_string(
                  ctx,
                  "(benchmark tst :extrafuns ((x Int) (y Int)) :assumption (= x 20) :formula (> x y) :formula (> x 0))",
                  vec[], vec[],
                  vec[], vec[])
       fun for' n = for 0w0 (fn i=> i<n) (fn i=>i+0w1)
     in
-      for' (Z3_get_smtlib_num_decls ctx) (fn i=>
-        let val d = Z3_get_smtlib_decl(ctx, i) in
+      for' (Z3.Z3_get_smtlib_num_decls ctx) (fn i=>
+        let val d = Z3.Z3_get_smtlib_decl(ctx, i) in
           print(concat["declaration "
                       , Word.toString i
                       , ": "
-                      , Z3.Stringconv.Z3_func_decl_to_string(ctx, d), "\n"])
+                      , Z3.Z3_func_decl_to_string(ctx, d), "\n"])
         end);
 
-      for' (Z3_get_smtlib_num_assumptions ctx) (fn i=>
-        let val a = Z3_get_smtlib_assumption(ctx, i) in
+      for' (Z3.Z3_get_smtlib_num_assumptions ctx) (fn i=>
+        let val a = Z3.Z3_get_smtlib_assumption(ctx, i) in
           print(concat["assumption "
                       , Word.toString i
                       , ": "
-                      , Z3.Stringconv.Z3_ast_to_string(ctx, a), "\n"])
+                      , Z3.Z3_ast_to_string(ctx, a), "\n"])
         end);
 
-      for' (Z3_get_smtlib_num_formulas ctx) (fn i=>
-        let val f = Z3_get_smtlib_formula(ctx, i) in
+      for' (Z3.Z3_get_smtlib_num_formulas ctx) (fn i=>
+        let val f = Z3.Z3_get_smtlib_formula(ctx, i) in
           print(concat["formula "
                       , Word.toString i
                       , ": "
-                      , Z3.Stringconv.Z3_ast_to_string(ctx, f), "\n"])
+                      , Z3.Z3_ast_to_string(ctx, f), "\n"])
         end)
     end)
 
@@ -1225,7 +1208,7 @@ struct
       val vec = Vector.fromList
     in
       (* the following string has a parsing error: missing parenthesis *)
-      Z3.Parser.Z3_parse_smtlib_string(
+      Z3.Z3_parse_smtlib_string(
                  ctx,
                  "(benchmark tst :extrafuns ((x Int (y Int)) :formula (> x y) :formula (> x 0))",
                  vec[], vec[],
@@ -1233,54 +1216,53 @@ struct
       unreachable "parser_example5"
     end handle ErrorCode err =>
                  (print(concat["Z3 error: "
-                              , Z3.Error.Z3_get_error_msg_ex(ctx, err), ".\n"
+                              , Z3.Z3_get_error_msg_ex(ctx, err), ".\n"
                               ,"Error message: '"
-                              , Z3.Parser.Z3_get_smtlib_error ctx, "'.\n"])))
+                              , Z3.Z3_get_smtlib_error ctx, "'.\n"])))
 
   fun numeral_example () =
     with_context (fn ctx =>
     let
-      open Z3.Numerals
-      val real_ty = Z3.Sort.Z3_mk_real_sort ctx
-      val n1 = Z3_mk_numeral(ctx, "1/2", real_ty)
-      val n2 = Z3_mk_numeral(ctx, "0.5", real_ty)
+      val real_ty = Z3.Z3_mk_real_sort ctx
+      val n1 = Z3.Z3_mk_numeral(ctx, "1/2", real_ty)
+      val n2 = Z3.Z3_mk_numeral(ctx, "0.5", real_ty)
     in
-      print(concat["Numerals n1:", Z3.Stringconv.Z3_ast_to_string(ctx, n1)
-                  ," n2:", Z3.Stringconv.Z3_ast_to_string(ctx, n2), "\n"]);
-      prove ctx (Prop.Z3_mk_eq(ctx, n1, n2)) Z3.Z3_TRUE;
+      print(concat["Numerals n1:", Z3.Z3_ast_to_string(ctx, n1)
+                  ," n2:", Z3.Z3_ast_to_string(ctx, n2), "\n"]);
+      prove ctx (Z3.Z3_mk_eq(ctx, n1, n2)) Z3.Z3_TRUE;
     let
-      val n1 = Z3_mk_numeral(ctx, "-1/3", real_ty)
-      val n2 = Z3_mk_numeral(ctx, "-0.33333333333333333333333333333333333333333333333333", real_ty)
+      val n1 = Z3.Z3_mk_numeral(ctx, "-1/3", real_ty)
+      val n2 = Z3.Z3_mk_numeral(ctx, "-0.33333333333333333333333333333333333333333333333333", real_ty)
     in
-      print(concat["Numerals n1:", Z3.Stringconv.Z3_ast_to_string(ctx, n1)
-                  ," n2:", Z3.Stringconv.Z3_ast_to_string(ctx, n2), "\n"]);
-      prove ctx (Prop.Z3_mk_not(ctx, Prop.Z3_mk_eq(ctx, n1, n2))) Z3.Z3_TRUE
+      print(concat["Numerals n1:", Z3.Z3_ast_to_string(ctx, n1)
+                  ," n2:", Z3.Z3_ast_to_string(ctx, n2), "\n"]);
+      prove ctx (Z3.Z3_mk_not(ctx, Z3.Z3_mk_eq(ctx, n1, n2))) Z3.Z3_TRUE
     end end)
 
   fun ite_example () =
     with_context (fn ctx =>
     let
-      val f    = Prop.Z3_mk_false ctx
+      val f    = Z3.Z3_mk_false ctx
       val one  = mk_int ctx 1
       val zero = mk_int ctx 0
-      val ite  = Prop.Z3_mk_ite(ctx, f, one, zero)
+      val ite  = Z3.Z3_mk_ite(ctx, f, one, zero)
     in
       print(concat["term: "
-                  , Z3.Stringconv.Z3_ast_to_string(ctx, ite)
+                  , Z3.Z3_ast_to_string(ctx, ite)
                   , "\n"])
     end)
 
   fun list_example () =
     with_context (fn ctx =>
     let
-      val int_ty = Z3.Sort.Z3_mk_int_sort ctx
+      val int_ty = Z3.Z3_mk_int_sort ctx
       val nil_decl     = ref (Ptr.NULL())
       val is_nil_decl  = ref (Ptr.NULL())
       val cons_decl    = ref (Ptr.NULL())
       val is_cons_decl = ref (Ptr.NULL())
       val head_decl    = ref (Ptr.NULL())
       val tail_decl    = ref (Ptr.NULL())
-      val int_list = Z3.Sort.Z3_mk_list_sort(ctx
+      val int_list = Z3.Z3_mk_list_sort(ctx
                                             , Z3.Z3_mk_string_symbol(ctx, "int_list")
                                             , int_ty
                                             , nil_decl
@@ -1295,14 +1277,14 @@ struct
       val Nil = Z3.Z3_mk_app(ctx, !nil_decl, Vector.fromList[])
       val l1  = Cons (mk_int ctx 1) Nil
       val l2  = Cons (mk_int ctx 2) Nil
-      fun == ctx (x,y) = Prop.Z3_mk_eq(ctx, x, y)
+      fun == ctx (x,y) = Z3.Z3_mk_eq(ctx, x, y)
       infixr ==>
-      fun p ==> q = fn c => Prop.Z3_mk_implies(c, p, q)
+      fun p ==> q = fn c => Z3.Z3_mk_implies(c, p, q)
     in
       (* nil <> cons(1, nil) *)
-      prove ctx (Prop.Z3_mk_not(ctx, == ctx (l1, l2))) Z3.Z3_TRUE;
+      prove ctx (Z3.Z3_mk_not(ctx, == ctx (l1, l2))) Z3.Z3_TRUE;
       (* cons(2,nil) <> cons(1, nil) *)
-      prove ctx (Prop.Z3_mk_not(ctx, == ctx (l1, l2))) Z3.Z3_TRUE;
+      prove ctx (Z3.Z3_mk_not(ctx, == ctx (l1, l2))) Z3.Z3_TRUE;
     let
       (* cons(x,nil) = cons(y,nil) => x = y *)
       val x = mk_var ctx "x" int_ty
@@ -1328,9 +1310,9 @@ struct
                 ]
     in
       (* is_nil(u) or is_cons(u) *)
-      prove ctx (Prop.Z3_mk_or(ctx, ors)) Z3.Z3_TRUE;
+      prove ctx (Z3.Z3_mk_or(ctx, ors)) Z3.Z3_TRUE;
       (* occurs check u <> cons(x,u) *)
-      prove ctx (Prop.Z3_mk_not(ctx, == ctx (u, l1))) Z3.Z3_TRUE;
+      prove ctx (Z3.Z3_mk_not(ctx, == ctx (u, l1))) Z3.Z3_TRUE;
     let
       fun Head xs = mk_unary_app ctx (!head_decl) xs
       fun Tail xs = mk_unary_app ctx (!tail_decl) xs
@@ -1339,7 +1321,7 @@ struct
       val fml  = (Z3.Z3_mk_app(ctx, !is_cons_decl, Vector.fromList[u])
                   ==> fml1) ctx
     in
-      print(concat["Formula ", Z3.Stringconv.Z3_ast_to_string(ctx, fml), "\n"]);
+      print(concat["Formula ", Z3.Z3_ast_to_string(ctx, fml), "\n"]);
       prove ctx fml Z3.Z3_TRUE;
       prove ctx fml1 Z3.Z3_FALSE
     end end end end end)
@@ -1347,12 +1329,11 @@ struct
   fun tree_example () =
     with_context (fn ctx =>
     let
-      open Z3.Sort Z3.Propositional
       infix  ==  !=
       infixr ==>
-      fun p ==> q = Prop.Z3_mk_implies(ctx, p, q)
-      fun p ==  q = Prop.Z3_mk_eq(ctx, p, q)
-      fun p !=  q = Prop.Z3_mk_not(ctx, Prop.Z3_mk_eq(ctx, p, q))
+      fun p ==> q = Z3.Z3_mk_implies(ctx, p, q)
+      fun p ==  q = Z3.Z3_mk_eq(ctx, p, q)
+      fun p !=  q = Z3.Z3_mk_not(ctx, Z3.Z3_mk_eq(ctx, p, q))
 
       fun Sym sym = Z3.Z3_mk_string_symbol(ctx, sym)
       fun ptr_ref () = ref (Ptr.NULL())
@@ -1362,28 +1343,28 @@ struct
       fun empty () = vec[]
 
       (* nil *)
-      val nil_con = Z3_mk_constructor(ctx
+      val nil_con = Z3.Z3_mk_constructor(ctx
                                      , Sym "nil", Sym "is_nil"
                                      , empty(), empty(), empty())
       (* cons of T0 * T0 *)
-      val cons_con = Z3_mk_constructor(ctx
+      val cons_con = Z3.Z3_mk_constructor(ctx
                                      , Sym "cons"
                                      , Sym "is_cons"
                                      , head_tail
                                      , vec[NONE, NONE]
                                      , vec[0w0, 0w0])
       val constructors = Array.fromList[nil_con, cons_con]
-      val cell = Z3_mk_datatype(ctx, Sym "cell", constructors)
+      val cell = Z3.Z3_mk_datatype(ctx, Sym "cell", constructors)
 
       val ( nil_decl,  is_nil_decl) = (ptr_ref(), ptr_ref())
       val (cons_decl, is_cons_decl) = (ptr_ref(), ptr_ref())
       val cons_accessors = Array.fromList[Ptr.NULL(), Ptr.NULL()]
-      val () = Z3_query_constructor(ctx,  nil_con,  nil_decl,  is_nil_decl, Array.fromList[])
-      val () = Z3_query_constructor(ctx, cons_con, cons_decl, is_cons_decl, cons_accessors)
+      val () = Z3.Z3_query_constructor(ctx,  nil_con,  nil_decl,  is_nil_decl, Array.fromList[])
+      val () = Z3.Z3_query_constructor(ctx, cons_con, cons_decl, is_cons_decl, cons_accessors)
       val car_decl = Array.sub(cons_accessors, 0)
       val cdr_decl = Array.sub(cons_accessors, 1)
-      val () = Z3_del_constructor(ctx, nil_con)
-      val () = Z3_del_constructor(ctx, cons_con)
+      val () = Z3.Z3_del_constructor(ctx, nil_con)
+      val () = Z3.Z3_del_constructor(ctx, cons_con)
 
       fun Cons x xs = mk_binary_app ctx (!cons_decl) x xs
       val Nil = Z3.Z3_mk_app (ctx, !nil_decl, empty())
@@ -1409,7 +1390,7 @@ struct
                   Z3.Z3_mk_app(ctx, !is_cons_decl, vec[u])
                 ]
     in
-      prove ctx (Prop.Z3_mk_or(ctx, ors)) Z3.Z3_TRUE;
+      prove ctx (Z3.Z3_mk_or(ctx, ors)) Z3.Z3_TRUE;
       (* occurs check u <> cons(x,u) *)
       prove ctx (u != Cons x u) Z3.Z3_TRUE;
     let
@@ -1419,7 +1400,7 @@ struct
                  ==> fml1
     in
       print(concat["Formula "
-                  , Z3.Stringconv.Z3_ast_to_string(ctx, fml)
+                  , Z3.Z3_ast_to_string(ctx, fml)
                   , "\n"]);
       prove ctx fml Z3.Z3_TRUE;
       prove ctx fml1 Z3.Z3_FALSE
@@ -1434,12 +1415,11 @@ struct
   fun forest_example () =
     with_context (fn ctx =>
     let
-      open Z3.Sort Z3.Propositional
-      infix  ==  !=
+      infix == !=
       infixr ==>
-      fun p ==> q = Prop.Z3_mk_implies(ctx, p, q)
-      fun p ==  q = Prop.Z3_mk_eq(ctx, p, q)
-      fun p !=  q = Prop.Z3_mk_not(ctx, Prop.Z3_mk_eq(ctx, p, q))
+      fun p ==> q = Z3.Z3_mk_implies(ctx, p, q)
+      fun p ==  q = Z3.Z3_mk_eq(ctx, p, q)
+      fun p !=  q = Z3.Z3_mk_not(ctx, Z3.Z3_mk_eq(ctx, p, q))
 
       val vec = Vector.fromList
       fun empty () = vec[]
@@ -1449,10 +1429,10 @@ struct
     let
       val head_tail = vec[Sym "car", Sym "cdr"]
       (* build a forest *)
-      val nil1_con  = Z3_mk_constructor(ctx
+      val nil1_con  = Z3.Z3_mk_constructor(ctx
                                       , Sym "nil1", Sym "is_nil1"
                                       , empty(), empty(), empty())
-      val cons1_con = Z3_mk_constructor(ctx
+      val cons1_con = Z3.Z3_mk_constructor(ctx
                                       , Sym "cons1", Sym "is_cons1"
                                       , head_tail
                                       , vec[NONE, NONE]
@@ -1460,10 +1440,10 @@ struct
       val constructors1 = vec[nil1_con, cons1_con]
 
       (* build a tree *)
-      val nil2_con  = Z3_mk_constructor(ctx
+      val nil2_con  = Z3.Z3_mk_constructor(ctx
                                       , Sym "nil2", Sym "is_nil2"
                                       , empty(), empty(), empty())
-      val cons2_con = Z3_mk_constructor(ctx
+      val cons2_con = Z3.Z3_mk_constructor(ctx
                                       , Sym "cons1", Sym "is_cons1"
                                       , head_tail
                                       , vec[NONE, NONE]
@@ -1471,13 +1451,13 @@ struct
                                       , vec[0w0, 0w0])
       val constructors2 = vec[nil2_con, cons2_con]
       val clists = Array.fromList[
-                     Z3_mk_constructor_list(ctx, constructors1)
-                    ,Z3_mk_constructor_list(ctx, constructors2)
+                      Z3.Z3_mk_constructor_list(ctx, constructors1)
+                    , Z3.Z3_mk_constructor_list(ctx, constructors2)
                    ]
       (* HACK: construct bool sort as dummy *)
-      val sorts = Array.fromList[ Z3_mk_bool_sort ctx
-                                , Z3_mk_bool_sort ctx ]
-      val () = Z3_mk_datatypes(ctx
+      val sorts = Array.fromList[ Z3.Z3_mk_bool_sort ctx
+                                , Z3.Z3_mk_bool_sort ctx ]
+      val () = Z3.Z3_mk_datatypes(ctx
                               , vec[Sym "forest", Sym "tree"]
                               , sorts
                               , clists)
@@ -1487,17 +1467,17 @@ struct
       val ( nil1_decl,  is_nil1_decl) = (ptr_ref(), ptr_ref())
       val (cons1_decl, is_cons1_decl) = (ptr_ref(), ptr_ref())
       val cons_accessors = Array.fromList[Ptr.NULL(), Ptr.NULL()]
-      val () = Z3_query_constructor(ctx
+      val () = Z3.Z3_query_constructor(ctx
                                    , nil1_con, nil1_decl, is_nil1_decl, Array.fromList[])
-      val () = Z3_query_constructor(ctx
+      val () = Z3.Z3_query_constructor(ctx
                                    , cons1_con, cons1_decl, is_cons1_decl, cons_accessors)
       val ( nil2_decl,  is_nil2_decl) = (ptr_ref(), ptr_ref())
       val (cons2_decl, is_cons2_decl) = (ptr_ref(), ptr_ref())
-      val () = Z3_query_constructor(ctx
+      val () = Z3.Z3_query_constructor(ctx
                                    , nil2_con, nil2_decl, is_nil2_decl, Array.fromList[])
-      val () = Z3_query_constructor(ctx
+      val () = Z3.Z3_query_constructor(ctx
                                    , cons2_con, cons2_decl, is_cons2_decl, cons_accessors)
-      val () = app (fn ctor => Z3_del_constructor(ctx, ctor))
+      val () = app (fn ctor => Z3.Z3_del_constructor(ctx, ctor))
                    [nil1_con, cons1_con, nil2_con, cons2_con]
 
       val nil1 = Z3.Z3_mk_app(ctx, !nil1_decl, vec[])
@@ -1533,7 +1513,7 @@ struct
                   Z3.Z3_mk_app(ctx, !is_cons1_decl, vec[u])
                 ]
     in
-      prove ctx (Z3_mk_or(ctx, ors)) Z3.Z3_TRUE;
+      prove ctx (Z3.Z3_mk_or(ctx, ors)) Z3.Z3_TRUE;
       (* occurs check u != cons(x,u) *)
       prove ctx (u != l1) Z3.Z3_TRUE
     end end end end)
@@ -1546,12 +1526,11 @@ struct
   fun binary_tree_example () =
     with_context (fn ctx =>
     let
-      open Z3.Sort Z3.Propositional
       infix  ==  !=
       infixr ==>
-      fun p ==> q = Prop.Z3_mk_implies(ctx, p, q)
-      fun p ==  q = Prop.Z3_mk_eq(ctx, p, q)
-      fun p !=  q = Prop.Z3_mk_not(ctx, Prop.Z3_mk_eq(ctx, p, q))
+      fun p ==> q = Z3.Z3_mk_implies(ctx, p, q)
+      fun p ==  q = Z3.Z3_mk_eq(ctx, p, q)
+      fun p !=  q = Z3.Z3_mk_not(ctx, Z3.Z3_mk_eq(ctx, p, q))
 
       fun Sym sym = Z3.Z3_mk_string_symbol(ctx, sym)
       val vec = Vector.fromList
@@ -1560,33 +1539,33 @@ struct
     in
     let
       val node_accessor_names     = vec[Sym "value", Sym "left", Sym "right"]
-      val node_accessor_sorts     = vec[SOME(Z3_mk_int_sort ctx), NONE, NONE]
+      val node_accessor_sorts     = vec[SOME(Z3.Z3_mk_int_sort ctx), NONE, NONE]
       val node_accessor_sort_refs = vec[0w0, 0w0, 0w0]
       (* nil_con and node_con are auxiliary datastructures used to create the new recursive datatype BinTree *)
-      val nil_con  = Z3_mk_constructor(ctx
+      val nil_con  = Z3.Z3_mk_constructor(ctx
                                       , Sym "nil", Sym "is-nil"
                                       , empty(), empty(), empty())
-      val node_con = Z3_mk_constructor(ctx
+      val node_con = Z3.Z3_mk_constructor(ctx
                                       , Sym "node", Sym "is-cons"
                                       , node_accessor_names
                                       , node_accessor_sorts
                                       , node_accessor_sort_refs)
       val constructors = Array.fromList[nil_con, node_con]
       (* create the new recursive datatype *)
-      val cell = Z3_mk_datatype(ctx, Sym "BinTree", constructors)
+      val cell = Z3.Z3_mk_datatype(ctx, Sym "BinTree", constructors)
 
       val ( nil_decl,  is_nil_decl) = (ptr_ref(), ptr_ref())
-      val () = Z3_query_constructor(ctx
+      val () = Z3.Z3_query_constructor(ctx
                                    , nil_con, nil_decl, is_nil_decl, Array.fromList[])
       val (node_decl, is_node_decl) = (ptr_ref(), ptr_ref())
       val node_accessors = Array.fromList[Ptr.NULL(), Ptr.NULL(), Ptr.NULL()]
-      val () = Z3_query_constructor(ctx
+      val () = Z3.Z3_query_constructor(ctx
                                    , node_con, node_decl, is_node_decl, node_accessors)
       val value_decl = Array.sub(node_accessors, 0)
       val left_decl  = Array.sub(node_accessors, 1)
       val right_decl = Array.sub(node_accessors, 2)
       (* delete auxiliary/helper structures *)
-      val () = app (fn x=> Z3_del_constructor(ctx, x)) [nil_con, node_con]
+      val () = app (fn x=> Z3.Z3_del_constructor(ctx, x)) [nil_con, node_con]
     in
       (* small example using the recursive datatype BinTree *)
     let
@@ -1606,10 +1585,10 @@ struct
       (* prove that node1 = right(node3) *)
       prove ctx (node1 == Right node3) Z3.Z3_TRUE;
       (* prove that !is-nil(node2) *)
-      prove ctx (Prop.Z3_mk_not(ctx
+      prove ctx (Z3.Z3_mk_not(ctx
                     , mk_unary_app ctx (!is_nil_decl) node2)) Z3.Z3_TRUE;
       (* prove that value(node2) >= 0 *)
-      prove ctx (Z3.Arithmetic.Z3_mk_ge(ctx
+      prove ctx (Z3.Z3_mk_ge(ctx
                     , mk_unary_app ctx value_decl node2
                     , mk_int ctx 0)) Z3.Z3_TRUE
     end end end)
@@ -1620,13 +1599,11 @@ struct
   fun enum_example () =
     with_context (fn ctx =>
     let
-      open Z3.Sort Z3.Stringconv Z3.Propositional
-
       infix  ==  !=
       infixr ==>
-      fun p ==> q = Z3_mk_implies(ctx, p, q)
-      fun p ==  q = Z3_mk_eq(ctx, p, q)
-      fun p !=  q = Z3_mk_not(ctx, Z3_mk_eq(ctx, p, q))
+      fun p ==> q = Z3.Z3_mk_implies(ctx, p, q)
+      fun p ==  q = Z3.Z3_mk_eq(ctx, p, q)
+      fun p !=  q = Z3.Z3_mk_not(ctx, Z3.Z3_mk_eq(ctx, p, q))
 
       fun Sym sym = Z3.Z3_mk_string_symbol(ctx, sym)
       fun ptr_ref () = ref (Ptr.NULL())
@@ -1637,14 +1614,14 @@ struct
     let
       val enum_consts  = Array.fromList[Ptr.NULL(), Ptr.NULL(), Ptr.NULL()]
       val enum_testers = Array.fromList[Ptr.NULL(), Ptr.NULL(), Ptr.NULL()]
-      val fruit = Z3_mk_enumeration_sort(ctx
+      val fruit = Z3.Z3_mk_enumeration_sort(ctx
                                         , Sym "fruit"
                                         , vec (map Sym ["apple", "banana", "orange"])
                                         , enum_consts
                                         , enum_testers)
     in
-      Array.app (fn e=> print(concat[Z3_func_decl_to_string(ctx, e), "\n"])) enum_consts;
-      Array.app (fn e=> print(concat[Z3_func_decl_to_string(ctx, e), "\n"])) enum_testers;
+      Array.app (fn e=> print(concat[Z3.Z3_func_decl_to_string(ctx, e), "\n"])) enum_consts;
+      Array.app (fn e=> print(concat[Z3.Z3_func_decl_to_string(ctx, e), "\n"])) enum_testers;
 
     let
       val apple  = Z3.Z3_mk_app (ctx, Array.sub(enum_consts,0), empty())
@@ -1657,7 +1634,7 @@ struct
       prove ctx (Z3.Z3_mk_app(ctx, Array.sub(enum_testers,0), vec[apple])) Z3.Z3_TRUE;
       (* Oranges fail the apple test *)
       prove ctx (Z3.Z3_mk_app(ctx, Array.sub(enum_testers,0), vec[orange])) Z3.Z3_FALSE;
-      prove ctx (Z3_mk_not(ctx
+      prove ctx (Z3.Z3_mk_not(ctx
                   , Z3.Z3_mk_app(ctx
                     , Array.sub(enum_testers,0), vec[orange]))) Z3.Z3_TRUE;
 
@@ -1668,18 +1645,17 @@ struct
                    ,fruity == banana
                    ,fruity == orange]
     in
-      prove ctx (Z3_mk_or(ctx, ors)) Z3.Z3_TRUE
+      prove ctx (Z3.Z3_mk_or(ctx, ors)) Z3.Z3_TRUE
     end end end end)
 
   fun unsat_core_and_proof_example () =
     using mk_proof_context
-          Z3.Context.Z3_del_context
+          Z3.Z3_del_context
           (fn ctx =>
     let
-      open Z3.Sort
-      fun <&> ps = Prop.Z3_mk_and(ctx, ps)
-      fun <|> ps = Prop.Z3_mk_or (ctx, ps)
-      fun Not p  = Prop.Z3_mk_not(ctx, p)
+      fun <&> ps = Z3.Z3_mk_and(ctx, ps)
+      fun <|> ps = Z3.Z3_mk_or (ctx, ps)
+      fun Not p  = Z3.Z3_mk_not(ctx, p)
 
       val vec = Vector.fromList
       fun Bool id = mk_bool_var ctx id
@@ -1698,7 +1674,6 @@ struct
       D.Z3_assert_cnstr(ctx, <|> (vec[f4, p4])); (* g4 *)
 
     let
-      open Z3.Stringconv
       val assumptions = vec[Not p1, Not p2, Not p3, Not p4]
       val m : Z3.Z3_model ref = ref (Ptr.NULL())
       val proof : Z3.Z3_ast ref = ref (Ptr.NULL())
@@ -1714,10 +1689,10 @@ struct
         of E.Z3_lbool.Z3_L_FALSE =>
              (print(concat
                    ["unsat\n"
-                   ,"proof: ", Z3_ast_to_string(ctx, !proof), "\n"]);
+                   ,"proof: ", Z3.Z3_ast_to_string(ctx, !proof), "\n"]);
               print "\ncore:\n";
               for 0 (fn i=> (Word.fromInt i) < !core_size) (fn i=>i+1) (fn i=>
-                print (Z3_ast_to_string(ctx, Array.sub(core,i))^"\n")
+                print (Z3.Z3_ast_to_string(ctx, Array.sub(core,i))^"\n")
               );
               print "\n")
          | E.Z3_lbool.Z3_L_UNDEF =>
@@ -1752,15 +1727,14 @@ struct
       }
 
     fun delete ({context,...}:t) =
-      Z3.Context.Z3_del_context context
+      Z3.Z3_del_context context
 
     fun assert_retractable_cnstr {context
                                  ,answer_literals
                                  ,num_answer_literals
                                  ,retracted} c =
     let
-      open Z3.Sort
-      val ty      = Z3_mk_bool_sort context
+      val ty      = Z3.Z3_mk_bool_sort context
       val ans_lit = Z3.Z3_mk_fresh_const (context, "k", ty)
       val result  = !num_answer_literals
     in
@@ -1768,8 +1742,8 @@ struct
       Array.update(retracted, Word.toInt result, Z3.Z3_FALSE);
       num_answer_literals := (!num_answer_literals) + 0w1;
       D.Z3_assert_cnstr(context
-                       , Prop.Z3_mk_or(context
-                       , Vector.fromList[c, Prop.Z3_mk_not(context, ans_lit)]));
+                       , Z3.Z3_mk_or(context
+                       , Vector.fromList[c, Z3.Z3_mk_not(context, ans_lit)]));
       result
     end
 
@@ -1844,8 +1818,6 @@ struct
           Z3_ext_context.delete
     (fn ext_ctx =>
     let
-      open Z3.Sort Z3.Propositional Z3.Arithmetic
-
       val ctx = #context ext_ctx
       val x = mk_int_var ctx "x"
       val y = mk_int_var ctx "y"
@@ -1854,13 +1826,13 @@ struct
       val one = mk_int ctx 1
 
       (* assert x < y *)
-      val c1 = Ext.assert_retractable_cnstr ext_ctx (Z3_mk_lt(ctx, x, y))
+      val c1 = Ext.assert_retractable_cnstr ext_ctx (Z3.Z3_mk_lt(ctx, x, y))
       (* assert x = z *)
-      val c2 = Ext.assert_retractable_cnstr ext_ctx (Z3_mk_eq(ctx, x, z))
+      val c2 = Ext.assert_retractable_cnstr ext_ctx (Z3.Z3_mk_eq(ctx, x, z))
       (* assert x > 2 *)
-      val c3 = Ext.assert_retractable_cnstr ext_ctx (Z3_mk_gt(ctx, x, two))
+      val c3 = Ext.assert_retractable_cnstr ext_ctx (Z3.Z3_mk_gt(ctx, x, two))
       (* assert y < 1 *)
-      val c4 = Ext.assert_retractable_cnstr ext_ctx (Z3_mk_lt(ctx, y, one))
+      val c4 = Ext.assert_retractable_cnstr ext_ctx (Z3.Z3_mk_lt(ctx, y, one))
 
       fun check_bug f = check_cond f (SOME "bug in Z3")
     in
@@ -1888,29 +1860,28 @@ struct
   fun reference_counter_example () =
     with_context (fn ctx =>
     let
-      open Z3.Accessor
-      val ty = Z3.Sort.Z3_mk_bool_sort ctx
-      val () = Z3.Context.Z3_inc_ref(ctx, Z3_sort_to_ast(ctx, ty))
+      val ty = Z3.Z3_mk_bool_sort ctx
+      val () = Z3.Z3_inc_ref(ctx, Z3.Z3_sort_to_ast(ctx, ty))
       fun Sym sym = Z3.Z3_mk_string_symbol (ctx, sym)
       val x  = Z3.Z3_mk_const (ctx, Sym "x", ty)
     in
-      Z3.Context.Z3_inc_ref(ctx, x);
+      Z3.Z3_inc_ref(ctx, x);
     let
       val y  = Z3.Z3_mk_const (ctx, Sym "y", ty)
     in
-      Z3.Context.Z3_inc_ref(ctx, y);
+      Z3.Z3_inc_ref(ctx, y);
       (* ty is not needed anymore *)
-      Z3.Context.Z3_dec_ref(ctx, Z3_sort_to_ast(ctx, ty));
+      Z3.Z3_dec_ref(ctx, Z3.Z3_sort_to_ast(ctx, ty));
     let
-      val x_xor_y = Prop.Z3_mk_xor(ctx, x, y)
+      val x_xor_y = Z3.Z3_mk_xor(ctx, x, y)
     in
-      Z3.Context.Z3_inc_ref(ctx, x_xor_y);
+      Z3.Z3_inc_ref(ctx, x_xor_y);
       (* x and y are not needed anymore. *)
-      Z3.Context.Z3_dec_ref(ctx, x);
-      Z3.Context.Z3_dec_ref(ctx, y);
+      Z3.Z3_dec_ref(ctx, x);
+      Z3.Z3_dec_ref(ctx, y);
       D.Z3_assert_cnstr(ctx, x_xor_y);
       (* x_xor_y is not needed anymore. *)
-      Z3.Context.Z3_dec_ref(ctx, x_xor_y);
+      Z3.Z3_dec_ref(ctx, x_xor_y);
 
       print "model for: x xor y\n";
       check ctx E.Z3_lbool.Z3_L_TRUE;
@@ -1924,7 +1895,7 @@ struct
     with_context (fn ctx =>
     let
       fun empty () = Vector.fromList[]
-      val fs = Z3.Parser.Z3_parse_smtlib2_string(
+      val fs = Z3.Z3_parse_smtlib2_string(
                    ctx
                  , concat[
                      "(declare-fun a () (_ BitVec 8))",
@@ -1935,13 +1906,13 @@ struct
                  , empty(), empty())
     in
       print(concat["formulas: "
-                  , Z3.Stringconv.Z3_ast_to_string(ctx, fs), "\n"])
+                  , Z3.Z3_ast_to_string(ctx, fs), "\n"])
     end)
 
   fun substitute_example () =
     with_context (fn ctx =>
     let
-      open Z3 Z3.Sort
+      open Z3
       val vec = Vector.fromList
       val int_ty = Z3_mk_int_sort ctx
       val a = mk_int_var ctx "a"
@@ -1959,7 +1930,6 @@ struct
     in
       (* Replace b -> 0, g(a) -> 1 in f(f(a, b), g(a)) *)
     let
-      open Z3.Numerals
       val zero = Z3_mk_numeral(ctx, "0", int_ty)
       val one  = Z3_mk_numeral(ctx, "1", int_ty)
       val from = vec[b, ga]
@@ -1968,19 +1938,19 @@ struct
     in
       (* Display r *)
       print(concat["substitution result: "
-                    , Stringconv.Z3_ast_to_string(ctx, r), "\n"])
+                    , Z3_ast_to_string(ctx, r), "\n"])
     end
     end)
 
   fun substitute_vars_example () =
     with_context (fn ctx =>
     let
-      open Z3 Z3.Sort
+      open Z3
       val vec = Vector.fromList
       fun Sym sym = Z3_mk_string_symbol(ctx, sym)
       val int_ty = Z3_mk_int_sort ctx
-      val x0 = Z3.Quantifier.Z3_mk_bound (ctx, 0w0, int_ty)
-      val x1 = Z3.Quantifier.Z3_mk_bound (ctx, 0w1, int_ty)
+      val x0 = Z3_mk_bound (ctx, 0w0, int_ty)
+      val x1 = Z3_mk_bound (ctx, 0w1, int_ty)
       val f = Z3_mk_func_decl(ctx
                             , Sym "f"
                             , vec[int_ty, int_ty], int_ty)
@@ -1997,7 +1967,7 @@ struct
       val r = Z3_substitute_vars(ctx, ff010, vec[a, gb])
     in
       print(concat["substitution result: "
-                  , Stringconv.Z3_ast_to_string(ctx, r), "\n"])
+                  , Z3_ast_to_string(ctx, r), "\n"])
     end)
 
   val sample_cases =
@@ -2046,7 +2016,7 @@ struct
      f())
 
   fun open_log file =
-    if Z3.Log.Z3_open_log file
+    if Z3.Z3_open_log file
     then ()
     else raise Fail (concat["Z3_open_log: ", file])
 

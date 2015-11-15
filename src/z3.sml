@@ -107,32 +107,32 @@ in
   (**
    * Algebraic Numbers
    *)
-  structure Algebraic = Z3_Algebraic
+  open Z3_Algebraic
 
   (**
    * Global configuration
    *)
-  structure Global = Z3_Global
+  open Z3_Global
 
   (**
    * Config
    *)
-  structure Config = Z3_Config
+  open Z3_Config
 
   (**
    * Context
    *)
-  structure Context = Z3_Context
+  open Z3_Context
 
   (**
    * Parameters
    *)
-  structure Parameter = Z3_Parameter
+  open Z3_Parameter
 
   (**
    *  Parameter Descriptions
    *)
-  structure ParameterDesc = Z3_ParameterDesc
+  open Z3_ParameterDesc
 
   (**
    *  Symbols
@@ -148,7 +148,7 @@ in
   (**
    *  Sort
    *)
-  structure Sort = Z3_Sort
+  open Z3_Sort
 
   (**
    * Constans and Applications
@@ -187,42 +187,42 @@ in
   (**
    * Propositional Logic and Equality
    *)
-  structure Propositional = Z3_Propositional
+  open Z3_Propositional
 
   (**
    * Arithmetic: Integers and Reals
    *)
-  structure Arithmetic = Z3_Arithmetic
+  open Z3_Arithmetic
 
   (**
    * Bit-vectors
    *)
-  structure BitVector = Z3_BitVector
+  open Z3_BitVector
 
   (**
    * Arrays
    *)
-  structure Array = Z3_Array
+  open Z3_Array
 
   (**
    * Sets
    *)
-  structure Set = Z3_Set
+  open Z3_Set
 
   (**
    * Numerals
    *)
-  structure Numerals = Z3_Numerals
+  open Z3_Numerals
 
   (**
    * Quantifiers
    *)
-  structure Quantifier = Z3_Quantifier
+  open Z3_Quantifier
 
   (**
    * Accessors
    *)
-  structure Accessor = Z3_Accessor
+  open Z3_Accessor
 
   (**
    * Modifiers
@@ -256,27 +256,27 @@ in
   (**
    * Models
    *)
-  structure Model = Z3_Model
+  open Z3_Model
 
   (**
    * Interaction logging.
    *)
-  structure Log = Z3_Log
+  open Z3_Log
 
   (**
    * String conversion
    *)
-  structure Stringconv = Z3_Stringconv
+  open Z3_Stringconv
 
   (**
    * Parser interface
    *)
-  structure Parser = Z3_Parser
+  open Z3_Parser
 
   (**
    * Error Handling
    *)
-  structure Error = Z3_Error
+  open Z3_Error
 
   (**
    * Miscellaneous
@@ -300,47 +300,47 @@ in
   (**
    * External Theory Plugins
    *)
-  structure ExternalTheoryPlugin = Z3_ExternalTheoryPlugin
+  open Z3_ExternalTheoryPlugin
 
   (**
    * Fixpoint facilities
    *)
-  structure Fixedpoint = Z3_Fixedpoint
+  open Z3_Fixedpoint
 
   (**
    * AST vectors
    *)
-  structure AstVector = Z3_Ast_Vector
+  open Z3_Ast_Vector
 
   (**
    * AST maps
    *)
-  structure AstMap = Z3_Ast_Map
+  open Z3_Ast_Map
 
   (**
    * Goals
    *)
-  structure Goal = Z3_Goal
+  open Z3_Goal
 
   (**
    * Tactics and Probes
    *)
-  structure TacticAndProbe = Z3_Tactic_And_Probe
+  open Z3_Tactic_And_Probe
 
   (**
    * Solvers
    *)
-  structure Solver = Z3_Solver
+  open Z3_Solver
 
   (**
    * Statistics
    *)
-  structure Statistics = Z3_Statistics
+  open Z3_Statistics
 
   (**
    * Statistics
    *)
-  structure Interpolation = Z3_Interpolation
+  open Z3_Interpolation
 
   (**
    * Polynominal
@@ -352,7 +352,7 @@ in
   (**
    * Real Closed Fields API
    *)
-  structure RealClosedField = Z3_RealClosedField
+  open Z3_RealClosedField
 
   (**
    * Deprecated API
