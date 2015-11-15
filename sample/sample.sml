@@ -14,17 +14,18 @@ struct
 
   fun println s = print(s^"\n")
 
-  fun using get release f =
+  fun using get release during =
     let
       val resource = get ()
-      val r = f resource handle exn => (release resource; raise exn)
-      val () = release resource
-    in r
+      val result = during resource handle exn => (release resource; raise exn)
+    in
+      release resource;
+      result
     end
 
-  fun for v inv next f =
-    if inv v
-    then (f v; for (next v) inv next f)
+  fun for i cond next f =
+    if cond i
+    then (f i; for (next i) cond next f)
     else ()
 
   fun var ctx name ty =
