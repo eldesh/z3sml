@@ -20,7 +20,7 @@ in
     : _import (Z3_context, Z3_param_descrs) -> ()
 
   val Z3_param_descrs_get_kind =
-    Z3_enum.Z3_param_kind.fromInt o (
+    Z3_param_kind.fromInt o (
     Dyn.dlsym (libz3, "Z3_param_descrs_get_kind")
     : _import (Z3_context, Z3_param_descrs, Z3_symbol) -> int)
 

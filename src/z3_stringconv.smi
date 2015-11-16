@@ -14,7 +14,7 @@ struct
   type Z3_sort      = unit ptr
 
   val Z3_set_ast_print_mode
-    : Z3_context * Z3_enum.Z3_ast_print_mode.t -> unit
+    : Z3_context * Z3_ast_print_mode.t -> unit
 
   val Z3_ast_to_string
      : Z3_context * Z3_ast -> Z3_string

@@ -66,10 +66,10 @@ struct
     : Z3_context * Z3_solver -> Z3_ast_vector
      
   val Z3_solver_check
-    : Z3_context * Z3_solver -> Z3_enum.Z3_lbool.t
+    : Z3_context * Z3_solver -> Z3_lbool.t
      
   val Z3_solver_check_assumptions
-    : Z3_context * Z3_solver * Z3_ast vector -> Z3_enum.Z3_lbool.t
+    : Z3_context * Z3_solver * Z3_ast vector -> Z3_lbool.t
      
   val Z3_solver_get_model
     : Z3_context * Z3_solver -> Z3_model

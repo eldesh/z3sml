@@ -5,7 +5,6 @@ local
   structure Ptr = Pointer
   structure Dyn = DynamicLink
   val libz3 = Library.libz3
-  structure E = Z3_enum
 in
   type Z3_context      = unit ptr
   type Z3_symbol       = unit ptr
@@ -21,7 +20,7 @@ in
   type Z3_bool           = Z3_bool.t
 
   val Z3_get_symbol_kind =
-    E.Z3_symbol_kind.fromInt o (
+    Z3_symbol_kind.fromInt o (
     Dyn.dlsym(libz3, "Z3_get_symbol_kind")
     : _import (Z3_context, Z3_symbol) -> int)
 
@@ -52,7 +51,7 @@ in
        : _import (Z3_context, Z3_sort, Z3_sort) -> int)
 
   val Z3_get_sort_kind =
-    E.Z3_sort_kind.fromInt o (
+    Z3_sort_kind.fromInt o (
     Dyn.dlsym(libz3, "Z3_get_sort_kind")
     : _import (Z3_context, Z3_sort) -> int)
 
@@ -128,7 +127,7 @@ in
     : _import (Z3_context, Z3_func_decl) -> Z3_symbol
 
   val Z3_get_decl_kind =
-    E.Z3_decl_kind.fromInt o (
+    Z3_decl_kind.fromInt o (
     Dyn.dlsym(libz3, "Z3_get_decl_kind")
     : _import (Z3_context, Z3_func_decl) -> int)
 
@@ -153,7 +152,7 @@ in
     : _import (Z3_context, Z3_func_decl) -> word
 
   val Z3_get_decl_parameter_kind =
-    E.Z3_parameter_kind.fromInt o (
+    Z3_parameter_kind.fromInt o (
     Dyn.dlsym(libz3, "Z3_get_decl_parameter_kind")
     : _import (Z3_context, Z3_func_decl, word) -> int)
 
@@ -225,12 +224,12 @@ in
        : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_get_bool_value =
-    E.Z3_lbool.fromInt o (
+    Z3_lbool.fromInt o (
     Dyn.dlsym(libz3, "Z3_get_bool_value")
     : _import (Z3_context, Z3_ast) -> int)
 
   val Z3_get_ast_kind =
-    E.Z3_ast_kind.fromInt o (
+    Z3_ast_kind.fromInt o (
     Dyn.dlsym(libz3, "Z3_get_ast_kind")
     : _import (Z3_context, Z3_ast) -> int)
 

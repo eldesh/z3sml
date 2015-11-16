@@ -27,7 +27,7 @@ in
     : _import (Z3_context, Z3_ast, Z3_ast, Z3_params) -> Z3_ast_vector
 
   val Z3_compute_interpolant =
-    Z3_enum.Z3_lbool.fromInt o (
+    Z3_lbool.fromInt o (
     Dyn.dlsym(libz3, "Z3_compute_interpolant")
     : _import (Z3_context, Z3_ast, Z3_params
              , Z3_ast_vector ref, Z3_model ref) -> int)

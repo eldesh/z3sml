@@ -8,7 +8,6 @@ local
   structure Ptr = Pointer
   structure Dyn = DynamicLink
   val libz3 = Library.libz3
-  open Z3_enum
 in
   type Z3_context  = unit ptr
   type Z3_model    = unit ptr
@@ -241,7 +240,7 @@ in
   fun Z3_get_error_msg err =
     Ptr.importString (
       _ffiapply (Dyn.dlsym(libz3, "Z3_get_error_msg"))
-      ( Z3_enum.Z3_error_code.toInt err : int ) : char ptr)
+      ( Z3_error_code.toInt err : int ) : char ptr)
 
 end (* local *)
 end

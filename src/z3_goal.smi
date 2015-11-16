@@ -22,7 +22,7 @@ struct
     : Z3_context * Z3_goal -> unit
      
   val Z3_goal_precision
-    : Z3_context * Z3_goal -> Z3_enum.Z3_goal_prec.t
+    : Z3_context * Z3_goal -> Z3_goal_prec.t
      
   val Z3_goal_assert
     : Z3_context * Z3_goal * Z3_ast -> unit

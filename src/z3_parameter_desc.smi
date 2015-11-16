@@ -17,7 +17,7 @@ struct
     : Z3_context * Z3_param_descrs -> unit
 
   val Z3_param_descrs_get_kind
-    : Z3_context * Z3_param_descrs * Z3_symbol -> Z3_enum.Z3_param_kind.t
+    : Z3_context * Z3_param_descrs * Z3_symbol -> Z3_param_kind.t
 
   val Z3_param_descrs_size
     : Z3_context * Z3_param_descrs -> Word32.word

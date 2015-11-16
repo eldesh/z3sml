@@ -45,18 +45,18 @@ struct
     : Z3_context * Z3_ast -> unit
 
   val Z3_check_and_get_model
-    : Z3_context * Z3_model ref -> Z3_enum.Z3_lbool.t
+    : Z3_context * Z3_model ref -> Z3_lbool.t
 
   val Z3_check
-    : Z3_context -> Z3_enum.Z3_lbool.t
+    : Z3_context -> Z3_lbool.t
 
   val Z3_check_assumptions
     : Z3_context * Z3_ast vector * Z3_model ref
-      * Z3_ast ref * word ref * Z3_ast array -> Z3_enum.Z3_lbool.t
+      * Z3_ast ref * word ref * Z3_ast array -> Z3_lbool.t
 
   val Z3_get_implied_equalities
     : Z3_context * Z3_solver
-      * Z3_ast vector * word array -> Z3_enum.Z3_lbool.t
+      * Z3_ast vector * word array -> Z3_lbool.t
 
   val Z3_del_model
     : Z3_context * Z3_model -> unit
@@ -68,7 +68,7 @@ struct
     : Z3_context -> unit
 
   val Z3_get_search_failure
-    : Z3_context -> Z3_enum.Z3_search_failure.t
+    : Z3_context -> Z3_search_failure.t
 
   (*
    * Deprecated Labels API
@@ -166,7 +166,7 @@ struct
    * Deprecated Error Handling API
    *)
   val Z3_get_error_msg
-    : Z3_enum.Z3_error_code.t -> Z3_string
+    : Z3_error_code.t -> Z3_string
 
 end
 

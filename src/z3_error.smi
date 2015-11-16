@@ -6,19 +6,19 @@ _require "z3_enum.smi"
 structure Z3_Error =
 struct
   type Z3_context = unit ptr
-  type Z3_error_handler = Z3_context * Z3_enum.Z3_error_code.t -> unit
+  type Z3_error_handler = Z3_context * Z3_error_code.t -> unit
   type Z3_string = string
 
   val Z3_get_error_code
-    : Z3_context -> Z3_enum.Z3_error_code.t
+    : Z3_context -> Z3_error_code.t
 
   val Z3_set_error_handler
     : Z3_context * Z3_error_handler option -> unit
 
   val Z3_set_error
-    : Z3_context * Z3_enum.Z3_error_code.t -> unit
+    : Z3_context * Z3_error_code.t -> unit
 
   val Z3_get_error_msg_ex
-    : Z3_context * Z3_enum.Z3_error_code.t -> Z3_string
+    : Z3_context * Z3_error_code.t -> Z3_string
 end
 

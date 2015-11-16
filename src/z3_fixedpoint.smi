@@ -41,10 +41,10 @@ struct
     : Z3_context * Z3_fixedpoint * Z3_ast -> unit
 
   val Z3_fixedpoint_query 
-    : Z3_context * Z3_fixedpoint * Z3_ast -> Z3_enum.Z3_lbool.t
+    : Z3_context * Z3_fixedpoint * Z3_ast -> Z3_lbool.t
 
   val Z3_fixedpoint_query_relations 
-    : Z3_context * Z3_fixedpoint * Z3_func_decl vector -> Z3_enum.Z3_lbool.t
+    : Z3_context * Z3_fixedpoint * Z3_func_decl vector -> Z3_lbool.t
 
   val Z3_fixedpoint_get_answer 
     : Z3_context * Z3_fixedpoint -> Z3_ast

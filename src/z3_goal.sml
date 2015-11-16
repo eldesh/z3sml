@@ -28,7 +28,7 @@ in
     : _import (Z3_context, Z3_goal) -> ()
      
   val Z3_goal_precision =
-    Z3_enum.Z3_goal_prec.fromInt o (
+    Z3_goal_prec.fromInt o (
     Dyn.dlsym(libz3, "Z3_goal_precision")
     : _import (Z3_context, Z3_goal) -> int)
      

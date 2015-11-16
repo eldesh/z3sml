@@ -6,8 +6,6 @@ local
   structure Dyn = DynamicLink
   val libz3 = Library.libz3
 
-  open Z3_enum
-
   fun importVector p n =
     Vector.tabulate(n, fn i=>
       SMLSharp_Builtin.Pointer.deref (Pointer.advance(p, i)))

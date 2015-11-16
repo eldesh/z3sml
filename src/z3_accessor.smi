@@ -20,7 +20,7 @@ struct
   type Z3_bool           = Z3_bool.t
 
   val Z3_get_symbol_kind
-    : Z3_context * Z3_symbol -> Z3_enum.Z3_symbol_kind.t
+    : Z3_context * Z3_symbol -> Z3_symbol_kind.t
 
   val Z3_get_symbol_int
     : Z3_context * Z3_symbol -> int
@@ -41,7 +41,7 @@ struct
     : Z3_context * Z3_sort * Z3_sort -> Z3_bool
 
   val Z3_get_sort_kind
-    : Z3_context * Z3_sort -> Z3_enum.Z3_sort_kind.t
+    : Z3_context * Z3_sort -> Z3_sort_kind.t
 
   val Z3_get_bv_sort_size
     : Z3_context * Z3_sort -> word
@@ -92,7 +92,7 @@ struct
     : Z3_context * Z3_func_decl -> Z3_symbol
 
   val Z3_get_decl_kind
-    : Z3_context * Z3_func_decl -> Z3_enum.Z3_decl_kind.t
+    : Z3_context * Z3_func_decl -> Z3_decl_kind.t
 
   val Z3_get_domain_size
     : Z3_context * Z3_func_decl -> word
@@ -110,7 +110,7 @@ struct
     : Z3_context * Z3_func_decl -> word
 
   val Z3_get_decl_parameter_kind
-    : Z3_context * Z3_func_decl * word -> Z3_enum.Z3_parameter_kind.t
+    : Z3_context * Z3_func_decl * word -> Z3_parameter_kind.t
 
   val Z3_get_decl_int_parameter
     : Z3_context * Z3_func_decl * word -> int
@@ -161,10 +161,10 @@ struct
     : Z3_context * Z3_ast -> Z3_bool
 
   val Z3_get_bool_value
-    : Z3_context * Z3_ast -> Z3_enum.Z3_lbool.t
+    : Z3_context * Z3_ast -> Z3_lbool.t
 
   val Z3_get_ast_kind
-    : Z3_context * Z3_ast -> Z3_enum.Z3_ast_kind.t
+    : Z3_context * Z3_ast -> Z3_ast_kind.t
 
   val Z3_is_app
     : Z3_context * Z3_ast -> Z3_bool

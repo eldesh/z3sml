@@ -24,7 +24,7 @@ struct
 
   val Z3_compute_interpolant
     : Z3_context * Z3_ast * Z3_params
-              * Z3_ast_vector ref * Z3_model ref -> Z3_enum.Z3_lbool.t
+              * Z3_ast_vector ref * Z3_model ref -> Z3_lbool.t
 
   val Z3_interpolation_profile
     : Z3_context -> Z3_string

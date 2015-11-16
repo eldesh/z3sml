@@ -85,9 +85,19 @@ in
   (**
    * Z3 enum constants
    *)
-  structure Enum = Z3_enum
+  structure Z3_lbool          = Z3_lbool
+  structure Z3_symbol_kind    = Z3_symbol_kind
+  structure Z3_parameter_kind = Z3_parameter_kind
+  structure Z3_sort_kind      = Z3_sort_kind
+  structure Z3_ast_kind       = Z3_ast_kind
+  structure Z3_decl_kind      = Z3_decl_kind
+  structure Z3_param_kind     = Z3_param_kind
+  structure Z3_search_failure = Z3_search_failure
+  structure Z3_ast_print_mode = Z3_ast_print_mode
+  structure Z3_error_code     = Z3_error_code
+  structure Z3_goal_prec      = Z3_goal_prec
 
-  type Z3_error_handler = Z3_context * Enum.Z3_error_code.t -> unit
+  type Z3_error_handler = Z3_context * Z3_error_code.t -> unit
 
   type Z3_reduce_app_callback_fptr =
          (Z3_theory * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> Z3_bool

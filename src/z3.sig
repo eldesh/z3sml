@@ -72,7 +72,7 @@ sig
   val Z3_TRUE  : Z3_bool
   val Z3_FALSE : Z3_bool
 
-  type Z3_error_handler = Z3_context * Z3_enum.Z3_error_code.t -> unit
+  type Z3_error_handler = Z3_context * Z3_error_code.t -> unit
 
   type Z3_reduce_app_callback_fptr =
          (Z3_theory * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> Z3_bool
@@ -90,7 +90,300 @@ sig
          (unit ptr * Z3_func_decl * Z3_ast vector * Z3_ast ref) -> unit
 
 
-  structure Enum : Z3_ENUM
+  structure Z3_lbool : sig
+    datatype t = Z3_L_FALSE
+               | Z3_L_UNDEF
+               | Z3_L_TRUE
+
+    val fromInt : int -> t
+    val toInt : t -> int
+  end
+
+  structure Z3_symbol_kind : sig
+    datatype t = Z3_INT_SYMBOL
+               | Z3_STRING_SYMBOL
+
+    val fromInt : int -> t
+    val toInt : t -> int
+  end
+
+  structure Z3_parameter_kind : sig
+    datatype t = Z3_PARAMETER_INT
+               | Z3_PARAMETER_DOUBLE
+               | Z3_PARAMETER_RATIONAL
+               | Z3_PARAMETER_SYMBOL
+               | Z3_PARAMETER_SORT
+               | Z3_PARAMETER_AST
+               | Z3_PARAMETER_FUNC_DECL
+
+    val fromInt : int -> t
+    val toInt : t -> int
+  end
+
+  structure Z3_sort_kind : sig
+    datatype t = Z3_UNINTERPRETED_SORT
+               | Z3_BOOL_SORT
+               | Z3_INT_SORT
+               | Z3_REAL_SORT
+               | Z3_BV_SORT
+               | Z3_ARRAY_SORT
+               | Z3_DATATYPE_SORT
+               | Z3_RELATION_SORT
+               | Z3_FINITE_DOMAIN_SORT
+               | Z3_UNKNOWN_SORT
+
+    val fromInt : int -> t
+    val toInt : t -> int
+  end
+
+  structure Z3_ast_kind : sig
+    datatype t = Z3_NUMERAL_AST
+               | Z3_APP_AST
+               | Z3_VAR_AST
+               | Z3_QUANTIFIER_AST
+               | Z3_SORT_AST
+               | Z3_FUNC_DECL_AST
+               | Z3_UNKNOWN_AST
+
+    val fromInt : int -> t
+    val toInt : t -> int
+  end
+
+  structure Z3_decl_kind : sig
+    datatype t = (* Basic *)
+                 Z3_OP_TRUE
+               | Z3_OP_FALSE
+               | Z3_OP_EQ
+               | Z3_OP_DISTINCT
+               | Z3_OP_ITE
+               | Z3_OP_AND
+               | Z3_OP_OR
+               | Z3_OP_IFF
+               | Z3_OP_XOR
+               | Z3_OP_NOT
+               | Z3_OP_IMPLIES
+               | Z3_OP_OEQ
+               (* Arithmetic *)
+               | Z3_OP_ANUM
+               | Z3_OP_AGNUM
+               | Z3_OP_LE
+               | Z3_OP_GE
+               | Z3_OP_LT
+               | Z3_OP_GT
+               | Z3_OP_ADD
+               | Z3_OP_SUB
+               | Z3_OP_UMINUS
+               | Z3_OP_MUL
+               | Z3_OP_DIV
+               | Z3_OP_IDIV
+               | Z3_OP_REM
+               | Z3_OP_MOD
+               | Z3_OP_TO_REAL
+               | Z3_OP_TO_INT
+               | Z3_OP_IS_INT
+               | Z3_OP_POWER
+               (* Arrays & Sets *)
+               | Z3_OP_STORE
+               | Z3_OP_SELECT
+               | Z3_OP_CONST_ARRAY
+               | Z3_OP_ARRAY_MAP
+               | Z3_OP_ARRAY_DEFAULT
+               | Z3_OP_SET_UNION
+               | Z3_OP_SET_INTERSECT
+               | Z3_OP_SET_DIFFERENCE
+               | Z3_OP_SET_COMPLEMENT
+               | Z3_OP_SET_SUBSET
+               | Z3_OP_AS_ARRAY
+               (* Bit-vectors *)
+               | Z3_OP_BNUM
+               | Z3_OP_BIT1
+               | Z3_OP_BIT0
+               | Z3_OP_BNEG
+               | Z3_OP_BADD
+               | Z3_OP_BSUB
+               | Z3_OP_BMUL
+               | Z3_OP_BSDIV
+               | Z3_OP_BUDIV
+               | Z3_OP_BSREM
+               | Z3_OP_BUREM
+               | Z3_OP_BSMOD
+               (*
+               * special functions to record the division by 0 cases
+               * these are internal functions
+               *)
+               | Z3_OP_BSDIV0
+               | Z3_OP_BUDIV0
+               | Z3_OP_BSREM0
+               | Z3_OP_BUREM0
+               | Z3_OP_BSMOD0
+               | Z3_OP_ULEQ
+               | Z3_OP_SLEQ
+               | Z3_OP_UGEQ
+               | Z3_OP_SGEQ
+               | Z3_OP_ULT
+               | Z3_OP_SLT
+               | Z3_OP_UGT
+               | Z3_OP_SGT
+               | Z3_OP_BAND
+               | Z3_OP_BOR
+               | Z3_OP_BNOT
+               | Z3_OP_BXOR
+               | Z3_OP_BNAND
+               | Z3_OP_BNOR
+               | Z3_OP_BXNOR
+               | Z3_OP_CONCAT
+               | Z3_OP_SIGN_EXT
+               | Z3_OP_ZERO_EXT
+               | Z3_OP_EXTRACT
+               | Z3_OP_REPEAT
+               | Z3_OP_BREDOR
+               | Z3_OP_BREDAND
+               | Z3_OP_BCOMP
+               | Z3_OP_BSHL
+               | Z3_OP_BLSHR
+               | Z3_OP_BASHR
+               | Z3_OP_ROTATE_LEFT
+               | Z3_OP_ROTATE_RIGHT
+               | Z3_OP_EXT_ROTATE_LEFT
+               | Z3_OP_EXT_ROTATE_RIGHT
+               | Z3_OP_INT2BV
+               | Z3_OP_BV2INT
+               | Z3_OP_CARRY
+               | Z3_OP_XOR3
+               (* Proofs *)
+               | Z3_OP_PR_UNDEF
+               | Z3_OP_PR_TRUE
+               | Z3_OP_PR_ASSERTED
+               | Z3_OP_PR_GOAL
+               | Z3_OP_PR_MODUS_PONENS
+               | Z3_OP_PR_REFLEXIVITY
+               | Z3_OP_PR_SYMMETRY
+               | Z3_OP_PR_TRANSITIVITY
+               | Z3_OP_PR_TRANSITIVITY_STAR
+               | Z3_OP_PR_MONOTONICITY
+               | Z3_OP_PR_QUANT_INTRO
+               | Z3_OP_PR_DISTRIBUTIVITY
+               | Z3_OP_PR_AND_ELIM
+               | Z3_OP_PR_NOT_OR_ELIM
+               | Z3_OP_PR_REWRITE
+               | Z3_OP_PR_REWRITE_STAR
+               | Z3_OP_PR_PULL_QUANT
+               | Z3_OP_PR_PULL_QUANT_STAR
+               | Z3_OP_PR_PUSH_QUANT
+               | Z3_OP_PR_ELIM_UNUSED_VARS
+               | Z3_OP_PR_DER
+               | Z3_OP_PR_QUANT_INST
+               | Z3_OP_PR_HYPOTHESIS
+               | Z3_OP_PR_LEMMA
+               | Z3_OP_PR_UNIT_RESOLUTION
+               | Z3_OP_PR_IFF_TRUE
+               | Z3_OP_PR_IFF_FALSE
+               | Z3_OP_PR_COMMUTATIVITY
+               | Z3_OP_PR_DEF_AXIOM
+               | Z3_OP_PR_DEF_INTRO
+               | Z3_OP_PR_APPLY_DEF
+               | Z3_OP_PR_IFF_OEQ
+               | Z3_OP_PR_NNF_POS
+               | Z3_OP_PR_NNF_NEG
+               | Z3_OP_PR_NNF_STAR
+               | Z3_OP_PR_CNF_STAR
+               | Z3_OP_PR_SKOLEMIZE
+               | Z3_OP_PR_MODUS_PONENS_OEQ
+               | Z3_OP_PR_TH_LEMMA
+               | Z3_OP_PR_HYPER_RESOLVE
+               (* Sequences *)
+               | Z3_OP_RA_STORE
+               | Z3_OP_RA_EMPTY
+               | Z3_OP_RA_IS_EMPTY
+               | Z3_OP_RA_JOIN
+               | Z3_OP_RA_UNION
+               | Z3_OP_RA_WIDEN
+               | Z3_OP_RA_PROJECT
+               | Z3_OP_RA_FILTER
+               | Z3_OP_RA_NEGATION_FILTER
+               | Z3_OP_RA_RENAME
+               | Z3_OP_RA_COMPLEMENT
+               | Z3_OP_RA_SELECT
+               | Z3_OP_RA_CLONE
+               | Z3_OP_FD_LT
+               (* Auxiliary *)
+               | Z3_OP_LABEL
+               | Z3_OP_LABEL_LIT
+               (* Datatypes *)
+               | Z3_OP_DT_CONSTRUCTOR
+               | Z3_OP_DT_RECOGNISER
+               | Z3_OP_DT_ACCESSOR
+               | Z3_OP_UNINTERPRETED
+
+    val fromInt : int -> t
+    val toInt : t -> int
+  end
+
+  structure Z3_param_kind : sig
+    datatype t = Z3_PK_UINT
+               | Z3_PK_BOOL
+               | Z3_PK_DOUBLE
+               | Z3_PK_SYMBOL
+               | Z3_PK_STRING
+               | Z3_PK_OTHER
+               | Z3_PK_INVALID
+
+    val fromInt : int -> t
+    val toInt : t -> int
+  end
+
+  structure Z3_search_failure : sig
+    datatype t = Z3_NO_FAILURE
+               | Z3_UNKNOWN
+               | Z3_TIMEOUT
+               | Z3_MEMOUT_WATERMARK
+               | Z3_CANCELED
+               | Z3_NUM_CONFLICTS
+               | Z3_THEORY
+               | Z3_QUANTIFIERS
+
+    val fromInt : int -> t
+    val toInt : t -> int
+  end
+
+  structure Z3_ast_print_mode : sig
+    datatype t = Z3_PRINT_SMTLIB_FULL
+               | Z3_PRINT_LOW_LEVEL
+               | Z3_PRINT_SMTLIB_COMPLIANT
+               | Z3_PRINT_SMTLIB2_COMPLIANT
+
+    val fromInt : int -> t
+    val toInt : t -> int
+  end
+
+  structure Z3_error_code : sig
+    datatype t = Z3_OK
+               | Z3_SORT_ERROR
+               | Z3_IOB
+               | Z3_INVALID_ARG
+               | Z3_PARSER_ERROR
+               | Z3_NO_PARSER
+               | Z3_INVALID_PATTERN
+               | Z3_MEMOUT_FAIL
+               | Z3_FILE_ACCESS_ERROR
+               | Z3_INTERNAL_FATAL
+               | Z3_INVALID_USAGE
+               | Z3_DEC_REF_ERROR
+               | Z3_EXCEPTION
+
+    val fromInt : int -> t
+    val toInt : t -> int
+  end
+
+  structure Z3_goal_prec : sig
+    datatype t = Z3_GOAL_PRECISE
+               | Z3_GOAL_UNDER
+               | Z3_GOAL_OVER
+               | Z3_GOAL_UNDER_OVER
+
+    val fromInt : int -> t
+    val toInt : t -> int
+  end
 
   (**
    * algebraic
@@ -225,7 +518,7 @@ sig
     : Z3_context * Z3_param_descrs -> unit
 
   val Z3_param_descrs_get_kind
-    : Z3_context * Z3_param_descrs * Z3_symbol -> Enum.Z3_param_kind.t
+    : Z3_context * Z3_param_descrs * Z3_symbol -> Z3_param_kind.t
 
   val Z3_param_descrs_size
     : Z3_context * Z3_param_descrs -> Word32.word
@@ -672,7 +965,7 @@ sig
                  * Z3_ast -> Z3_ast
 
   val Z3_get_symbol_kind
-    : Z3_context * Z3_symbol -> Enum.Z3_symbol_kind.t
+    : Z3_context * Z3_symbol -> Z3_symbol_kind.t
 
   val Z3_get_symbol_int
     : Z3_context * Z3_symbol -> int
@@ -693,7 +986,7 @@ sig
     : Z3_context * Z3_sort * Z3_sort -> Z3_bool
 
   val Z3_get_sort_kind
-    : Z3_context * Z3_sort -> Enum.Z3_sort_kind.t
+    : Z3_context * Z3_sort -> Z3_sort_kind.t
 
   val Z3_get_bv_sort_size
     : Z3_context * Z3_sort -> word
@@ -744,7 +1037,7 @@ sig
     : Z3_context * Z3_func_decl -> Z3_symbol
 
   val Z3_get_decl_kind
-    : Z3_context * Z3_func_decl -> Enum.Z3_decl_kind.t
+    : Z3_context * Z3_func_decl -> Z3_decl_kind.t
 
   val Z3_get_domain_size
     : Z3_context * Z3_func_decl -> word
@@ -762,7 +1055,7 @@ sig
     : Z3_context * Z3_func_decl -> word
 
   val Z3_get_decl_parameter_kind
-    : Z3_context * Z3_func_decl * word -> Enum.Z3_parameter_kind.t
+    : Z3_context * Z3_func_decl * word -> Z3_parameter_kind.t
 
   val Z3_get_decl_int_parameter
     : Z3_context * Z3_func_decl * word -> int
@@ -813,10 +1106,10 @@ sig
     : Z3_context * Z3_ast -> Z3_bool
 
   val Z3_get_bool_value
-    : Z3_context * Z3_ast -> Enum.Z3_lbool.t
+    : Z3_context * Z3_ast -> Z3_lbool.t
 
   val Z3_get_ast_kind
-    : Z3_context * Z3_ast -> Enum.Z3_ast_kind.t
+    : Z3_context * Z3_ast -> Z3_ast_kind.t
 
   val Z3_is_app
     : Z3_context * Z3_ast -> Z3_bool
@@ -1011,7 +1304,7 @@ sig
     : Z3_bool -> unit
 
   val Z3_set_ast_print_mode
-    : Z3_context * Enum.Z3_ast_print_mode.t -> unit
+    : Z3_context * Z3_ast_print_mode.t -> unit
 
   val Z3_ast_to_string
      : Z3_context * Z3_ast -> Z3_string
@@ -1086,16 +1379,16 @@ sig
     : Z3_context -> Z3_string
 
   val Z3_get_error_code
-    : Z3_context -> Enum.Z3_error_code.t
+    : Z3_context -> Z3_error_code.t
 
   val Z3_set_error_handler
     : Z3_context * Z3_error_handler option -> unit
 
   val Z3_set_error
-    : Z3_context * Enum.Z3_error_code.t -> unit
+    : Z3_context * Z3_error_code.t -> unit
 
   val Z3_get_error_msg_ex
-    : Z3_context * Enum.Z3_error_code.t -> Z3_string
+    : Z3_context * Z3_error_code.t -> Z3_string
 
   val Z3_get_version
     : word ref * word ref * word ref * word ref -> unit
@@ -1236,10 +1529,10 @@ sig
     : Z3_context * Z3_fixedpoint * Z3_ast -> unit
 
   val Z3_fixedpoint_query
-    : Z3_context * Z3_fixedpoint * Z3_ast -> Enum.Z3_lbool.t
+    : Z3_context * Z3_fixedpoint * Z3_ast -> Z3_lbool.t
 
   val Z3_fixedpoint_query_relations
-    : Z3_context * Z3_fixedpoint * Z3_func_decl vector -> Enum.Z3_lbool.t
+    : Z3_context * Z3_fixedpoint * Z3_func_decl vector -> Z3_lbool.t
 
   val Z3_fixedpoint_get_answer
     : Z3_context * Z3_fixedpoint -> Z3_ast
@@ -1380,7 +1673,7 @@ sig
     : Z3_context * Z3_goal -> unit
 
   val Z3_goal_precision
-    : Z3_context * Z3_goal -> Enum.Z3_goal_prec.t
+    : Z3_context * Z3_goal -> Z3_goal_prec.t
 
   val Z3_goal_assert
     : Z3_context * Z3_goal * Z3_ast -> unit
@@ -1599,10 +1892,10 @@ sig
     : Z3_context * Z3_solver -> Z3_ast_vector
 
   val Z3_solver_check
-    : Z3_context * Z3_solver -> Enum.Z3_lbool.t
+    : Z3_context * Z3_solver -> Z3_lbool.t
 
   val Z3_solver_check_assumptions
-    : Z3_context * Z3_solver * Z3_ast vector -> Enum.Z3_lbool.t
+    : Z3_context * Z3_solver * Z3_ast vector -> Z3_lbool.t
 
   val Z3_solver_get_model
     : Z3_context * Z3_solver -> Z3_model
@@ -1660,7 +1953,7 @@ sig
 
   val Z3_compute_interpolant
     : Z3_context * Z3_ast * Z3_params
-              * Z3_ast_vector ref * Z3_model ref -> Enum.Z3_lbool.t
+              * Z3_ast_vector ref * Z3_model ref -> Z3_lbool.t
 
   val Z3_interpolation_profile
     : Z3_context -> Z3_string
@@ -1792,18 +2085,18 @@ sig
       : Z3_context * Z3_ast -> unit
 
     val Z3_check_and_get_model
-      : Z3_context * Z3_model ref -> Enum.Z3_lbool.t
+      : Z3_context * Z3_model ref -> Z3_lbool.t
 
     val Z3_check
-      : Z3_context -> Enum.Z3_lbool.t
+      : Z3_context -> Z3_lbool.t
 
     val Z3_check_assumptions
       : Z3_context * Z3_ast vector * Z3_model ref
-        * Z3_ast ref * word ref * Z3_ast array -> Enum.Z3_lbool.t
+        * Z3_ast ref * word ref * Z3_ast array -> Z3_lbool.t
 
     val Z3_get_implied_equalities
       : Z3_context * Z3_solver
-        * Z3_ast vector * word array -> Enum.Z3_lbool.t
+        * Z3_ast vector * word array -> Z3_lbool.t
 
     val Z3_del_model
       : Z3_context * Z3_model -> unit
@@ -1815,7 +2108,7 @@ sig
       : Z3_context -> unit
 
     val Z3_get_search_failure
-      : Z3_context -> Enum.Z3_search_failure.t
+      : Z3_context -> Z3_search_failure.t
 
     (*
      * Deprecated Labels API
@@ -1913,7 +2206,7 @@ sig
      * Deprecated Error Handling API
      *)
     val Z3_get_error_msg
-      : Enum.Z3_error_code.t -> Z3_string
+      : Z3_error_code.t -> Z3_string
 
   end (* Deprecated *)
 end

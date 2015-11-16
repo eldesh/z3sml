@@ -3,7 +3,6 @@ structure Main =
 struct
   structure Ptr = Pointer
   structure D = Z3.Deprecated
-  structure E = Z3.Enum
 
   val LOG_Z3_CALLS = ref false
 
@@ -54,13 +53,13 @@ struct
       val result = D.Z3_check_and_get_model (ctx, m)
       val () =
         case result
-          of E.Z3_lbool.Z3_L_FALSE => print "unsat\n"
-           | E.Z3_lbool.Z3_L_UNDEF =>
+          of Z3.Z3_lbool.Z3_L_FALSE => print "unsat\n"
+           | Z3.Z3_lbool.Z3_L_UNDEF =>
                (print "unknown\n";
                 print (concat["potential model:\n"
                              , Z3.Z3_model_to_string (ctx, !m)
                              , "\n"]))
-           | E.Z3_lbool.Z3_L_TRUE  =>
+           | Z3.Z3_lbool.Z3_L_TRUE  =>
                (print (concat["sat\n"
                              , Z3.Z3_model_to_string (ctx, !m)
                              , "\n"]))
@@ -98,7 +97,7 @@ struct
           Z3.Z3_del_context
           f
 
-  exception ErrorCode of E.Z3_error_code.t
+  exception ErrorCode of Z3.Z3_error_code.t
 
   fun with_ctx_error_handler h f =
     using (fn()=> let val ctx = mk_context () in
@@ -116,9 +115,9 @@ struct
       mk_context_custom cfg (SOME(fn(_, err)=> raise ErrorCode err))
     end)
 
-  fun lbool_to_string E.Z3_lbool.Z3_L_FALSE = "L_FALSE"
-    | lbool_to_string E.Z3_lbool.Z3_L_UNDEF = "L_UNDEF"
-    | lbool_to_string E.Z3_lbool.Z3_L_TRUE  = "L_TRUE"
+  fun lbool_to_string Z3.Z3_lbool.Z3_L_FALSE = "L_FALSE"
+    | lbool_to_string Z3.Z3_lbool.Z3_L_UNDEF = "L_UNDEF"
+    | lbool_to_string Z3.Z3_lbool.Z3_L_TRUE  = "L_TRUE"
     | lbool_to_string _                  = raise Fail "lbool_to_string"
 
   fun simple_example () =
@@ -154,9 +153,9 @@ struct
       val () = D.Z3_assert_cnstr (ctx, negated_conjecture)
     in
       case D.Z3_check ctx
-        of E.Z3_lbool.Z3_L_FALSE => print "DeMorgan is valid\n"
-         | E.Z3_lbool.Z3_L_TRUE  => print "Undef\n"
-         | E.Z3_lbool.Z3_L_UNDEF => print "DeMorgan is not valid\n"
+        of Z3.Z3_lbool.Z3_L_FALSE => print "DeMorgan is valid\n"
+         | Z3.Z3_lbool.Z3_L_TRUE  => print "Undef\n"
+         | Z3.Z3_lbool.Z3_L_UNDEF => print "DeMorgan is not valid\n"
     end)
 
   fun find_model_example1 () =
@@ -168,7 +167,7 @@ struct
       val () = D.Z3_assert_cnstr (ctx, x_xor_y)
     in
       print "model for: x xor y\n";
-      check ctx E.Z3_lbool.Z3_L_TRUE
+      check ctx Z3.Z3_lbool.Z3_L_TRUE
     end)
 
   fun find_model_example2 () =
@@ -190,14 +189,14 @@ struct
       val () = D.Z3_assert_cnstr (ctx, c2)
 
       val () = print "model for: x < y + 1, x > 2\n"
-      val () = check ctx E.Z3_lbool.Z3_L_TRUE
+      val () = check ctx Z3.Z3_lbool.Z3_L_TRUE
 
       val x_eq_y = Z3.Z3_mk_eq (ctx, x, y)
       val c3     = Z3.Z3_mk_not(ctx, x_eq_y)
     in
       D.Z3_assert_cnstr (ctx, c3);
       print "model for: x < y + 1, x > 2, not(x = y)\n";
-      check ctx E.Z3_lbool.Z3_L_TRUE;
+      check ctx Z3.Z3_lbool.Z3_L_TRUE;
       Z3.Z3_del_context ctx
     end
 
@@ -233,7 +232,7 @@ struct
       val () = print (Z3.Z3_solver_to_string (ctx, solver) ^ "\n")
       val model =
         case Z3.Z3_solver_check (ctx, solver)
-          of E.Z3_lbool.Z3_L_TRUE => Z3.Z3_solver_get_model (ctx, solver)
+          of Z3.Z3_lbool.Z3_L_TRUE => Z3.Z3_solver_get_model (ctx, solver)
            | _                 => raise Fail "solver_check"
       val decls = Vector.tabulate(
                       Word.toInt (Z3.Z3_model_get_num_consts(ctx, model))
@@ -286,17 +285,17 @@ struct
                                else ())
       (fn ref m =>
         case ret
-          of E.Z3_lbool.Z3_L_FALSE =>
+          of Z3.Z3_lbool.Z3_L_FALSE =>
                 (print "valid\n";
                  if not is_valid then raise Unexpected "prove/valid" else ())
-           | E.Z3_lbool.Z3_L_UNDEF =>
+           | Z3.Z3_lbool.Z3_L_UNDEF =>
                 (print "unknown\n";
                  if not (Ptr.isNull m)
                  then print(concat["potential counterexample:\n"
                                   , Z3.Z3_model_to_string (ctx, m), "\n"])
                  else ();
                  if is_valid then raise Unexpected "prove/unknown" else ())
-           | E.Z3_lbool.Z3_L_TRUE =>
+           | Z3.Z3_lbool.Z3_L_TRUE =>
                 (print "invalid\n";
                  if not (Ptr.isNull m)
                  then print(concat["counterexample:\n"
@@ -405,10 +404,10 @@ struct
   struct
     fun symbol c out s =
       case Z3.Z3_get_symbol_kind (c, s)
-        of E.Z3_symbol_kind.Z3_INT_SYMBOL =>
+        of Z3.Z3_symbol_kind.Z3_INT_SYMBOL =>
             TextIO.output (out, concat["#", Int.toString
                                            (Z3.Z3_get_symbol_int(c, s))])
-         | E.Z3_symbol_kind.Z3_STRING_SYMBOL =>
+         | Z3.Z3_symbol_kind.Z3_STRING_SYMBOL =>
             TextIO.output (out, Z3.Z3_get_symbol_string(c, s))
 
     fun sort c out ty =
@@ -417,21 +416,21 @@ struct
         val printf = TextIO.output
       in
         case Z3.Z3_get_sort_kind (c, ty)
-          of E.Z3_sort_kind.Z3_UNINTERPRETED_SORT =>
+          of Z3.Z3_sort_kind.Z3_UNINTERPRETED_SORT =>
                 symbol c out (Z3.Z3_get_sort_name (c, ty))
-           | E.Z3_sort_kind.Z3_BOOL_SORT => printf (out, "bool")
-           | E.Z3_sort_kind.Z3_INT_SORT  => printf (out, "int")
-           | E.Z3_sort_kind.Z3_REAL_SORT => printf (out, "real")
-           | E.Z3_sort_kind.Z3_BV_SORT   =>
+           | Z3.Z3_sort_kind.Z3_BOOL_SORT => printf (out, "bool")
+           | Z3.Z3_sort_kind.Z3_INT_SORT  => printf (out, "int")
+           | Z3.Z3_sort_kind.Z3_REAL_SORT => printf (out, "real")
+           | Z3.Z3_sort_kind.Z3_BV_SORT   =>
                printf (out, concat["bv"
                           , Word.toString(Z3.Z3_get_bv_sort_size(c,ty))])
-           | E.Z3_sort_kind.Z3_ARRAY_SORT =>
+           | Z3.Z3_sort_kind.Z3_ARRAY_SORT =>
               (printf (out, "[");
                sort c out (Z3.Z3_get_array_sort_domain(c, ty));
                printf (out, "->");
                sort c out (Z3.Z3_get_array_sort_range (c, ty));
                printf (out, "]"))
-           | E.Z3_sort_kind.Z3_DATATYPE_SORT =>
+           | Z3.Z3_sort_kind.Z3_DATATYPE_SORT =>
               ((if Z3.Z3_get_datatype_sort_num_constructors(c, ty) <> 0w1
                 then printf (out, Z3.Z3_sort_to_string(c, ty))
                 else ());
@@ -456,11 +455,11 @@ struct
         fun succ w = w + 0w1
       in
         case Z3.Z3_get_ast_kind (c, v)
-          of E.Z3_ast_kind.Z3_NUMERAL_AST =>
+          of Z3.Z3_ast_kind.Z3_NUMERAL_AST =>
                (TextIO.output (out, Z3.Z3_get_numeral_string (c, v));
                 TextIO.output (out, ":");
                 sort c out (Z3.Z3_get_sort (c, v)))
-           | E.Z3_ast_kind.Z3_APP_AST =>
+           | Z3.Z3_ast_kind.Z3_APP_AST =>
                let
                  val app = Z3.Z3_to_app (c, v)
                  val num_fields = Z3.Z3_get_app_num_args (c, app)
@@ -480,7 +479,7 @@ struct
                  else
                    ()
                end
-           | E.Z3_ast_kind.Z3_QUANTIFIER_AST =>
+           | Z3.Z3_ast_kind.Z3_QUANTIFIER_AST =>
                TextIO.output (out, "quantifier")
            | _ =>
                TextIO.output (out, "#unknown")
@@ -550,12 +549,12 @@ struct
       val result = D.Z3_check_and_get_model (ctx, m)
     in
       case result
-        of E.Z3_lbool.Z3_L_FALSE => print "unsat\n"
-         | E.Z3_lbool.Z3_L_UNDEF =>
+        of Z3.Z3_lbool.Z3_L_FALSE => print "unsat\n"
+         | Z3.Z3_lbool.Z3_L_UNDEF =>
             (print "unknown\n";
              print "potential model:\n";
              Display.model ctx TextIO.stdOut (!m))
-         | E.Z3_lbool.Z3_L_TRUE =>
+         | Z3.Z3_lbool.Z3_L_TRUE =>
             (print "sat\n";
              Display.model ctx TextIO.stdOut (!m));
       if not (Ptr.isNull (!m))
@@ -595,7 +594,7 @@ struct
 
   fun search_failure_string sf =
     let
-      open E.Z3_search_failure
+      open Z3.Z3_search_failure
       val db =
         [ (Z3_NO_FAILURE      , "Z3_NO_FAILURE"      )
         , (Z3_UNKNOWN         , "Z3_UNKNOWN"         )
@@ -654,11 +653,11 @@ struct
       D.Z3_assert_cnstr(ctx, not_p3);
       print "disprove: f(x, y) = f(w, v) implies x = w\n";
       print "that is: not(f(x, y) = f(w, v) implies x = w) is satisfiable\n";
-      check2 ctx E.Z3_lbool.Z3_L_UNDEF;
+      check2 ctx Z3.Z3_lbool.Z3_L_UNDEF;
       print(concat["reason for last failure: "
                   , search_failure_string (D.Z3_get_search_failure ctx)
                   , " (7 = quantifiers)\n"]);
-      if D.Z3_get_search_failure ctx <> E.Z3_search_failure.Z3_QUANTIFIERS
+      if D.Z3_get_search_failure ctx <> Z3.Z3_search_failure.Z3_QUANTIFIERS
       then raise Fail "unexpected result" else ()
     end end end;
       Z3.Z3_del_context ctx;
@@ -694,7 +693,7 @@ struct
         val () = D.Z3_assert_cnstr (ctx, c2)
       in
         (* context is inconsistent at this point *)
-        check2 ctx E.Z3_lbool.Z3_L_FALSE;
+        check2 ctx Z3.Z3_lbool.Z3_L_FALSE;
         (* backtrack: the constraint x <= 3 will be removed, since it was
          * asserted after the last Z3_push. *)
         print "pop\n"
@@ -702,7 +701,7 @@ struct
       print (concat["number of scopes: "
            , Word.toString (D.Z3_get_num_scopes ctx), "\n"]);
       (* the context is consistent again. *)
-      check2 ctx E.Z3_lbool.Z3_L_TRUE;
+      check2 ctx Z3.Z3_lbool.Z3_L_TRUE;
 
       (* new constraints can be asserted... *)
       let
@@ -715,7 +714,7 @@ struct
         print "assert: y > x\n";
         D.Z3_assert_cnstr(ctx, c3);
         (* the context is still consistent *)
-        check2 ctx E.Z3_lbool.Z3_L_TRUE
+        check2 ctx Z3.Z3_lbool.Z3_L_TRUE
       end
     end)
 
@@ -777,8 +776,8 @@ struct
         D.Z3_assert_cnstr (ctx, d);
         (* context is satisfiable if n < 5 *)
         check2 ctx (if n < 0w5
-                    then E.Z3_lbool.Z3_L_TRUE
-                    else E.Z3_lbool.Z3_L_FALSE)
+                    then Z3.Z3_lbool.Z3_L_TRUE
+                    else Z3.Z3_lbool.Z3_L_FALSE)
       end))
     end)
 
@@ -789,7 +788,7 @@ struct
       val int_sort   = Z3.Z3_mk_int_sort ctx
       val array_sort = Z3.Z3_mk_array_sort (ctx, int_sort, bool_sort)
       val () = if Z3.Z3_get_sort_kind (ctx, array_sort)
-                   <> E.Z3_sort_kind.Z3_ARRAY_SORT
+                   <> Z3.Z3_sort_kind.Z3_ARRAY_SORT
                then raise Fail "type must be an array type"
                else ()
       (* 'domain -> 'range *)
@@ -809,9 +808,9 @@ struct
   fun mk_real_var ctx name =
     mk_var ctx name (Z3.Z3_mk_real_sort ctx)
 
-  exception TypeMismatch of {exp:E.Z3_sort_kind.t, act:E.Z3_sort_kind.t}
+  exception TypeMismatch of {exp:Z3.Z3_sort_kind.t, act:Z3.Z3_sort_kind.t}
 
-  fun check_type (exp:E.Z3_sort_kind.t) act =
+  fun check_type (exp:Z3.Z3_sort_kind.t) act =
     if exp <> act
     then raise TypeMismatch {exp=exp, act=act}
     else ()
@@ -819,7 +818,7 @@ struct
   fun mk_tuple_update c t i new_val =
     let
       val ty = Z3.Z3_get_sort (c, t)
-      val () = check_type E.Z3_sort_kind.Z3_DATATYPE_SORT (Z3.Z3_get_sort_kind (c, ty))
+      val () = check_type Z3.Z3_sort_kind.Z3_DATATYPE_SORT (Z3.Z3_get_sort_kind (c, ty))
       val num_fields = Z3.Z3_get_tuple_sort_num_fields (c, ty)
       val () = if i >= num_fields
                then raise Fail "invalid tuple update, index is too big"
@@ -961,7 +960,7 @@ struct
       (* add the constraint x ^ y - 103 == x * y to the logical context *)
       D.Z3_assert_cnstr(ctx, ctr);
       (* find a model (i.e., values for x an y that satisfy the constraint *)
-      check ctx E.Z3_lbool.Z3_L_TRUE
+      check ctx Z3.Z3_lbool.Z3_L_TRUE
     end)
 
   fun eval_example1 () =
@@ -979,7 +978,7 @@ struct
       val m : Z3.Z3_model ref = ref (Ptr.NULL())
     in
       (* find model for the constraints above *)
-      if D.Z3_check_and_get_model (ctx, m) = E.Z3_lbool.Z3_L_TRUE
+      if D.Z3_check_and_get_model (ctx, m) = Z3.Z3_lbool.Z3_L_TRUE
       then
         (print(concat["MODEL:\n", Z3.Z3_model_to_string(ctx, !m)]);
          let val x_plus_y = Z3.Z3_mk_add (ctx, Vector.fromList[x,y]) in
@@ -1030,15 +1029,15 @@ struct
       val m : Z3.Z3_model ref = ref (Ptr.NULL())
       val v : Z3.Z3_ast ref = ref (Ptr.NULL())
     in
-      check_cond (fn()=> D.Z3_check_and_get_model(ctx, m) <> E.Z3_lbool.Z3_L_TRUE)
+      check_cond (fn()=> D.Z3_check_and_get_model(ctx, m) <> Z3.Z3_lbool.Z3_L_TRUE)
                  NONE;
       check_cond (fn()=> D.Z3_eval_func_decl(ctx, !m, x_decl, v) = Z3_FALSE)
                  (SOME "did not obtain value for declaration.\n");
-      if Z3_get_error_code ctx = E.Z3_error_code.Z3_OK
+      if Z3_get_error_code ctx = Z3.Z3_error_code.Z3_OK
       then print "last call succeeded.\n" else ();
       let val str = Z3_get_numeral_string(ctx, !v) in
         (* The following call will fail since the value of x is a boolean *)
-        if Z3_get_error_code ctx <> E.Z3_error_code.Z3_OK
+        if Z3_get_error_code ctx <> Z3.Z3_error_code.Z3_OK
         then print "last call failed.\n" else ()
       end;
       D.Z3_del_model (ctx, !m);
@@ -1078,7 +1077,7 @@ struct
                       , "\n"]);
           D.Z3_assert_cnstr(ctx, f)
         end);
-      check ctx E.Z3_lbool.Z3_L_TRUE
+      check ctx Z3.Z3_lbool.Z3_L_TRUE
     end)
 
   fun parser_example2 () =
@@ -1106,7 +1105,7 @@ struct
                   , Z3.Z3_ast_to_string(ctx, f)
                   , "\n"]);
       D.Z3_assert_cnstr(ctx, f);
-      check ctx E.Z3_lbool.Z3_L_TRUE
+      check ctx Z3.Z3_lbool.Z3_L_TRUE
     end)
 
   fun assert_comm_axiom ctx f =
@@ -1687,7 +1686,7 @@ struct
                                  , proof
                                  , core_size
                                  , core)
-        of E.Z3_lbool.Z3_L_FALSE =>
+        of Z3.Z3_lbool.Z3_L_FALSE =>
              (print(concat
                    ["unsat\n"
                    ,"proof: ", Z3.Z3_ast_to_string(ctx, !proof), "\n"]);
@@ -1696,12 +1695,12 @@ struct
                 print (Z3.Z3_ast_to_string(ctx, Array.sub(core,i))^"\n")
               );
               print "\n")
-         | E.Z3_lbool.Z3_L_UNDEF =>
+         | Z3.Z3_lbool.Z3_L_UNDEF =>
              (print(concat[
                     "unknown\n"
                    ,"potential model:\n"]);
               Display.model ctx TextIO.stdOut (!m))
-         | E.Z3_lbool.Z3_L_TRUE =>
+         | Z3.Z3_lbool.Z3_L_TRUE =>
              (print "sat\n";
               Display.model ctx TextIO.stdOut (!m));
       if not (Ptr.isNull (!m)) then (
@@ -1777,7 +1776,7 @@ struct
         fun for' n = for 0w0 (fn i=> i<n) (fn i=>i+0w1)
         val sub = Array.sub
       in
-        if result = E.Z3_lbool.Z3_L_FALSE
+        if result = Z3.Z3_lbool.Z3_L_FALSE
         then (
           print "unsat core: ";
           for' (!core_size) (fn i=>
@@ -1837,23 +1836,23 @@ struct
 
       fun check_bug f = check_cond f (SOME "bug in Z3")
     in
-      check_bug (fn()=> Ext.check ext_ctx <> E.Z3_lbool.Z3_L_FALSE);
+      check_bug (fn()=> Ext.check ext_ctx <> Z3.Z3_lbool.Z3_L_FALSE);
       print "unsat\n";
 
       retract_cnstr ext_ctx c4;
-      check_bug (fn()=> Ext.check ext_ctx <> E.Z3_lbool.Z3_L_TRUE );
+      check_bug (fn()=> Ext.check ext_ctx <> Z3.Z3_lbool.Z3_L_TRUE );
       print "sat\n";
 
       reassert_cnstr ext_ctx c4;
-      check_bug (fn()=> Ext.check ext_ctx <> E.Z3_lbool.Z3_L_FALSE);
+      check_bug (fn()=> Ext.check ext_ctx <> Z3.Z3_lbool.Z3_L_FALSE);
       print "unsat\n";
 
       retract_cnstr ext_ctx c2;
-      check_bug (fn()=> Ext.check ext_ctx <> E.Z3_lbool.Z3_L_FALSE);
+      check_bug (fn()=> Ext.check ext_ctx <> Z3.Z3_lbool.Z3_L_FALSE);
       print "unsat\n";
 
       retract_cnstr ext_ctx c3;
-      check_bug (fn()=> Ext.check ext_ctx <> E.Z3_lbool.Z3_L_TRUE );
+      check_bug (fn()=> Ext.check ext_ctx <> Z3.Z3_lbool.Z3_L_TRUE );
       print "sat\n"
     end)
   end (* local *)
@@ -1885,7 +1884,7 @@ struct
       Z3.Z3_dec_ref(ctx, x_xor_y);
 
       print "model for: x xor y\n";
-      check ctx E.Z3_lbool.Z3_L_TRUE;
+      check ctx Z3.Z3_lbool.Z3_L_TRUE;
 
       (* Test push & pop *)
       D.Z3_push ctx;

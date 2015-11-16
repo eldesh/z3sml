@@ -5,7 +5,6 @@ local
   structure Ptr = Pointer
   structure Dyn = DynamicLink
   val libz3 = Library.libz3
-  open Z3_enum
 in
   type Z3_context   = unit ptr
   type Z3_ast       = unit ptr
