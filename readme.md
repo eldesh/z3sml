@@ -30,7 +30,7 @@ Supported System
 
 * Version
 
-  Z3 *v4.3.2* is supported.
+  Z3 (>= *v4.3.2*) is supported.
 
 * OS
 
@@ -72,7 +72,7 @@ This sample code is written as much like the C example as possible.
 Where the *C example* code is provided within z3 official distribution.
 
 
-For building and running sample program:
+For building and running sample programs:
 
     $ make sample
 
