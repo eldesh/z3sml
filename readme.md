@@ -6,6 +6,7 @@ Z3 - StandardML binding
 This library provides Z3 library binding for StandardML(SML) implementations.
 
 > Z3 is a high-performance theorem prover being developed at Microsoft Research.
+>
 > http://z3.codeplex.com/
 
 
@@ -51,18 +52,20 @@ How to Use
 + add *\_require "z3.smi"* to your .smi file
   of your project which using this library.
 
+```sml
     (* foo.smi \*)
     \_require "z3.smi"
     
     (* foo.sml \*)
     open Z3
     fun bar () = ...
-
+```
 
 + build your project with the compiler switch _-I<path/to/dir/containts/z3.smi>_
 
+```sh
     $ smlsharp -I/path/to/z3sml -o foo foo.sml
-
+```
 
 Sample
 --------------------------------
@@ -74,8 +77,9 @@ Where the *C example* code is provided within z3 official distribution.
 
 For building and running sample programs:
 
+```
     $ make sample
-
+```
 
 
 Link
