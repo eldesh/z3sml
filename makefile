@@ -11,8 +11,8 @@ INCDIR = $(patsubst %,-I%,$(subst :, ,$(VPATH)))
 
 SMLFLAGS = $(INCDIR)
 
-SAMPLE_SRC = sample/sample.sml
-SAMPLE = $(SAMPLE_SRC:.sml=)
+SAMPLE_SRC = $(wildcard sample/*.sml)
+SAMPLES = $(SAMPLE_SRC:.sml=)
 
 SRCS = src/z3.sml \
 	   src/z3_bool.sml \
@@ -50,18 +50,20 @@ SRCS = src/z3.sml \
 	   src/z3_error.sml \
 	   src/libh.sml
 
-OBJS = $(SRCS:.sml=.o) $(SAMPLE_SRC:.sml=.o)
+OBJS = $(SRCS:.sml=.o)
+SAMPLE_OBJS = $(SAMPLE_SRC:.sml=.o)
 
-all: $(TARGET) sample
+all: $(OBJS)
 
 .PHONY: sample
-sample: $(SAMPLE)
-	./$(SAMPLE)
+sample: $(SAMPLES)
 
-$(SAMPLE): %: %.smi $(OBJS)
+.PHONY: $(SAMPLES)
+$(SAMPLES): %: %.smi $(OBJS) $(SAMPLE_OBJS)
 	@$(SML) $(SMLFLAGS) -o $@ $<
+	./$@
 
-$(OBJS): %.o: %.sml
+$(OBJS) $(SAMPLE_OBJS): %.o: %.sml
 	@echo "  SML# [$@]"
 	@$(SML) $(SMLFLAGS) -c $<
 
@@ -78,8 +80,8 @@ endif
 
 .PHONY: clean
 clean:
-	-rm -rf $(SRCS:.sml=.d)
-	-rm -rf $(OBJS)
-	-rm $(SAMPLE_SRC:.sml=.d)
-	-rm $(SAMPLE)
+	-$(RM) -r $(SRCS:.sml=.d)
+	-$(RM) -r $(OBJS)
+	-$(RM) $(SAMPLE_SRC:.sml=.d)
+	-$(RM) $(SAMPLE)
 
